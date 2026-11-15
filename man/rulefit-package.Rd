@@ -6,7 +6,7 @@
 \alias{rulefit-package}
 \title{rulefit: RuleFit}
 \description{
-stuff
+RuleFit models for regression and classification.
 }
 \author{
 \strong{Maintainer}: Max Kuhn \email{max@posit.co} (\href{https://orcid.org/0000-0003-2402-136X}{ORCID})

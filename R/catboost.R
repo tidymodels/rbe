@@ -32,24 +32,6 @@
 #'
 #' A `rule_fit_ctb` object.
 #'
-#' @examples
-#' predictors <- mtcars[, -1]
-#' outcome <- mtcars[, 1]
-#'
-#' if (rlang::is_installed("catboost")) {
-#'   # XY interface
-#'   mod <- rule_fit_ctb(predictors, outcome)
-#'
-#'   # Formula interface
-#'   mod2 <- rule_fit_ctb(mpg ~ ., mtcars)
-#'
-#'   # Recipes interface
-#'   library(recipes)
-#'   rec <- recipe(mpg ~ ., mtcars)
-#'   rec <- step_log(rec, disp)
-#'   mod3 <- rule_fit_ctb(rec, mtcars)
-#' }
-#'
 #' @export
 rule_fit_ctb <- function(x, ...) {
   UseMethod("rule_fit_ctb")
@@ -198,7 +180,6 @@ rule_fit_ctb_bridge <- function(
 
   # TODO break up options
 
-  # TODO disable CTB?
   tree_fit <- bonsai::train_catboost(
     predictors,
     outcome,
@@ -206,6 +187,7 @@ rule_fit_ctb_bridge <- function(
     rsm = mtry,
     learning_rate = learn_rate,
     depth = tree_depth,
+    final_ctr_computation_mode = 'Skip', # TODO make sure that this is set
     ...
   )
 

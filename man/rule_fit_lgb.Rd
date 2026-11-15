@@ -121,22 +121,3 @@ A \code{rule_fit_lgb} object.
 \description{
 \code{rule_fit_lgb()} fits a model.
 }
-\examples{
-predictors <- mtcars[, -1]
-outcome <- mtcars[, 1]
-
-if (rlang::is_installed("lightgbm")) {
-  # XY interface
-  mod <- rule_fit_lgb(predictors, outcome)
-
-  # Formula interface
-  mod2 <- rule_fit_lgb(mpg ~ ., mtcars)
-
-  # Recipes interface
-  library(recipes)
-  rec <- recipe(mpg ~ ., mtcars)
-  rec <- step_log(rec, disp)
-  mod3 <- rule_fit_lgb(rec, mtcars)
-}
-
-}

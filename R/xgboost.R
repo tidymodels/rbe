@@ -32,24 +32,6 @@
 #'
 #' A `rule_fit_xgb` object.
 #'
-#' @examples
-#' predictors <- mtcars[, -1]
-#' outcome <- mtcars[, 1]
-#'
-#' if (rlang::is_installed("xgboost", version = "3.0.0")) {
-#'   # XY interface
-#'   mod <- rule_fit_xgb(predictors, outcome)
-#'
-#'   # Formula interface
-#'   mod2 <- rule_fit_xgb(mpg ~ ., mtcars)
-#'
-#'   # Recipes interface
-#'   library(recipes)
-#'   rec <- recipe(mpg ~ ., mtcars)
-#'   rec <- step_log(rec, disp)
-#'   mod3 <- rule_fit_xgb(rec, mtcars)
-#' }
-#'
 #' @export
 rule_fit_xgb <- function(x, ...) {
   UseMethod("rule_fit_xgb")

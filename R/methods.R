@@ -25,7 +25,75 @@ print.rule_fit <- function(x, ...) {
 
 # TODO add min_grid mirroring parsnip
 
-# TODO add multipredict mirroring parsnip
+#' Model predictions across many sub-models
+#'
+#' For RuleFit models, `multi_predict()` produces predictions from the
+#' regularized model for multiple values of the `penalty` parameter without
+#' refitting. The same rule set is used for each penalty value.
+#'
+#' @param object A `rule_fit` object created by [rule_fit_xgb()],
+#'   [rule_fit_lgb()], or [rule_fit_ctb()].
+#' @param new_data A data frame of predictors.
+#' @param type A single character value or `NULL`. Possible values are
+#'   `"numeric"`, `"class"`, `"prob"`, or `"raw"`. When `NULL`, `"numeric"` is
+#'   used for regression and `"class"` for classification.
+#' @param penalty A numeric vector of penalty values. When `NULL`, the penalty
+#'   value used to fit the model is used.
+#' @param ... Not currently used.
+#' @return A tibble with the same number of rows as `new_data` and a list
+#'   column `.pred`. Each element is a tibble with a `penalty` column and the
+#'   prediction column(s) for that value.
+#' @examples
+#' if (rlang::is_installed("catboost")) {
+#'   mod <- rule_fit_ctb(mpg ~ ., data = mtcars, logging_level = "Silent")
+#'
+#'   res <- multi_predict(mod, mtcars[1:3, -1], penalty = c(0.01, 0.1))
+#'   res
+#'   res$.pred[[1]]
+#' }
+#' @export
+multi_predict.rule_fit <- function(
+  object,
+  new_data,
+  type = NULL,
+  penalty = NULL,
+  ...
+) {
+  forged <- hardhat::forge(new_data, object$blueprint)
+  pred_data <- make_rule_matrix(forged$predictors, object$rules)
+  parsnip::multi_predict(
+    object$fit,
+    new_data = pred_data,
+    type = type,
+    penalty = penalty,
+    ...
+  )
+}
+
+#' @rdname multi_predict.rule_fit
+#' @export
+has_multi_predict.rule_fit <- function(object, ...) {
+  TRUE
+}
+
+#' @rdname multi_predict.rule_fit
+#' @export
+multi_predict_args.rule_fit <- function(object, ...) {
+  "penalty"
+}
+
+#' @importFrom parsnip multi_predict
+#' @export
+parsnip::multi_predict
+
+#' @importFrom parsnip has_multi_predict
+#' @export
+parsnip::has_multi_predict
+
+#' @importFrom parsnip multi_predict_args
+#' @export
+parsnip::multi_predict_args
+
 #' @export
 predict.rule_fit <- function(object, new_data, type = NULL, ...) {
   forged <- hardhat::forge(new_data, object$blueprint)

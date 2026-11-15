@@ -121,22 +121,3 @@ A \code{rule_fit_ctb} object.
 \description{
 \code{rule_fit_ctb()} fits a model.
 }
-\examples{
-predictors <- mtcars[, -1]
-outcome <- mtcars[, 1]
-
-if (rlang::is_installed("catboost")) {
-  # XY interface
-  mod <- rule_fit_ctb(predictors, outcome)
-
-  # Formula interface
-  mod2 <- rule_fit_ctb(mpg ~ ., mtcars)
-
-  # Recipes interface
-  library(recipes)
-  rec <- recipe(mpg ~ ., mtcars)
-  rec <- step_log(rec, disp)
-  mod3 <- rule_fit_ctb(rec, mtcars)
-}
-
-}
