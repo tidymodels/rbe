@@ -49,14 +49,14 @@ delivery_test <- modeldata::deliveries[-in_train, ]
 
 ``` r
 set.seed(871)
-rf_fit <- rule_fit_lgb(time_to_delivery ~ ., data = delivery_train)
+rf_fit <- rule_fit_ctb(time_to_delivery ~ ., data = delivery_train)
 rf_fit
-#> RuleFit Using LightGBM
+#> RuleFit Using CatBoost
 #> 
 #> Training Set:
 #> ℹ Samples: 8000
 #> 
-#> ℹ Predictors: 422, including 386 rules
+#> ℹ Predictors: 417, including 381 rules
 #> 
 #> 
 #> Arguments:
@@ -82,8 +82,8 @@ library(ggplot2)
 
 rf_pred |> 
   ggplot(aes(.pred, time_to_delivery)) + 
-  geom_point(alpha = 2 / 3) + 
-  geom_abline() +
+  geom_abline(col = "green") + 
+  geom_point(alpha = 2 / 3) +
   theme_bw()
 ```
 
