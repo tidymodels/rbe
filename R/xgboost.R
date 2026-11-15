@@ -4,6 +4,11 @@
 #'
 #' @include methods.R
 #' @inheritParams parsnip::boost_tree
+#' @param mtry The proportion of predictors randomly sampled at each split,
+#'   on (0, 1]. Pass `counts = TRUE` in `...` to give the number of predictors
+#'   instead.
+#' @param min_n The minimum number of data points in a node needed to
+#'   split it further (`min_child_weight` in xgboost).
 #' @inheritParams parsnip::linear_reg
 #' @param x Depending on the context:
 #'
@@ -53,15 +58,16 @@ rule_fit_xgb.default <- function(x, ...) {
 #' @export
 #' @rdname rule_fit_xgb
 rule_fit_xgb.data.frame <- function(
-    x,
-    y,
-    trees = 50,
-    mtry = 1,
-    learn_rate = 0.01,
-    tree_depth = 4,
-    penalty = 0.001,
-    mixture = 1,
-    ...
+  x,
+  y,
+  trees = 50,
+  mtry = 1,
+  learn_rate = 0.01,
+  tree_depth = 4,
+  min_n = 5,
+  penalty = 0.001,
+  mixture = 1,
+  ...
 ) {
   processed <- hardhat::mold(x, y)
   rule_fit_xgb_bridge(
@@ -70,6 +76,7 @@ rule_fit_xgb.data.frame <- function(
     mtry = mtry,
     learn_rate = learn_rate,
     tree_depth = tree_depth,
+    min_n = min_n,
     penalty = penalty,
     mixture = mixture,
     ...
@@ -81,15 +88,16 @@ rule_fit_xgb.data.frame <- function(
 #' @export
 #' @rdname rule_fit_xgb
 rule_fit_xgb.matrix <- function(
-    x,
-    y,
-    trees = 50,
-    mtry = 1,
-    learn_rate = 0.01,
-    tree_depth = 4,
-    penalty = 0.001,
-    mixture = 1,
-    ...
+  x,
+  y,
+  trees = 50,
+  mtry = 1,
+  learn_rate = 0.01,
+  tree_depth = 4,
+  min_n = 5,
+  penalty = 0.001,
+  mixture = 1,
+  ...
 ) {
   processed <- hardhat::mold(x, y)
   rule_fit_xgb_bridge(
@@ -98,6 +106,7 @@ rule_fit_xgb.matrix <- function(
     mtry = mtry,
     learn_rate = learn_rate,
     tree_depth = tree_depth,
+    min_n = min_n,
     penalty = penalty,
     mixture = mixture,
     ...
@@ -109,15 +118,16 @@ rule_fit_xgb.matrix <- function(
 #' @export
 #' @rdname rule_fit_xgb
 rule_fit_xgb.formula <- function(
-    formula,
-    data,
-    trees = 50,
-    mtry = 1,
-    learn_rate = 0.01,
-    tree_depth = 4,
-    penalty = 0.001,
-    mixture = 1,
-    ...
+  formula,
+  data,
+  trees = 50,
+  mtry = 1,
+  learn_rate = 0.01,
+  tree_depth = 4,
+  min_n = 5,
+  penalty = 0.001,
+  mixture = 1,
+  ...
 ) {
   bp <- hardhat::default_formula_blueprint(indicators = "none")
   processed <- hardhat::mold(formula, data, blueprint = bp)
@@ -127,6 +137,7 @@ rule_fit_xgb.formula <- function(
     mtry = mtry,
     learn_rate = learn_rate,
     tree_depth = tree_depth,
+    min_n = min_n,
     penalty = penalty,
     mixture = mixture,
     ...
@@ -138,15 +149,16 @@ rule_fit_xgb.formula <- function(
 #' @export
 #' @rdname rule_fit_xgb
 rule_fit_xgb.recipe <- function(
-    x,
-    data,
-    trees = 50,
-    mtry = 1,
-    learn_rate = 0.01,
-    tree_depth = 4,
-    penalty = 0.001,
-    mixture = 1,
-    ...
+  x,
+  data,
+  trees = 50,
+  mtry = 1,
+  learn_rate = 0.01,
+  tree_depth = 4,
+  min_n = 5,
+  penalty = 0.001,
+  mixture = 1,
+  ...
 ) {
   processed <- hardhat::mold(x, data)
   rule_fit_xgb_bridge(
@@ -155,6 +167,7 @@ rule_fit_xgb.recipe <- function(
     mtry = mtry,
     learn_rate = learn_rate,
     tree_depth = tree_depth,
+    min_n = min_n,
     penalty = penalty,
     mixture = mixture,
     ...
@@ -165,29 +178,34 @@ rule_fit_xgb.recipe <- function(
 # Bridge
 
 rule_fit_xgb_bridge <- function(
-    processed,
-    trees,
-    mtry,
-    learn_rate,
-    tree_depth,
-    penalty,
-    mixture,
-    ...
+  processed,
+  trees,
+  mtry,
+  learn_rate,
+  tree_depth,
+  min_n,
+  penalty,
+  mixture,
+  ...
 ) {
   rlang::check_installed("xgboost", version = "3.0.0")
+  args <- split_dots(list(...), engine = "xgb", call = rlang::caller_env())
+  if (is.null(args$boost$counts)) {
+    args$boost$counts <- FALSE
+  }
   predictors <- processed$predictors
   outcome <- processed$outcomes[[1]]
 
-  # TODO break up options
-
-  tree_fit <- parsnip::xgb_train(
-    predictors,
-    outcome,
+  tree_fit <- rlang::exec(
+    parsnip::xgb_train,
+    x = predictors,
+    y = outcome,
     nrounds = trees,
     colsample_bynode = mtry,
     eta = learn_rate,
     max_depth = tree_depth,
-    ...
+    min_child_weight = min_n,
+    !!!args$boost
   )
 
   trees_actual <- lorax::num_ensemble_members(tree_fit)
@@ -210,21 +228,25 @@ rule_fit_xgb_bridge <- function(
 
   spec <-
     parsnip_spec(outcome, list(penalty = penalty, mixture = mixture)) |>
-    parsnip::set_engine("glmnet")
+    parsnip::set_engine("glmnet", !!!args$glmnet)
 
   reg_fit <- parsnip::fit_xy(spec, x = train_data, y = outcome)
 
   new_rule_fit(
     rules = rules,
     fit = reg_fit,
-    arguments = list(
-      trees = trees,
-      mtry = mtry,
-      learn_rate = learn_rate,
-      tree_depth = tree_depth,
-      penalty = penalty,
-      mixture = mixture,
-      ...
+    arguments = c(
+      list(
+        trees = trees,
+        mtry = mtry,
+        learn_rate = learn_rate,
+        tree_depth = tree_depth,
+        min_n = min_n,
+        penalty = penalty,
+        mixture = mixture
+      ),
+      args$boost,
+      args$glmnet
     ),
     blueprint = processed$blueprint,
     training = list(names = colnames(train_data), rows = nrow(train_data)),

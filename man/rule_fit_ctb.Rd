@@ -83,9 +83,8 @@ specified as:
 \item{trees}{An integer for the number of trees contained in
 the ensemble.}
 
-\item{mtry}{A number for the number (or proportion) of predictors that will
-be randomly sampled at each split when creating the tree models
-(specific engines only).}
+\item{mtry}{The proportion of predictors randomly sampled for each tree
+level (catboost's \code{rsm}), on (0, 1].}
 
 \item{learn_rate}{A number for the rate at which the boosting algorithm adapts
 from iteration-to-iteration (specific engines only). This is sometimes referred to

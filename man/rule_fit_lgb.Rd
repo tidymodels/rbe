@@ -20,6 +20,7 @@ rule_fit_lgb(x, ...)
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
+  min_n = 5,
   penalty = 0.001,
   mixture = 1,
   ...
@@ -32,6 +33,7 @@ rule_fit_lgb(x, ...)
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
+  min_n = 5,
   penalty = 0.001,
   mixture = 1,
   ...
@@ -44,6 +46,7 @@ rule_fit_lgb(x, ...)
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
+  min_n = 5,
   penalty = 0.001,
   mixture = 1,
   ...
@@ -56,6 +59,7 @@ rule_fit_lgb(x, ...)
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
+  min_n = 5,
   penalty = 0.001,
   mixture = 1,
   ...
@@ -83,9 +87,9 @@ specified as:
 \item{trees}{An integer for the number of trees contained in
 the ensemble.}
 
-\item{mtry}{A number for the number (or proportion) of predictors that will
-be randomly sampled at each split when creating the tree models
-(specific engines only).}
+\item{mtry}{The proportion of predictors randomly sampled at each split,
+on (0, 1]. Pass \code{counts = TRUE} in \code{...} to give the number of predictors
+instead.}
 
 \item{learn_rate}{A number for the rate at which the boosting algorithm adapts
 from iteration-to-iteration (specific engines only). This is sometimes referred to
@@ -93,6 +97,9 @@ as the shrinkage parameter.}
 
 \item{tree_depth}{An integer for the maximum depth of the tree (i.e. number
 of splits) (specific engines only).}
+
+\item{min_n}{The minimum number of data points in a node needed to
+split it further (\code{min_data_in_leaf} in lightgbm).}
 
 \item{penalty}{A non-negative number representing the total
 amount of regularization (specific engines only).}

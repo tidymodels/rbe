@@ -36,6 +36,7 @@ Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
 Collate: 
+    'arguments.R'
     'methods.R'
     'catboost.R'
     'constructor.R'

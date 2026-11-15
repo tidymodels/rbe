@@ -4,6 +4,8 @@
 #'
 #' @include methods.R
 #' @inheritParams parsnip::boost_tree
+#' @param mtry The proportion of predictors randomly sampled for each tree
+#'   level (catboost's `rsm`), on (0, 1].
 #' @inheritParams parsnip::linear_reg
 #' @param x Depending on the context:
 #'
@@ -175,20 +177,21 @@ rule_fit_ctb_bridge <- function(
   ...
 ) {
   rlang::check_installed("catboost")
+  dots <- drop_ctb_min_n(list(...), call = rlang::caller_env())
+  args <- split_dots(dots, engine = "ctb", call = rlang::caller_env())
+  args$boost <- force_ctb_args(args$boost, call = rlang::caller_env())
   predictors <- processed$predictors
   outcome <- processed$outcomes[[1]]
 
-  # TODO break up options
-
-  tree_fit <- bonsai::train_catboost(
-    predictors,
-    outcome,
+  tree_fit <- rlang::exec(
+    bonsai::train_catboost,
+    x = predictors,
+    y = outcome,
     iterations = trees,
     rsm = mtry,
     learning_rate = learn_rate,
     depth = tree_depth,
-    final_ctr_computation_mode = 'Skip', # TODO make sure that this is set
-    ...
+    !!!args$boost
   )
 
   trees_actual <- lorax::num_ensemble_members(tree_fit)
@@ -211,21 +214,24 @@ rule_fit_ctb_bridge <- function(
 
   spec <-
     parsnip_spec(outcome, list(penalty = penalty, mixture = mixture)) |>
-    parsnip::set_engine("glmnet")
+    parsnip::set_engine("glmnet", !!!args$glmnet)
 
   reg_fit <- parsnip::fit_xy(spec, x = train_data, y = outcome)
 
   new_rule_fit(
     rules = rules,
     fit = reg_fit,
-    arguments = list(
-      trees = trees,
-      mtry = mtry,
-      learn_rate = learn_rate,
-      tree_depth = tree_depth,
-      penalty = penalty,
-      mixture = mixture,
-      ...
+    arguments = c(
+      list(
+        trees = trees,
+        mtry = mtry,
+        learn_rate = learn_rate,
+        tree_depth = tree_depth,
+        penalty = penalty,
+        mixture = mixture
+      ),
+      args$boost,
+      args$glmnet
     ),
     blueprint = processed$blueprint,
     training = list(names = colnames(train_data), rows = nrow(train_data)),

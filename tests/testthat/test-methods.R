@@ -1,17 +1,7 @@
-fit_ctb <- function(formula, data, ...) {
-  rule_fit_ctb(
-    formula,
-    data = data,
-    trees = 5,
-    logging_level = "Silent",
-    allow_writing_files = FALSE,
-    ...
-  )
-}
+skip_if_not_installed("catboost")
+skip_if_not_installed("modeldata")
 
 test_that("multi_predict() for regression", {
-  skip_if_not_installed("catboost")
-
   set.seed(6194)
   mod <- fit_ctb(mpg ~ ., mtcars)
   pens <- c(0.001, 0.01, 0.1)
@@ -34,9 +24,6 @@ test_that("multi_predict() for regression", {
 })
 
 test_that("multi_predict() for binary classification", {
-  skip_if_not_installed("catboost")
-  skip_if_not_installed("modeldata")
-
   two_class <- modeldata::two_class_dat
   set.seed(3807)
   mod <- fit_ctb(Class ~ ., two_class)
@@ -63,29 +50,26 @@ test_that("multi_predict() for binary classification", {
 })
 
 test_that("multi_predict() for multiclass classification", {
-  skip_if_not_installed("lightgbm")
-
+  hpc <- hpc_subset()
   set.seed(9471)
-  mod <- rule_fit_lgb(Species ~ ., data = iris, trees = 5)
+  mod <- fit_ctb(class ~ ., hpc)
   pens <- c(0.001, 0.1)
-  new_data <- iris[c(1, 51, 101), -5]
+  new_data <- hpc[1:3, names(hpc) != "class"]
 
   cls <- multi_predict(mod, new_data, penalty = pens)
   expect_equal(nrow(cls), nrow(new_data))
   expect_named(cls$.pred[[1]], c("penalty", ".pred_class"))
-  expect_equal(levels(cls$.pred[[1]]$.pred_class), levels(iris$Species))
+  expect_equal(levels(cls$.pred[[1]]$.pred_class), levels(hpc$class))
 
   prob <- multi_predict(mod, new_data, type = "prob", penalty = pens)
   expect_named(
     prob$.pred[[1]],
-    c("penalty", paste0(".pred_", levels(iris$Species)))
+    c("penalty", paste0(".pred_", levels(hpc$class)))
   )
   expect_equal(nrow(prob$.pred[[1]]), length(pens))
 })
 
 test_that("multi_predict() helpers", {
-  skip_if_not_installed("catboost")
-
   set.seed(2756)
   mod <- fit_ctb(mpg ~ ., mtcars)
 
@@ -94,8 +78,6 @@ test_that("multi_predict() helpers", {
 })
 
 test_that("multi_predict() errors with a bad prediction type", {
-  skip_if_not_installed("catboost")
-
   set.seed(5138)
   mod <- fit_ctb(mpg ~ ., mtcars)
 
