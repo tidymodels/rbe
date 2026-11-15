@@ -133,3 +133,25 @@ tidy.rule_fit <- function(x, penalty = NULL, what = c("glmnet", "rules"), ...) {
     return(tidy(x$fit, penalty = penalty))
   }
 }
+
+#' Create a ggplot for a glmnet object
+#'
+#' Shows the regularization path for the glmnet model using the rules and predictors.
+#' @return A ggplot2 object.
+#' @export
+#' @inheritParams parsnip::autoplot.glmnet
+autoplot.rule_fit <- function(
+  object,
+  ...,
+  min_penalty = 0,
+  best_penalty = NULL,
+  top_n = 3L
+) {
+  autoplot(
+    object$fit,
+    ...,
+    min_penalty = min_penalty,
+    best_penalty = best_penalty,
+    top_n = top_n
+  )
+}

@@ -30,3 +30,33 @@ predictor_matrix <- function(object, new_data) {
   }
   make_rule_matrix(predictors, object$rules, object$training$ptype)
 }
+
+#' Show a Specific Rule
+#' @param x An object with class `"rule_fit"`.
+#' @param id A single character value for the rule identifier (e.g. `"rule_01"`).
+#' @return The rule expression, invisibly.
+#' @export
+show_rule <- function(x, id) {
+  if (!inherits(x, "rule_fit")) {
+    cli::cli_abort(
+      c(
+        "{.fn show_rules} is not defined for {.obj_type_friendly {x}}.",
+        i = "{.arg x} should be an object with class {.cls rule_fit}."
+      )
+    )
+  }
+  if (length(id) > 1) {
+    cli::cli_abort("{.arg id} should have a single character value.")
+  }
+  rlang::check_string(id, allow_empty = FALSE)
+  which_id <- x$rules$label == id
+  if (!any(which_id)) {
+    cli::cli_abort("A rule with id {.val {id}} could not be found.")
+  }
+  res <- x$rules$rules[[which(which_id)]]
+  cli::cli_inform("Rule: {.val {id}}")
+  chr <- rlang::expr_deparse(res) |> paste(collapse = "")
+
+  cli::cli_text("{chr}")
+  invisible(res)
+}

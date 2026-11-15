@@ -7,6 +7,7 @@
 \alias{has_multi_predict}
 \alias{multi_predict_args}
 \alias{augment}
+\alias{autoplot}
 \alias{tidy}
 \alias{required_pkgs}
 \title{Objects exported from other packages}
@@ -17,6 +18,8 @@ below to see their documentation.
 
 \describe{
   \item{generics}{\code{\link[generics:augment]{augment()}}, \code{\link[generics:required_pkgs]{required_pkgs()}}, \code{\link[generics:tidy]{tidy()}}}
+
+  \item{ggplot2}{\code{\link[ggplot2:autoplot]{autoplot()}}}
 
   \item{parsnip}{\code{\link[parsnip:has_multi_predict]{has_multi_predict()}}, \code{\link[parsnip:multi_predict]{multi_predict()}}, \code{\link[parsnip:multi_predict_args]{multi_predict_args()}}}
 }}
