@@ -45,11 +45,11 @@ rule_fit_xgb <- function(x, ...) {
 #' @export
 #' @rdname rule_fit_xgb
 rule_fit_xgb.default <- function(x, ...) {
-  stop(
-    "`rule_fit_xgb()` is not defined for a '",
-    class(x)[1],
-    "'.",
-    call. = FALSE
+  cli::cli_abort(
+    c(
+      "{.fn rule_fit_xgb} is not defined for {.obj_type_friendly {x}}.",
+      i = "{.arg x} should be a data frame, matrix, formula, or recipe."
+    )
   )
 }
 

@@ -93,3 +93,207 @@ test_that("split_dots() errors with unknown arguments", {
   expect_snapshot(split_dots(list(standardise = TRUE), "xgb"), error = TRUE)
   expect_snapshot(split_dots(list(l2_leaf_rg = 3), "ctb"), error = TRUE)
 })
+
+# ------------------------------------------------------------------------------
+# split_dots() edge cases
+
+test_that("split_dots() errors with an unknown engine", {
+  expect_snapshot(split_dots(list(), "gbm"), error = TRUE)
+})
+
+test_that("split_dots() errors when all arguments are unnamed", {
+  expect_snapshot(split_dots(list(1, 2), "ctb"), error = TRUE)
+})
+
+test_that("split_dots() reports each duplicated name once", {
+  expect_snapshot(
+    split_dots(list(a = 1, b = 2, a = 3, b = 4, a = 5), "ctb"),
+    error = TRUE
+  )
+})
+
+test_that("split_dots() keeps the order of the arguments", {
+  res <- split_dots(
+    list(thresh = 1e-4, verbose = 0, maxit = 50, l2_leaf_reg = 1),
+    "ctb"
+  )
+  expect_named(res$boost, c("verbose", "l2_leaf_reg"))
+  expect_named(res$glmnet, c("thresh", "maxit"))
+})
+
+test_that("split_dots() with only glmnet or only boosting arguments", {
+  res <- split_dots(list(intercept = FALSE), "ctb")
+  expect_length(res$boost, 0)
+  expect_equal(res$glmnet, list(intercept = FALSE))
+
+  res <- split_dots(list(random_seed = 1), "ctb")
+  expect_equal(res$boost, list(random_seed = 1))
+  expect_length(res$glmnet, 0)
+})
+
+test_that("split_dots() keeps NULL and vector values", {
+  res <- split_dots(
+    list(custom_metric = c("RMSE", "MAE"), exclude = NULL),
+    "ctb"
+  )
+  expect_equal(res$boost, list(custom_metric = c("RMSE", "MAE")))
+  expect_named(res$glmnet, "exclude")
+  expect_null(res$glmnet$exclude)
+})
+
+test_that("protected arguments set by rulefit and renamed ones together", {
+  expect_snapshot(
+    split_dots(list(formula = 1, data = 2, iterations = 3), "ctb"),
+    error = TRUE
+  )
+})
+
+test_that("protected arguments are reported before unknown arguments", {
+  expect_snapshot(split_dots(list(depth = 2, fooo = 1), "ctb"), error = TRUE)
+})
+
+test_that("unknown arguments with and without suggestions", {
+  expect_snapshot(
+    split_dots(list(stndardize = TRUE, zz = 1, nlambdaa = 5), "ctb"),
+    error = TRUE
+  )
+})
+
+test_that("the error call is the caller", {
+  wrapper <- function(...) {
+    split_dots(list(...), "ctb")
+  }
+  expect_snapshot(wrapper(fooo = 1), error = TRUE)
+})
+
+# ------------------------------------------------------------------------------
+# Name helpers
+
+test_that("engine_label()", {
+  expect_identical(engine_label("xgb"), "xgboost")
+  expect_identical(engine_label("lgb"), "lightgbm")
+  expect_identical(engine_label("ctb"), "catboost")
+})
+
+test_that("suggest_names() finds close matches", {
+  res <- suggest_names("l2_leaf_rg", c("l2_leaf_reg", "depth"))
+  expect_named(res, "i")
+  expect_match(res, "l2_leaf_reg", fixed = TRUE)
+})
+
+test_that("suggest_names() returns nothing without a close match", {
+  expect_identical(suggest_names("zzzzzz", c("abc", "def")), character(0))
+  expect_identical(suggest_names(character(0), c("abc")), character(0))
+})
+
+test_that("suggest_names() is stricter for short names", {
+  # one edit is allowed for names with up to three characters
+  expect_length(suggest_names("ab", "abc"), 1)
+  expect_length(suggest_names("ab", "abcd"), 0)
+  expect_length(suggest_names("a", "b"), 1)
+  # at most two edits for long names
+  expect_length(suggest_names("standardizexx", "standardize"), 1)
+  expect_length(suggest_names("standardizexxx", "standardize"), 0)
+})
+
+test_that("suggest_names() picks the closest candidate and drops duplicates", {
+  res <- suggest_names("thresx", c("thres", "thresh", "thresh"))
+  expect_length(res, 1)
+  res <- suggest_names(c("maxitt", "thrsh"), c("maxit", "thresh"))
+  expect_length(res, 2)
+  expect_match(res[[1]], "maxit", fixed = TRUE)
+  expect_match(res[[2]], "thresh", fixed = TRUE)
+})
+
+test_that("glmnet_arg_names() excludes arguments set by rulefit", {
+  res <- glmnet_arg_names()
+  excl <- c("x", "y", "family", "weights", "offset", "alpha", "lambda", "...")
+  expect_length(intersect(res, excl), 0)
+  expect_all_true(c("standardize", "thresh", "maxit", "intercept") %in% res)
+})
+
+test_that("boost_arg_names() never includes dots", {
+  for (engine in engines) {
+    skip_if_no_engine(engine)
+    res <- boost_arg_names(engine)
+    expect_false("..." %in% res)
+    expect_false(anyDuplicated(res) > 0)
+  }
+})
+
+test_that("boost_arg_names() includes lightgbm parameter aliases", {
+  skip_if_not_installed("lightgbm")
+  res <- boost_arg_names("lgb")
+  expect_all_true(c("num_leaves", "max_leaves", "quiet", "counts") %in% res)
+})
+
+# ------------------------------------------------------------------------------
+# Protected arguments
+
+test_that("protected argument tables have unique names", {
+  for (engine in engines) {
+    skip_if_no_engine(engine)
+    prot <- protected_args(engine)
+    expect_named(prot, c("name", "use"))
+    expect_false(anyDuplicated(prot$name) > 0)
+    expect_all_true(c("x", "y", "data", "weights", "formula") %in% prot$name)
+  }
+})
+
+test_that("main argument aliases point to rulefit arguments", {
+  skip_if_not_installed("lightgbm")
+  lgb <- protected_args("lgb")
+  expect_identical(lgb$use[lgb$name == "num_trees"], "trees")
+  expect_identical(lgb$use[lgb$name == "min_child_samples"], "min_n")
+
+  ctb <- protected_args("ctb")
+  expect_identical(ctb$use[ctb$name == "n_estimators"], "trees")
+  expect_identical(ctb$use[ctb$name == "reg_lambda"], "l2_leaf_reg")
+})
+
+test_that("bonsai_alias_table() prefers rulefit's argument names", {
+  aliases <- data.frame(
+    parsnip = c("trees", "sample_size"),
+    alias = c("n_trees", "sub_row"),
+    lightgbm = c("num_iterations", "bagging_fraction")
+  )
+  res <- bonsai_alias_table(aliases, "lightgbm", "trees")
+  expect_identical(res$name, c("n_trees", "sub_row"))
+  expect_identical(res$use, c("trees", "bagging_fraction"))
+})
+
+test_that("check_protected_args() is silent without protected arguments", {
+  expect_null(check_protected_args(c("verbose", "thresh"), "ctb"))
+  expect_null(check_protected_args(character(0), "ctb"))
+})
+
+# ------------------------------------------------------------------------------
+# catboost helpers
+
+test_that("drop_ctb_min_n() leaves other arguments alone", {
+  dots <- list(verbose = 0, thresh = 1e-4)
+  expect_identical(drop_ctb_min_n(dots), dots)
+  expect_identical(drop_ctb_min_n(list()), list())
+})
+
+test_that("drop_ctb_min_n() removes min_n", {
+  expect_snapshot_warning(res <- drop_ctb_min_n(list(min_n = 2, verbose = 0)))
+  expect_identical(res, list(verbose = 0))
+  expect_snapshot_warning(res <- drop_ctb_min_n(list(min_n = 2)))
+  expect_length(res, 0)
+})
+
+test_that("force_ctb_args() always sets 'Skip'", {
+  expect_identical(
+    force_ctb_args(list()),
+    list(final_ctr_computation_mode = "Skip")
+  )
+  expect_no_warning(
+    res <- force_ctb_args(list(final_ctr_computation_mode = "Skip", depth = 2))
+  )
+  expect_identical(res, list(final_ctr_computation_mode = "Skip", depth = 2))
+  expect_snapshot_warning(
+    res <- force_ctb_args(list(final_ctr_computation_mode = "Default"))
+  )
+  expect_identical(res$final_ctr_computation_mode, "Skip")
+})

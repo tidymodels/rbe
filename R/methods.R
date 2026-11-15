@@ -15,8 +15,16 @@ print.rule_fit <- function(x, ...) {
     )
   )
 
+  # unlist() would coerce mixed types (e.g. FALSE to 0) and misalign
+  # vector-valued arguments; braces are escaped for cli
+  vals <- vapply(
+    x$arguments,
+    function(arg) paste(format(arg), collapse = ", "),
+    character(1)
+  )
+  vals <- gsub("([{}])", "\\1\\1", vals)
   bullets <- stats::setNames(
-    paste0("{.field ", names(x$arguments), "}: ", unlist(x$arguments)),
+    paste0("{.field ", names(x$arguments), "}: ", vals),
     rep("*", length(x$arguments))
   )
 
@@ -104,7 +112,11 @@ predict.rule_fit <- function(object, new_data, type = NULL, ...) {
 #' @export
 augment.rule_fit <- function(x, new_data, ...) {
   pred_data <- predictor_matrix(x, new_data)
-  augment(x$fit, new_data = pred_data)
+  # parsnip's augment() returns the rule matrix columns; keep only the
+  # predictions and attach them to the original data
+  res <- augment(x$fit, new_data = as.data.frame(pred_data))
+  res <- res[, grepl("^\\.pred", names(res)), drop = FALSE]
+  dplyr::bind_cols(res, dplyr::as_tibble(new_data))
 }
 
 #' @export
@@ -120,5 +132,4 @@ tidy.rule_fit <- function(x, penalty = NULL, what = c("glmnet", "rules"), ...) {
   } else {
     return(tidy(x$fit, penalty = penalty))
   }
-  invisible(NULL)
 }
