@@ -1,5 +1,4 @@
 model_function <- function(y) {
-  # TODO add a type checker
   if (!is.factor(y)) {
     res <- "linear_reg"
   } else {
@@ -181,4 +180,29 @@ predictor_ptype <- function(x) {
   is_chr <- vapply(x, is.character, logical(1))
   x[is_chr] <- lapply(x[is_chr], factor)
   x[0, , drop = FALSE]
+}
+
+# Replace each factor column with indicators for all of its levels
+one_hot <- function(data, ptype) {
+  data <- as.data.frame(data)
+  pieces <- lapply(names(ptype), function(var) {
+    if (is.factor(ptype[[var]])) {
+      res <- model_matrix_sep(data[var], ptype[var])
+      res <- as.data.frame(res, optional = TRUE)
+      rownames(res) <- NULL
+    } else {
+      res <- data[var]
+    }
+    res
+  })
+  res <- do.call(cbind, unname(pieces))
+
+  dups <- unique(names(res)[duplicated(names(res))])
+  if (length(dups) > 0) {
+    cli::cli_abort(
+      "Converting factors to indicators creates duplicate column name{?s}
+       {.val {dups}}."
+    )
+  }
+  dplyr::as_tibble(res)
 }

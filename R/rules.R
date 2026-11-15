@@ -21,3 +21,12 @@ prune_rules <- function(x) {
   x <- x[, !colnames(x) %in% lc_cols, drop = FALSE]
   x
 }
+
+# Convert new data to the matrix used by the glmnet model
+predictor_matrix <- function(object, new_data) {
+  predictors <- hardhat::forge(new_data, object$blueprint)$predictors
+  if (!is.null(object$training$one_hot)) {
+    predictors <- one_hot(predictors, object$training$one_hot)
+  }
+  make_rule_matrix(predictors, object$rules, object$training$ptype)
+}

@@ -3,9 +3,14 @@ print.rule_fit <- function(x, ...) {
   cli::cli_inform(" ")
   cli::cli_inform("Training Set:")
   cli::cli_bullets(c(i = "Samples: {x$training$rows}"))
+  if (is.null(x$training$one_hot)) {
+    num_pred <- ncol(x$training$ptype)
+  } else {
+    num_pred <- ncol(x$training$one_hot)
+  }
   cli::cli_bullets(
     c(
-      i = "Predictors: {ncol(x$training$ptype)}",
+      i = "Predictors: {num_pred}",
       i = "Rules: {nrow(x$rules)}"
     )
   )
@@ -21,10 +26,6 @@ print.rule_fit <- function(x, ...) {
 
   invisible(x)
 }
-
-# TODO add autoplot mirroring parsnip
-
-# TODO add min_grid mirroring parsnip
 
 #' Model predictions across many sub-models
 #'
@@ -60,12 +61,7 @@ multi_predict.rule_fit <- function(
   penalty = NULL,
   ...
 ) {
-  forged <- hardhat::forge(new_data, object$blueprint)
-  pred_data <- make_rule_matrix(
-    forged$predictors,
-    object$rules,
-    object$training$ptype
-  )
+  pred_data <- predictor_matrix(object, new_data)
   parsnip::multi_predict(
     object$fit,
     new_data = pred_data,
@@ -101,19 +97,13 @@ parsnip::multi_predict_args
 
 #' @export
 predict.rule_fit <- function(object, new_data, type = NULL, ...) {
-  forged <- hardhat::forge(new_data, object$blueprint)
-  pred_data <- make_rule_matrix(
-    forged$predictors,
-    object$rules,
-    object$training$ptype
-  )
+  pred_data <- predictor_matrix(object, new_data)
   stats::predict(object$fit, new_data = pred_data, type = type)
 }
 
 #' @export
 augment.rule_fit <- function(x, new_data, ...) {
-  forged <- hardhat::forge(new_data, x$blueprint)
-  pred_data <- make_rule_matrix(forged$predictors, x$rules, x$training$ptype)
+  pred_data <- predictor_matrix(x, new_data)
   augment(x$fit, new_data = pred_data)
 }
 

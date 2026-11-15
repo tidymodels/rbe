@@ -206,12 +206,8 @@ rule_fit_ctb_bridge <- function(
   train_data <- make_rule_matrix(predictors, rules, ptype)
   train_data <- prune_rules(train_data)
 
-  # TODO convert to sparse matrix?
   rule_names <- grep("^rule_", colnames(train_data), value = TRUE)
   rules <- rules[rules$label %in% rule_names, ]
-
-  # TODO case weights?
-  # TODO option to standardize
 
   spec <-
     parsnip_spec(outcome, list(penalty = penalty, mixture = mixture)) |>

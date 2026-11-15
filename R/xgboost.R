@@ -193,8 +193,14 @@ rule_fit_xgb_bridge <- function(
   if (is.null(args$boost$counts)) {
     args$boost$counts <- FALSE
   }
-  predictors <- processed$predictors
   outcome <- processed$outcomes[[1]]
+
+  # Temporary (#5): lorax cannot yet extract rules from xgboost models
+  # that use native categorical splits, so factors are made into one-hot
+  # indicators before boosting. Remove this (and `training$one_hot`) once lorax
+  # supports them.
+  one_hot_ptype <- predictor_ptype(processed$predictors)
+  predictors <- one_hot(processed$predictors, one_hot_ptype)
 
   tree_fit <- rlang::exec(
     parsnip::xgb_train,
@@ -209,23 +215,15 @@ rule_fit_xgb_bridge <- function(
   )
 
   trees_actual <- lorax::num_ensemble_members(tree_fit)
-  rules <- lorax::extract_rules(
-    tree_fit,
-    tree = 1:trees_actual,
-    data = dplyr::bind_cols(predictors, processed$outcomes)
-  )
+  rules <- lorax::extract_rules(tree_fit, tree = 1:trees_actual)
   rules$label <- names0(nrow(rules))
 
   ptype <- predictor_ptype(predictors)
   train_data <- make_rule_matrix(predictors, rules, ptype)
   train_data <- prune_rules(train_data)
 
-  # TODO convert to sparse matrix?
   rule_names <- grep("^rule_", colnames(train_data), value = TRUE)
   rules <- rules[rules$label %in% rule_names, ]
-
-  # TODO case weights?
-  # TODO option to standardize
 
   spec <-
     parsnip_spec(outcome, list(penalty = penalty, mixture = mixture)) |>
@@ -252,7 +250,8 @@ rule_fit_xgb_bridge <- function(
     blueprint = processed$blueprint,
     training = list(
       rows = nrow(train_data),
-      ptype = ptype
+      ptype = ptype,
+      one_hot = one_hot_ptype
     ),
     class = c("rule_fit_xgb", "rule_fit")
   )

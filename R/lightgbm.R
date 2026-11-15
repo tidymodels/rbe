@@ -221,18 +221,13 @@ rule_fit_lgb_bridge <- function(
 
   ptype <- predictor_ptype(predictors)
   train_data <- make_rule_matrix(predictors, rules, ptype)
-  # TODO add an option for keeping/fail with missing
   which_complete <- which(stats::complete.cases(train_data))
   train_data <- train_data[which_complete, , drop = FALSE]
   outcome <- outcome[which_complete]
   train_data <- prune_rules(train_data)
 
-  # TODO convert to sparse matrix?
   rule_names <- grep("^rule_", colnames(train_data), value = TRUE)
   rules <- rules[rules$label %in% rule_names, ]
-
-  # TODO case weights?
-  # TODO option to standardize
 
   spec <-
     parsnip_spec(outcome, list(penalty = penalty, mixture = mixture)) |>
