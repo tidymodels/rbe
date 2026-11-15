@@ -24,6 +24,7 @@ Imports:
     vctrs,
     withr
 Suggests: 
+    ggplot2,
     modeldata,
     lightgbm,
     recipes,

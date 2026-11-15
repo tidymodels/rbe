@@ -47,20 +47,38 @@ library(rulefit)
 
 set.seed(273)
 in_train <- 
-  modeldata::chem_proc_yield |> 
+  modeldata::deliveries |> 
   nrow() |> 
-  sample.int(100)
+  sample.int(8000)
 
-yield_train <- modeldata::chem_proc_yield[in_train, ]
-yield_test <- modeldata::chem_proc_yield[-in_train, ]
+delivery_train <- modeldata::deliveries[in_train, ]
+delivery_test <- modeldata::deliveries[-in_train, ]
 ```
 
 ```{r}
 #| label: fit
 
 set.seed(871)
-rf_fit <- rule_fit_lgb(yield ~ ., data = yield_train)
+rf_fit <- rule_fit_lgb(time_to_delivery ~ ., data = delivery_train)
+rf_fit
 
+rf_pred <- 
+  predict(rf_fit, new_data = delivery_test) |> 
+  dplyr::bind_cols(delivery_test)
+```
+
+```{r}
+#| label: pred-plot
+#| out.width: 100%
+#| fig.width: 6
+#| fig.height: 6
+library(ggplot2)
+
+rf_pred |> 
+  ggplot(aes(.pred, time_to_delivery)) + 
+  geom_point(alpha = 2 / 3) + 
+  geom_abline() +
+  theme_bw()
 ```
 
 ## Code of Conduct
