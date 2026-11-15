@@ -218,6 +218,10 @@ rule_fit_lgb_bridge <- function(
   rules$label <- names0(nrow(rules))
 
   train_data <- make_rule_matrix(predictors, rules)
+  # TODO add an option for keeping/fail with missing
+  which_complete <- which(stats::complete.cases(train_data))
+  train_data <- train_data[which_complete,,drop = FALSE]
+  outcome <- outcome[which_complete]
   train_data <- prune_rules(train_data)
 
   # TODO convert to sparse matrix?

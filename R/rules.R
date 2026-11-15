@@ -9,7 +9,11 @@ make_rule_matrix <- function(dat, rules) {
 
   colnames(binary) <- rules$label
   # TODO separator for dummies
-  pred_mat <- stats::model.matrix(~ . + 0, data = dat)
+
+  withr::with_options(
+    list(na.action = "na.pass"),
+    pred_mat <- stats::model.matrix(~ . + 0, data = dat)
+  )
 
   pred_mat <- cbind(pred_mat, binary)
   pred_mat

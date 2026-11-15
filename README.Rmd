@@ -18,7 +18,13 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of rulefit is to ...
+This package is another implementation of the RuleFit model of REFERENCE that uses modern boosting methods such as XGBoost, LightGBM, and CatBoost. 
+
+The model has two parts:
+
+- A boosted tree that generates a set of rules, which are logical statements that describe the variables used to get to the terminal nodes of the tree. 
+- A regularized generalized linear model that takes the original predictors as well as a large set of binary indicators generated from the rule set.
+
 
 ## Installation
 
@@ -34,24 +40,28 @@ This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
 library(rulefit)
-## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
+```{r}
+#| label: yield-split
 
-```{r cars}
-summary(cars)
+set.seed(273)
+in_train <- 
+  modeldata::chem_proc_yield |> 
+  nrow() |> 
+  sample.int(100)
+
+yield_train <- modeldata::chem_proc_yield[in_train, ]
+yield_test <- modeldata::chem_proc_yield[-in_train, ]
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
+```{r}
+#| label: fit
 
-You can also embed plots, for example:
+set.seed(871)
+rf_fit <- rule_fit_lgb(yield ~ ., data = yield_train)
 
-```{r pressure, echo = FALSE}
-plot(pressure)
 ```
-
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
 
 ## Code of Conduct
   
