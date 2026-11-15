@@ -159,7 +159,6 @@ protected_args <- function(engine) {
           "params",
           "valids",
           "label",
-          "weight",
           "reference",
           "group",
           "obj",
@@ -170,7 +169,8 @@ protected_args <- function(engine) {
           "reset_data"
         ),
         use = NA_character_
-      )
+      ),
+      data.frame(name = "weight", use = "weights")
     )
   } else {
     bonsai_aliases <- utils::getFromNamespace("catboost_aliases", "bonsai")

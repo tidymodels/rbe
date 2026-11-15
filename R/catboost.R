@@ -29,6 +29,8 @@
 #' and the predictor terms on the right-hand side.
 #'
 #' @param ... Not currently used, but required for extensibility.
+#' @inheritParams rule_fit_xgb
+#' @inheritSection rule_fit_xgb Case weights
 #'
 #' @return
 #'
@@ -57,6 +59,7 @@ rule_fit_ctb.default <- function(x, ...) {
 rule_fit_ctb.data.frame <- function(
   x,
   y,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
@@ -68,6 +71,7 @@ rule_fit_ctb.data.frame <- function(
   processed <- hardhat::mold(x, y)
   rule_fit_ctb_bridge(
     processed,
+    weights = weights,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -85,6 +89,7 @@ rule_fit_ctb.data.frame <- function(
 rule_fit_ctb.matrix <- function(
   x,
   y,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
@@ -96,6 +101,7 @@ rule_fit_ctb.matrix <- function(
   processed <- hardhat::mold(x, y)
   rule_fit_ctb_bridge(
     processed,
+    weights = weights,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -113,6 +119,7 @@ rule_fit_ctb.matrix <- function(
 rule_fit_ctb.formula <- function(
   formula,
   data,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
@@ -121,10 +128,12 @@ rule_fit_ctb.formula <- function(
   mixture = 1,
   ...
 ) {
+  check_formula_weights(formula, data)
   bp <- hardhat::default_formula_blueprint(indicators = "none")
   processed <- hardhat::mold(formula, data, blueprint = bp)
   rule_fit_ctb_bridge(
     processed,
+    weights = weights,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -150,9 +159,11 @@ rule_fit_ctb.recipe <- function(
   mixture = 1,
   ...
 ) {
+  check_recipe_dots(list(...))
   processed <- hardhat::mold(x, data)
   rule_fit_ctb_bridge(
     processed,
+    weights = NULL,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -168,6 +179,7 @@ rule_fit_ctb.recipe <- function(
 
 rule_fit_ctb_bridge <- function(
   processed,
+  weights,
   trees,
   mtry,
   learn_rate,
@@ -182,6 +194,7 @@ rule_fit_ctb_bridge <- function(
   args$boost <- force_ctb_args(args$boost, call = rlang::caller_env())
   predictors <- processed$predictors
   outcome <- processed$outcomes[[1]]
+  wts <- resolve_weights(processed, weights, call = rlang::caller_env())
 
   tree_fit <- rlang::exec(
     bonsai::train_catboost,
@@ -191,6 +204,7 @@ rule_fit_ctb_bridge <- function(
     rsm = mtry,
     learning_rate = learn_rate,
     depth = tree_depth,
+    weights = as_boost_weights(wts),
     !!!args$boost
   )
 
@@ -204,7 +218,10 @@ rule_fit_ctb_bridge <- function(
 
   ptype <- predictor_ptype(predictors)
   train_data <- make_rule_matrix(predictors, rules, ptype)
-  train_data <- prune_rules(train_data)
+  train_data <- prune_rules(
+    train_data,
+    rows = positive_weight_rows(wts, nrow(train_data))
+  )
 
   rule_names <- grep("^rule_", colnames(train_data), value = TRUE)
   rules <- rules[rules$label %in% rule_names, ]
@@ -213,7 +230,12 @@ rule_fit_ctb_bridge <- function(
     parsnip_spec(outcome, list(penalty = penalty, mixture = mixture)) |>
     parsnip::set_engine("glmnet", !!!args$glmnet)
 
-  reg_fit <- parsnip::fit_xy(spec, x = train_data, y = outcome)
+  reg_fit <- parsnip::fit_xy(
+    spec,
+    x = train_data,
+    y = outcome,
+    case_weights = as_glmnet_weights(wts)
+  )
 
   new_rule_fit(
     rules = rules,
@@ -233,7 +255,8 @@ rule_fit_ctb_bridge <- function(
     blueprint = processed$blueprint,
     training = list(
       rows = nrow(train_data),
-      ptype = ptype
+      ptype = ptype,
+      weights = attr(wts, "weights_class")
     ),
     class = c("rule_fit_ctb", "rule_fit")
   )

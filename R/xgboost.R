@@ -28,10 +28,30 @@
 #'
 #'   * A __data frame__ containing both the predictors and the outcome.
 #'
+#' @param weights An optional vector of non-negative case weights with one
+#'   value per row of the training set. It can be a numeric vector or one
+#'   created by [hardhat::importance_weights()] or
+#'   [hardhat::frequency_weights()]. Not used by the recipe method; see the
+#'   "Case weights" section.
+#'
 #' @param formula A formula specifying the outcome terms on the left-hand side,
 #' and the predictor terms on the right-hand side.
 #'
 #' @param ... Not currently used, but required for extensibility.
+#'
+#' @section Case weights:
+#'
+#' Case weights are used to fit both the boosted trees that create the rules
+#' and the glmnet model that is fit to the rules. Rows with a weight of zero
+#' are not used to decide which rules are removed for having a single unique
+#' value or being linear combinations of other columns.
+#'
+#' For the data frame, matrix, and formula methods, pass the weights to
+#' `weights`. A case weights column cannot also be a predictor. For the recipe
+#' method, add the weights as a column of `data` that is created by
+#' [hardhat::importance_weights()] or [hardhat::frequency_weights()];
+#' [recipes::recipe()] gives these columns the `"case_weights"` role, so they
+#' are not used as predictors.
 #'
 #' @return
 #'
@@ -60,6 +80,7 @@ rule_fit_xgb.default <- function(x, ...) {
 rule_fit_xgb.data.frame <- function(
   x,
   y,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
@@ -72,6 +93,7 @@ rule_fit_xgb.data.frame <- function(
   processed <- hardhat::mold(x, y)
   rule_fit_xgb_bridge(
     processed,
+    weights = weights,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -90,6 +112,7 @@ rule_fit_xgb.data.frame <- function(
 rule_fit_xgb.matrix <- function(
   x,
   y,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
@@ -102,6 +125,7 @@ rule_fit_xgb.matrix <- function(
   processed <- hardhat::mold(x, y)
   rule_fit_xgb_bridge(
     processed,
+    weights = weights,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -120,6 +144,7 @@ rule_fit_xgb.matrix <- function(
 rule_fit_xgb.formula <- function(
   formula,
   data,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
@@ -129,10 +154,12 @@ rule_fit_xgb.formula <- function(
   mixture = 1,
   ...
 ) {
+  check_formula_weights(formula, data)
   bp <- hardhat::default_formula_blueprint(indicators = "none")
   processed <- hardhat::mold(formula, data, blueprint = bp)
   rule_fit_xgb_bridge(
     processed,
+    weights = weights,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -160,9 +187,11 @@ rule_fit_xgb.recipe <- function(
   mixture = 1,
   ...
 ) {
+  check_recipe_dots(list(...))
   processed <- hardhat::mold(x, data)
   rule_fit_xgb_bridge(
     processed,
+    weights = NULL,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -179,6 +208,7 @@ rule_fit_xgb.recipe <- function(
 
 rule_fit_xgb_bridge <- function(
   processed,
+  weights,
   trees,
   mtry,
   learn_rate,
@@ -194,6 +224,7 @@ rule_fit_xgb_bridge <- function(
     args$boost$counts <- FALSE
   }
   outcome <- processed$outcomes[[1]]
+  wts <- resolve_weights(processed, weights, call = rlang::caller_env())
 
   # Temporary (#5): lorax cannot yet extract rules from xgboost models
   # that use native categorical splits, so factors are made into one-hot
@@ -211,6 +242,7 @@ rule_fit_xgb_bridge <- function(
     eta = learn_rate,
     max_depth = tree_depth,
     min_child_weight = min_n,
+    weights = as_boost_weights(wts),
     !!!args$boost
   )
 
@@ -220,7 +252,10 @@ rule_fit_xgb_bridge <- function(
 
   ptype <- predictor_ptype(predictors)
   train_data <- make_rule_matrix(predictors, rules, ptype)
-  train_data <- prune_rules(train_data)
+  train_data <- prune_rules(
+    train_data,
+    rows = positive_weight_rows(wts, nrow(train_data))
+  )
 
   rule_names <- grep("^rule_", colnames(train_data), value = TRUE)
   rules <- rules[rules$label %in% rule_names, ]
@@ -229,7 +264,12 @@ rule_fit_xgb_bridge <- function(
     parsnip_spec(outcome, list(penalty = penalty, mixture = mixture)) |>
     parsnip::set_engine("glmnet", !!!args$glmnet)
 
-  reg_fit <- parsnip::fit_xy(spec, x = train_data, y = outcome)
+  reg_fit <- parsnip::fit_xy(
+    spec,
+    x = train_data,
+    y = outcome,
+    case_weights = as_glmnet_weights(wts)
+  )
 
   new_rule_fit(
     rules = rules,
@@ -251,7 +291,8 @@ rule_fit_xgb_bridge <- function(
     training = list(
       rows = nrow(train_data),
       ptype = ptype,
-      one_hot = one_hot_ptype
+      one_hot = one_hot_ptype,
+      weights = attr(wts, "weights_class")
     ),
     class = c("rule_fit_xgb", "rule_fit")
   )

@@ -126,6 +126,17 @@ test_that("print() for every engine", {
   }
 })
 
+test_that("print() shows the type of case weights", {
+  set.seed(8406)
+  mod <- fit_engine(
+    "ctb",
+    mpg ~ .,
+    data = mtcars,
+    weights = hardhat::importance_weights(mtcars_weights())
+  )
+  expect_snapshot(print(mod), transform = scrub_rules)
+})
+
 test_that("print() returns the object invisibly", {
   set.seed(5604)
   mod <- fit_ctb(mpg ~ ., mtcars)

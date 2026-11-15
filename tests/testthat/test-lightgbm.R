@@ -188,3 +188,43 @@ test_that("rows with missing predictors for a classification model", {
   prob <- predict(mod, two_class[1:2, ], type = "prob")
   expect_identical(is.na(prob$.pred_Class1), c(TRUE, FALSE))
 })
+
+test_that("weights are removed with the rows that have missing predictors", {
+  dat <- mtcars
+  dat$wt[c(4, 19)] <- NA
+  wts <- mtcars_weights()
+  set.seed(3072)
+  mod <- fit_engine("lgb", dat[, -1], dat$mpg, weights = wts)
+  expect_identical(mod$training$rows, nrow(dat) - 2L)
+  expect_identical(mod$training$weights, "numeric")
+
+  # Changing the weights of the removed rows does not change the glmnet model
+  wts[c(4, 19)] <- 50
+  set.seed(3072)
+  other_mod <- fit_engine("lgb", dat[, -1], dat$mpg, weights = wts)
+  expect_identical(other_mod$training$rows, nrow(dat) - 2L)
+  expect_identical(nrow(predict(other_mod, dat[, -1])), nrow(dat))
+})
+
+# ------------------------------------------------------------------------------
+# Case weights
+
+test_that("lightgbm's weight argument points to weights", {
+  expect_snapshot(split_dots(list(weight = 1), "lgb"), error = TRUE)
+  skip_if_not_installed("recipes")
+  rec <- recipes::recipe(mpg ~ ., data = mtcars)
+  expect_snapshot(
+    rule_fit_lgb(rec, data = mtcars, weight = mtcars_weights()),
+    error = TRUE
+  )
+})
+
+test_that("weight partially matches weights", {
+  wts <- mtcars_weights()
+  set.seed(1564)
+  mod <- fit_engine("lgb", mpg ~ ., data = mtcars, weights = wts)
+  set.seed(1564)
+  partial_mod <- fit_engine("lgb", mpg ~ ., data = mtcars, weight = wts)
+  expect_identical(partial_mod$training$weights, "numeric")
+  expect_equal(predict(partial_mod, mtcars), predict(mod, mtcars))
+})

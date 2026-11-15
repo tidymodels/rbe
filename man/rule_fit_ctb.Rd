@@ -16,6 +16,7 @@ rule_fit_ctb(x, ...)
 \method{rule_fit_ctb}{data.frame}(
   x,
   y,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
@@ -28,6 +29,7 @@ rule_fit_ctb(x, ...)
 \method{rule_fit_ctb}{matrix}(
   x,
   y,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
@@ -40,6 +42,7 @@ rule_fit_ctb(x, ...)
 \method{rule_fit_ctb}{formula}(
   formula,
   data,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
@@ -79,6 +82,12 @@ specified as:
 \item A \strong{matrix} with 1 numeric column.
 \item A numeric \strong{vector}.
 }}
+
+\item{weights}{An optional vector of non-negative case weights with one
+value per row of the training set. It can be a numeric vector or one
+created by \code{\link[hardhat:importance_weights]{hardhat::importance_weights()}} or
+\code{\link[hardhat:frequency_weights]{hardhat::frequency_weights()}}. Not used by the recipe method; see the
+"Case weights" section.}
 
 \item{trees}{An integer for the number of trees contained in
 the ensemble.}
@@ -120,3 +129,19 @@ A \code{rule_fit_ctb} object.
 \description{
 \code{rule_fit_ctb()} fits a model.
 }
+\section{Case weights}{
+
+
+Case weights are used to fit both the boosted trees that create the rules
+and the glmnet model that is fit to the rules. Rows with a weight of zero
+are not used to decide which rules are removed for having a single unique
+value or being linear combinations of other columns.
+
+For the data frame, matrix, and formula methods, pass the weights to
+\code{weights}. A case weights column cannot also be a predictor. For the recipe
+method, add the weights as a column of \code{data} that is created by
+\code{\link[hardhat:importance_weights]{hardhat::importance_weights()}} or \code{\link[hardhat:frequency_weights]{hardhat::frequency_weights()}};
+\code{\link[recipes:recipe]{recipes::recipe()}} gives these columns the \code{"case_weights"} role, so they
+are not used as predictors.
+}
+
