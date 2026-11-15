@@ -48,3 +48,5 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+catboost_info/catboost_training.json
+/catboost_info

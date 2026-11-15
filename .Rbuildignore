@@ -1,0 +1,9 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+
+/catboost\_info
+^catboost\_info$
+
+^LICENSE\.md$
+^README\.Rmd$
+^air\.toml$
