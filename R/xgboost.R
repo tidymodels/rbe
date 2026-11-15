@@ -216,7 +216,8 @@ rule_fit_xgb_bridge <- function(
   )
   rules$label <- names0(nrow(rules))
 
-  train_data <- make_rule_matrix(predictors, rules)
+  ptype <- predictor_ptype(predictors)
+  train_data <- make_rule_matrix(predictors, rules, ptype)
   train_data <- prune_rules(train_data)
 
   # TODO convert to sparse matrix?
@@ -249,7 +250,10 @@ rule_fit_xgb_bridge <- function(
       args$glmnet
     ),
     blueprint = processed$blueprint,
-    training = list(names = colnames(train_data), rows = nrow(train_data)),
+    training = list(
+      rows = nrow(train_data),
+      ptype = ptype
+    ),
     class = c("rule_fit_xgb", "rule_fit")
   )
 }

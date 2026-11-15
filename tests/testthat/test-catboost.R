@@ -31,3 +31,26 @@ test_that("unknown options error before fitting", {
     error = TRUE
   )
 })
+
+test_that("factor predictors get separated indicator names", {
+  penguins <- penguins_complete()
+  set.seed(2817)
+  mod <- fit_ctb(body_mass_g ~ ., penguins)
+
+  ptype <- mod$training$ptype
+  expect_identical(nrow(ptype), 0L)
+  expect_s3_class(ptype$island, "factor")
+  expect_identical(levels(ptype$island), levels(penguins$island))
+  expect_all_true(grepl("^rule_", mod$rules$label))
+
+  train_mat <- make_rule_matrix(penguins[, -6], mod$rules, ptype)
+  expect_all_true(
+    c("species_Gentoo", "island_Dream", "sex_male") %in% colnames(train_mat)
+  )
+
+  # a single row with one level of each factor
+  new_data <- penguins[1, -6]
+  expect_identical(nrow(predict(mod, new_data)), 1L)
+  res <- multi_predict(mod, new_data, penalty = c(0.01, 0.1))
+  expect_identical(nrow(res$.pred[[1]]), 2L)
+})

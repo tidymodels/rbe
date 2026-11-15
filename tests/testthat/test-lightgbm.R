@@ -52,3 +52,17 @@ test_that("counts can be changed", {
   )
   expect_true(mod$arguments$counts)
 })
+
+test_that("factor predictors get separated indicator names", {
+  penguins <- penguins_complete()
+  set.seed(6650)
+  mod <- rule_fit_lgb(body_mass_g ~ ., data = penguins, trees = 5)
+
+  ptype <- mod$training$ptype
+  expect_s3_class(ptype$island, "factor")
+  train_mat <- make_rule_matrix(penguins[, -6], mod$rules, ptype)
+  expect_all_true(
+    c("species_Gentoo", "island_Dream", "sex_male") %in% colnames(train_mat)
+  )
+  expect_identical(nrow(predict(mod, penguins[1, -6])), 1L)
+})

@@ -5,7 +5,8 @@ print.rule_fit <- function(x, ...) {
   cli::cli_bullets(c(i = "Samples: {x$training$rows}"))
   cli::cli_bullets(
     c(
-      i = "Predictors: {length(x$training$names)}, including {sum(grepl('^rule_', x$training$names))} rules"
+      i = "Predictors: {ncol(x$training$ptype)}",
+      i = "Rules: {nrow(x$rules)}"
     )
   )
 
@@ -60,7 +61,11 @@ multi_predict.rule_fit <- function(
   ...
 ) {
   forged <- hardhat::forge(new_data, object$blueprint)
-  pred_data <- make_rule_matrix(forged$predictors, object$rules)
+  pred_data <- make_rule_matrix(
+    forged$predictors,
+    object$rules,
+    object$training$ptype
+  )
   parsnip::multi_predict(
     object$fit,
     new_data = pred_data,
@@ -97,14 +102,18 @@ parsnip::multi_predict_args
 #' @export
 predict.rule_fit <- function(object, new_data, type = NULL, ...) {
   forged <- hardhat::forge(new_data, object$blueprint)
-  pred_data <- make_rule_matrix(forged$predictors, object$rules)
+  pred_data <- make_rule_matrix(
+    forged$predictors,
+    object$rules,
+    object$training$ptype
+  )
   stats::predict(object$fit, new_data = pred_data, type = type)
 }
 
 #' @export
 augment.rule_fit <- function(x, new_data, ...) {
   forged <- hardhat::forge(new_data, x$blueprint)
-  pred_data <- make_rule_matrix(forged$predictors, x$rules)
+  pred_data <- make_rule_matrix(forged$predictors, x$rules, x$training$ptype)
   augment(x$fit, new_data = pred_data)
 }
 

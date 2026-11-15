@@ -22,3 +22,9 @@ hpc_subset <- function() {
     "class"
   )]
 }
+
+# Penguins without missing values; skips the calling test without modeldata
+penguins_complete <- function() {
+  testthat::skip_if_not_installed("modeldata")
+  stats::na.omit(modeldata::penguins)
+}

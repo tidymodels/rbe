@@ -219,7 +219,8 @@ rule_fit_lgb_bridge <- function(
   )
   rules$label <- names0(nrow(rules))
 
-  train_data <- make_rule_matrix(predictors, rules)
+  ptype <- predictor_ptype(predictors)
+  train_data <- make_rule_matrix(predictors, rules, ptype)
   # TODO add an option for keeping/fail with missing
   which_complete <- which(stats::complete.cases(train_data))
   train_data <- train_data[which_complete, , drop = FALSE]
@@ -256,7 +257,10 @@ rule_fit_lgb_bridge <- function(
       args$glmnet
     ),
     blueprint = processed$blueprint,
-    training = list(names = colnames(train_data), rows = nrow(train_data)),
+    training = list(
+      rows = nrow(train_data),
+      ptype = ptype
+    ),
     class = c("rule_fit_lgb", "rule_fit")
   )
 }

@@ -1,4 +1,4 @@
-make_rule_matrix <- function(dat, rules) {
+make_rule_matrix <- function(dat, rules, ptype) {
   binary <- purrr::map(rules$rules, ~ as.numeric(rlang::eval_tidy(.x, dat)))
   if (nrow(dat) == 1) {
     binary <- as.integer(binary)
@@ -8,12 +8,7 @@ make_rule_matrix <- function(dat, rules) {
   }
 
   colnames(binary) <- rules$label
-  # TODO separator for dummies
-
-  withr::with_options(
-    list(na.action = "na.pass"),
-    pred_mat <- stats::model.matrix(~ . + 0, data = dat)
-  )
+  pred_mat <- model_matrix_sep(dat, ptype)
 
   pred_mat <- cbind(pred_mat, binary)
   pred_mat
