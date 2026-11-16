@@ -282,18 +282,3 @@ test_that("drop_ctb_min_n() removes min_n", {
   expect_snapshot_warning(res <- drop_ctb_min_n(list(min_n = 2)))
   expect_length(res, 0)
 })
-
-test_that("force_ctb_args() always sets 'Skip'", {
-  expect_identical(
-    force_ctb_args(list()),
-    list(final_ctr_computation_mode = "Skip")
-  )
-  expect_no_warning(
-    res <- force_ctb_args(list(final_ctr_computation_mode = "Skip", depth = 2))
-  )
-  expect_identical(res, list(final_ctr_computation_mode = "Skip", depth = 2))
-  expect_snapshot_warning(
-    res <- force_ctb_args(list(final_ctr_computation_mode = "Default"))
-  )
-  expect_identical(res$final_ctr_computation_mode, "Skip")
-})

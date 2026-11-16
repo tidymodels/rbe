@@ -43,7 +43,7 @@ make_rule_fit_rulefit <- function() {
     eng = "rulefit",
     parsnip = "tree_depth",
     original = "tree_depth",
-    func = list(pkg = "dials", fun = "tree_depth", range = c(1, 4)),
+    func = list(pkg = "dials", fun = "tree_depth", range = c(1, 8)),
     has_submodel = FALSE
   )
 

@@ -17,5 +17,4 @@
       * mixture: 1
       * logging_level: Silent
       * allow_writing_files: FALSE
-      * final_ctr_computation_mode: Skip
 

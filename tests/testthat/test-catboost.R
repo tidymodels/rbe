@@ -6,15 +6,38 @@ test_that("options are passed to catboost and glmnet", {
   expect_named(mod$fit$spec$eng_args, "standardize")
   expect_false(rlang::eval_tidy(mod$fit$spec$eng_args$standardize))
   expect_equal(mod$arguments$logging_level, "Silent")
-  expect_equal(mod$arguments$final_ctr_computation_mode, "Skip")
+  expect_null(mod$arguments$final_ctr_computation_mode)
 })
 
-test_that("final_ctr_computation_mode is always 'Skip'", {
+test_that("final_ctr_computation_mode is passed to catboost", {
   set.seed(1863)
-  expect_snapshot_warning(
+  expect_no_warning(
     mod <- fit_ctb(mpg ~ ., mtcars, final_ctr_computation_mode = "Default")
   )
-  expect_equal(mod$arguments$final_ctr_computation_mode, "Skip")
+  expect_equal(mod$arguments$final_ctr_computation_mode, "Default")
+})
+
+# catboost makes target statistic (CTR) splits for factors with more levels
+# than `one_hot_max_size`. lorax needs the CTR tables saved in the model to
+# convert them to rules; without them, catboost crashes R.
+test_that("rules are made from CTR splits of a factor predictor", {
+  skip_if_not_installed("modeldata")
+  dat <- modeldata::deliveries[1:900, ]
+  set.seed(2964)
+  mod <- rule_fit_ctb(
+    time_to_delivery ~ .,
+    data = dat,
+    trees = 25,
+    tree_depth = 2,
+    learn_rate = 0.07,
+    logging_level = "Silent",
+    allow_writing_files = FALSE
+  )
+  rule_text <- vapply(mod$rules$rules, rlang::expr_text, character(1))
+  expect_true(any(grepl("day", rule_text, fixed = TRUE)))
+  pred <- predict(mod, dat[1:5, -1])
+  expect_identical(nrow(pred), 5L)
+  expect_false(anyNA(pred$.pred))
 })
 
 test_that("min_n is ignored with a warning", {
@@ -147,14 +170,6 @@ test_that("default and main arguments are recorded", {
   )
   expect_equal(rlang::eval_tidy(mod$fit$spec$args$penalty), 0.05)
   expect_equal(rlang::eval_tidy(mod$fit$spec$args$mixture), 0.25)
-})
-
-test_that("an explicit 'Skip' for final_ctr_computation_mode is silent", {
-  set.seed(4157)
-  expect_no_warning(
-    mod <- fit_ctb(mpg ~ ., mtcars, final_ctr_computation_mode = "Skip")
-  )
-  expect_equal(mod$arguments$final_ctr_computation_mode, "Skip")
 })
 
 test_that("min_n is ignored with other engine arguments", {
