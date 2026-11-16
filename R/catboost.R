@@ -1,4 +1,4 @@
-#' Fit a `rule_fit_ctb`
+#' Fit a RuleFit Model via CatBoost
 #'
 #' `rule_fit_ctb()` fits a model.
 #'
@@ -28,7 +28,22 @@
 #' @param formula A formula specifying the outcome terms on the left-hand side,
 #' and the predictor terms on the right-hand side.
 #'
-#' @param ... Not currently used, but required for extensibility.
+#' @param ... Named options for the boosting model and the glmnet model,
+#'   given together as one set. Each option is sent to one of the two models
+#'   by its name:
+#'
+#'   * Options for catboost go to the boosting model. These are catboost's
+#'     training parameters and their aliases, and the arguments of
+#'     [bonsai::train_catboost()] (e.g., `l2_leaf_reg`, `random_strength`, or
+#'     `logging_level`).
+#'   * Arguments of [glmnet::glmnet()] go to the glmnet model (e.g.,
+#'     `standardize` or `penalty.factor`).
+#'
+#'   A name that is valid for both models goes to the boosting model. An
+#'   unknown name is an error. Options that `rule_fit_ctb()` sets itself
+#'   (e.g., `iterations` or `depth`) are also errors; use the main arguments
+#'   (e.g., `trees` or `tree_depth`) instead. `min_n` is ignored with a
+#'   warning, and `final_ctr_computation_mode` is always `"Skip"`.
 #' @inheritParams rule_fit_xgb
 #' @inheritSection rule_fit_xgb Case weights
 #'
@@ -59,14 +74,14 @@ rule_fit_ctb.default <- function(x, ...) {
 rule_fit_ctb.data.frame <- function(
   x,
   y,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
   rule_fit_ctb_bridge(
@@ -89,14 +104,14 @@ rule_fit_ctb.data.frame <- function(
 rule_fit_ctb.matrix <- function(
   x,
   y,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
   rule_fit_ctb_bridge(
@@ -119,14 +134,14 @@ rule_fit_ctb.matrix <- function(
 rule_fit_ctb.formula <- function(
   formula,
   data,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
   check_formula_weights(formula, data)
   bp <- hardhat::default_formula_blueprint(indicators = "none")
@@ -151,13 +166,13 @@ rule_fit_ctb.formula <- function(
 rule_fit_ctb.recipe <- function(
   x,
   data,
+  ...,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
   check_recipe_dots(list(...))
   processed <- hardhat::mold(x, data)

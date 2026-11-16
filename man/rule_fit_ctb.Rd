@@ -7,7 +7,7 @@
 \alias{rule_fit_ctb.matrix}
 \alias{rule_fit_ctb.formula}
 \alias{rule_fit_ctb.recipe}
-\title{Fit a \code{rule_fit_ctb}}
+\title{Fit a RuleFit Model via CatBoost}
 \usage{
 rule_fit_ctb(x, ...)
 
@@ -16,52 +16,52 @@ rule_fit_ctb(x, ...)
 \method{rule_fit_ctb}{data.frame}(
   x,
   y,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 
 \method{rule_fit_ctb}{matrix}(
   x,
   y,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 
 \method{rule_fit_ctb}{formula}(
   formula,
   data,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 
 \method{rule_fit_ctb}{recipe}(
   x,
   data,
+  ...,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 }
 \arguments{
@@ -73,7 +73,23 @@ rule_fit_ctb(x, ...)
 created from \code{\link[recipes:recipe]{recipes::recipe()}}.
 }}
 
-\item{...}{Not currently used, but required for extensibility.}
+\item{...}{Named options for the boosting model and the glmnet model,
+given together as one set. Each option is sent to one of the two models
+by its name:
+\itemize{
+\item Options for catboost go to the boosting model. These are catboost's
+training parameters and their aliases, and the arguments of
+\code{\link[bonsai:train_catboost]{bonsai::train_catboost()}} (e.g., \code{l2_leaf_reg}, \code{random_strength}, or
+\code{logging_level}).
+\item Arguments of \code{\link[glmnet:glmnet]{glmnet::glmnet()}} go to the glmnet model (e.g.,
+\code{standardize} or \code{penalty.factor}).
+}
+
+A name that is valid for both models goes to the boosting model. An
+unknown name is an error. Options that \code{rule_fit_ctb()} sets itself
+(e.g., \code{iterations} or \code{depth}) are also errors; use the main arguments
+(e.g., \code{trees} or \code{tree_depth}) instead. \code{min_n} is ignored with a
+warning, and \code{final_ctr_computation_mode} is always \code{"Skip"}.}
 
 \item{y}{When \code{x} is a \strong{data frame} or \strong{matrix}, \code{y} is the outcome
 specified as:

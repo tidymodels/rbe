@@ -370,7 +370,7 @@ test_that("tibbles and data frames give the same results", {
     `my var` = c(1, 2, 3),
     check.names = FALSE
   )
-  tbl <- tibble::as_tibble(dat)
+  tbl <- dplyr::as_tibble(dat)
   expect_identical(
     model_matrix_sep(tbl, zero_row(tbl)),
     model_matrix_sep(dat, zero_row(dat))

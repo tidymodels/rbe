@@ -7,7 +7,7 @@
 \alias{rule_fit_xgb.matrix}
 \alias{rule_fit_xgb.formula}
 \alias{rule_fit_xgb.recipe}
-\title{Fit a \code{rule_fit_xgb}}
+\title{Fit a RuleFit Model via XGBoost}
 \usage{
 rule_fit_xgb(x, ...)
 
@@ -16,6 +16,7 @@ rule_fit_xgb(x, ...)
 \method{rule_fit_xgb}{data.frame}(
   x,
   y,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
@@ -23,13 +24,13 @@ rule_fit_xgb(x, ...)
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 
 \method{rule_fit_xgb}{matrix}(
   x,
   y,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
@@ -37,13 +38,13 @@ rule_fit_xgb(x, ...)
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 
 \method{rule_fit_xgb}{formula}(
   formula,
   data,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
@@ -51,21 +52,20 @@ rule_fit_xgb(x, ...)
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 
 \method{rule_fit_xgb}{recipe}(
   x,
   data,
+  ...,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 }
 \arguments{
@@ -77,7 +77,21 @@ rule_fit_xgb(x, ...)
 created from \code{\link[recipes:recipe]{recipes::recipe()}}.
 }}
 
-\item{...}{Not currently used, but required for extensibility.}
+\item{...}{Named options for the boosting model and the glmnet model,
+given together as one set. Each option is sent to one of the two models
+by its name:
+\itemize{
+\item Options for xgboost go to the boosting model. These are the arguments
+of \code{\link[xgboost:xgb.params]{xgboost::xgb.params()}}, \code{\link[xgboost:xgb.train]{xgboost::xgb.train()}}, and
+\code{\link[parsnip:xgb_train]{parsnip::xgb_train()}} (e.g., \code{gamma}, \code{subsample}, etc.).
+\item Arguments of \code{\link[glmnet:glmnet]{glmnet::glmnet()}} go to the glmnet model (e.g.,
+\code{standardize} or \code{penalty.factor}).
+}
+
+A name that is valid for both models goes to the boosting model. An
+unknown name is an error. Options that \code{rule_fit_xgb()} sets itself
+(e.g., \code{nrounds} or \code{eta}) are also errors; use the main arguments
+(e.g., \code{trees} or \code{learn_rate}) instead.}
 
 \item{y}{When \code{x} is a \strong{data frame} or \strong{matrix}, \code{y} is the outcome
 specified as:
@@ -97,8 +111,7 @@ created by \code{\link[hardhat:importance_weights]{hardhat::importance_weights()
 the ensemble.}
 
 \item{mtry}{The proportion of predictors randomly sampled at each split,
-on (0, 1]. Pass \code{counts = TRUE} in \code{...} to give the number of predictors
-instead.}
+on (0, 1].}
 
 \item{learn_rate}{A number for the rate at which the boosting algorithm adapts
 from iteration-to-iteration (specific engines only). This is sometimes referred to

@@ -219,12 +219,9 @@ test_that("lightgbm's weight argument points to weights", {
   )
 })
 
-test_that("weight partially matches weights", {
-  wts <- mtcars_weights()
-  set.seed(1564)
-  mod <- fit_engine("lgb", mpg ~ ., data = mtcars, weights = wts)
-  set.seed(1564)
-  partial_mod <- fit_engine("lgb", mpg ~ ., data = mtcars, weight = wts)
-  expect_identical(partial_mod$training$weights, "numeric")
-  expect_equal(predict(partial_mod, mtcars), predict(mod, mtcars))
+test_that("weight does not partially match weights", {
+  expect_snapshot(
+    rule_fit_lgb(mpg ~ ., data = mtcars, weight = mtcars_weights()),
+    error = TRUE
+  )
 })

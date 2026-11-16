@@ -98,3 +98,12 @@
       ! `weight` cannot be used with a recipe.
       i Add the case weights as a column of `data`; recipes give columns made by `hardhat::importance_weights()` or `hardhat::frequency_weights()` the "case_weights" role.
 
+# weight does not partially match weights
+
+    Code
+      rule_fit_lgb(mpg ~ ., data = mtcars, weight = mtcars_weights())
+    Condition
+      Error in `rule_fit_lgb()`:
+      ! This argument cannot be passed to `...`:
+      * Use `weights` instead of `weight`.
+

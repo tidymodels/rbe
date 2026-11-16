@@ -1,12 +1,11 @@
-#' Fit a `rule_fit_lgb`
+#' Fit a RuleFit Model via LightGBM
 #'
 #' `rule_fit_lgb()` fits a model.
 #'
 #' @include methods.R
 #' @inheritParams parsnip::boost_tree
 #' @param mtry The proportion of predictors randomly sampled at each split,
-#'   on (0, 1]. Pass `counts = TRUE` in `...` to give the number of predictors
-#'   instead.
+#'   on (0, 1].
 #' @param min_n The minimum number of data points in a node needed to
 #'   split it further (`min_data_in_leaf` in lightgbm).
 #' @inheritParams parsnip::linear_reg
@@ -31,7 +30,23 @@
 #' @param formula A formula specifying the outcome terms on the left-hand side,
 #' and the predictor terms on the right-hand side.
 #'
-#' @param ... Not currently used, but required for extensibility.
+#' @param ... Named options for the boosting model and the glmnet model,
+#'   given together as one set. Each option is sent to one of the two models
+#'   by its name:
+#'
+#'   * Options for lightgbm go to the boosting model. These are lightgbm's
+#'     parameters and their aliases, and the arguments of
+#'     [lightgbm::lgb.train()], [lightgbm::lgb.Dataset()], and
+#'     [bonsai::train_lightgbm()] (e.g., `lambda_l2`, `bagging_fraction`, or
+#'     `counts`).
+#'   * Arguments of [glmnet::glmnet()] go to the glmnet model (e.g.,
+#'     `standardize` or `penalty.factor`).
+#'
+#'   A name that is valid for both models goes to the boosting model. An
+#'   unknown name is an error. Options that `rule_fit_lgb()` sets itself
+#'   (e.g., `num_iterations` or `learning_rate`) are also errors; use the main
+#'   arguments (e.g., `trees` or `learn_rate`) instead. `quiet` defaults to
+#'   `TRUE`.
 #' @inheritParams rule_fit_xgb
 #' @inheritSection rule_fit_xgb Case weights
 #'
@@ -62,6 +77,7 @@ rule_fit_lgb.default <- function(x, ...) {
 rule_fit_lgb.data.frame <- function(
   x,
   y,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
@@ -69,8 +85,7 @@ rule_fit_lgb.data.frame <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
   rule_fit_lgb_bridge(
@@ -94,6 +109,7 @@ rule_fit_lgb.data.frame <- function(
 rule_fit_lgb.matrix <- function(
   x,
   y,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
@@ -101,8 +117,7 @@ rule_fit_lgb.matrix <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
   rule_fit_lgb_bridge(
@@ -126,6 +141,7 @@ rule_fit_lgb.matrix <- function(
 rule_fit_lgb.formula <- function(
   formula,
   data,
+  ...,
   weights = NULL,
   trees = 50,
   mtry = 1,
@@ -133,8 +149,7 @@ rule_fit_lgb.formula <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
   check_formula_weights(formula, data)
   bp <- hardhat::default_formula_blueprint(indicators = "none")
@@ -160,14 +175,14 @@ rule_fit_lgb.formula <- function(
 rule_fit_lgb.recipe <- function(
   x,
   data,
+  ...,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
   check_recipe_dots(list(...))
   processed <- hardhat::mold(x, data)
