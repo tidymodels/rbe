@@ -37,6 +37,7 @@ Language: en-US
 Roxygen: list(markdown = TRUE)
 Collate: 
     'arguments.R'
+    'case-weights.R'
     'methods.R'
     'catboost.R'
     'constructor.R'

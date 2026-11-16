@@ -77,12 +77,3 @@
       * Use `penalty` instead of `lambda`.
       * Use `mixture` instead of `alpha`.
 
----
-
-    Code
-      rule_fit_ctb(mtcars[, -1], mtcars$mpg, weights = 1:32)
-    Condition
-      Error in `rule_fit_ctb()`:
-      ! This argument cannot be passed to `...`:
-      * `weights` is set by rulefit.
-

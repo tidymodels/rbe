@@ -14,10 +14,13 @@ make_rule_matrix <- function(dat, rules, ptype) {
   pred_mat
 }
 
-prune_rules <- function(x) {
-  is_zv <- apply(x, 2, function(x) vctrs::vec_unique_count(x) == 1L)
+# `rows` are the rows used to find columns to remove; all rows are returned
+prune_rules <- function(x, rows = seq_len(nrow(x))) {
+  x_rows <- x[rows, , drop = FALSE]
+  is_zv <- apply(x_rows, 2, function(x) vctrs::vec_unique_count(x) == 1L)
   x <- x[, !is_zv, drop = FALSE]
-  lc_cols <- iter_lc_rm(x)
+  x_rows <- x_rows[, !is_zv, drop = FALSE]
+  lc_cols <- iter_lc_rm(x_rows)
   x <- x[, !colnames(x) %in% lc_cols, drop = FALSE]
   x
 }

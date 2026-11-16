@@ -80,3 +80,30 @@
       ! `num_leavs` is not a valid argument for lightgbm or `glmnet::glmnet()`.
       i Did you mean `num_leaves` instead of `num_leavs`?
 
+# lightgbm's weight argument points to weights
+
+    Code
+      split_dots(list(weight = 1), "lgb")
+    Condition
+      Error:
+      ! This argument cannot be passed to `...`:
+      * Use `weights` instead of `weight`.
+
+---
+
+    Code
+      rule_fit_lgb(rec, data = mtcars, weight = mtcars_weights())
+    Condition
+      Error in `rule_fit_lgb()`:
+      ! `weight` cannot be used with a recipe.
+      i Add the case weights as a column of `data`; recipes give columns made by `hardhat::importance_weights()` or `hardhat::frequency_weights()` the "case_weights" role.
+
+# weight does not partially match weights
+
+    Code
+      rule_fit_lgb(mpg ~ ., data = mtcars, weight = mtcars_weights())
+    Condition
+      Error in `rule_fit_lgb()`:
+      ! This argument cannot be passed to `...`:
+      * Use `weights` instead of `weight`.
+

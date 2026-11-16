@@ -157,3 +157,27 @@ expect_default_arguments <- function(mod, min_n = TRUE) {
 tidy_quiet <- function(...) {
   suppressPackageStartupMessages(tidy(...))
 }
+
+# Unequal case weights for mtcars, made with their own seed so that they do
+# not change the random numbers used by the calling test
+mtcars_weights <- function() {
+  withr::with_seed(4729, stats::runif(nrow(mtcars), min = 0.1, max = 3))
+}
+
+# mtcars with a case weights column; the type of weights is set by `fn`
+mtcars_with_weights <- function(fn = hardhat::importance_weights) {
+  dat <- mtcars
+  wts <- mtcars_weights()
+  if (identical(fn, hardhat::frequency_weights)) {
+    wts <- ceiling(wts)
+  }
+  dat$case_wts <- fn(wts)
+  dat
+}
+
+# Coefficients of the glmnet model at the penalty used to fit it
+glmnet_coefs <- function(mod) {
+  res <- tidy_quiet(mod)
+  res <- res[order(res$term), ]
+  stats::setNames(res$estimate, res$term)
+}

@@ -1,12 +1,11 @@
-#' Fit a `rule_fit_lgb`
+#' Fit a RuleFit Model via LightGBM
 #'
 #' `rule_fit_lgb()` fits a model.
 #'
 #' @include methods.R
 #' @inheritParams parsnip::boost_tree
 #' @param mtry The proportion of predictors randomly sampled at each split,
-#'   on (0, 1]. Pass `counts = TRUE` in `...` to give the number of predictors
-#'   instead.
+#'   on (0, 1].
 #' @param min_n The minimum number of data points in a node needed to
 #'   split it further (`min_data_in_leaf` in lightgbm).
 #' @inheritParams parsnip::linear_reg
@@ -31,7 +30,25 @@
 #' @param formula A formula specifying the outcome terms on the left-hand side,
 #' and the predictor terms on the right-hand side.
 #'
-#' @param ... Not currently used, but required for extensibility.
+#' @param ... Named options for the boosting model and the glmnet model,
+#'   given together as one set. Each option is sent to one of the two models
+#'   by its name:
+#'
+#'   * Options for lightgbm go to the boosting model. These are lightgbm's
+#'     parameters and their aliases, and the arguments of
+#'     [lightgbm::lgb.train()], [lightgbm::lgb.Dataset()], and
+#'     [bonsai::train_lightgbm()] (e.g., `lambda_l2`, `bagging_fraction`, or
+#'     `counts`).
+#'   * Arguments of [glmnet::glmnet()] go to the glmnet model (e.g.,
+#'     `standardize` or `penalty.factor`).
+#'
+#'   A name that is valid for both models goes to the boosting model. An
+#'   unknown name is an error. Options that `rule_fit_lgb()` sets itself
+#'   (e.g., `num_iterations` or `learning_rate`) are also errors; use the main
+#'   arguments (e.g., `trees` or `learn_rate`) instead. `quiet` defaults to
+#'   `TRUE`.
+#' @inheritParams rule_fit_xgb
+#' @inheritSection rule_fit_xgb Case weights
 #'
 #' @return
 #'
@@ -60,18 +77,20 @@ rule_fit_lgb.default <- function(x, ...) {
 rule_fit_lgb.data.frame <- function(
   x,
   y,
+  ...,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
   rule_fit_lgb_bridge(
     processed,
+    weights = weights,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -90,18 +109,20 @@ rule_fit_lgb.data.frame <- function(
 rule_fit_lgb.matrix <- function(
   x,
   y,
+  ...,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
   rule_fit_lgb_bridge(
     processed,
+    weights = weights,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -120,19 +141,22 @@ rule_fit_lgb.matrix <- function(
 rule_fit_lgb.formula <- function(
   formula,
   data,
+  ...,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
+  check_formula_weights(formula, data)
   bp <- hardhat::default_formula_blueprint(indicators = "none")
   processed <- hardhat::mold(formula, data, blueprint = bp)
   rule_fit_lgb_bridge(
     processed,
+    weights = weights,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -151,18 +175,20 @@ rule_fit_lgb.formula <- function(
 rule_fit_lgb.recipe <- function(
   x,
   data,
+  ...,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 ) {
+  check_recipe_dots(list(...))
   processed <- hardhat::mold(x, data)
   rule_fit_lgb_bridge(
     processed,
+    weights = NULL,
     trees = trees,
     mtry = mtry,
     learn_rate = learn_rate,
@@ -179,6 +205,7 @@ rule_fit_lgb.recipe <- function(
 
 rule_fit_lgb_bridge <- function(
   processed,
+  weights,
   trees,
   mtry,
   learn_rate,
@@ -198,6 +225,7 @@ rule_fit_lgb_bridge <- function(
   }
   predictors <- processed$predictors
   outcome <- processed$outcomes[[1]]
+  wts <- resolve_weights(processed, weights, call = rlang::caller_env())
 
   tree_fit <- rlang::exec(
     bonsai::train_lightgbm,
@@ -208,6 +236,7 @@ rule_fit_lgb_bridge <- function(
     learning_rate = learn_rate,
     max_depth = tree_depth,
     min_data_in_leaf = min_n,
+    weights = as_boost_weights(wts),
     !!!args$boost
   )
 
@@ -224,7 +253,11 @@ rule_fit_lgb_bridge <- function(
   which_complete <- which(stats::complete.cases(train_data))
   train_data <- train_data[which_complete, , drop = FALSE]
   outcome <- outcome[which_complete]
-  train_data <- prune_rules(train_data)
+  wts <- subset_weights(wts, which_complete)
+  train_data <- prune_rules(
+    train_data,
+    rows = positive_weight_rows(wts, nrow(train_data))
+  )
 
   rule_names <- grep("^rule_", colnames(train_data), value = TRUE)
   rules <- rules[rules$label %in% rule_names, ]
@@ -233,7 +266,12 @@ rule_fit_lgb_bridge <- function(
     parsnip_spec(outcome, list(penalty = penalty, mixture = mixture)) |>
     parsnip::set_engine("glmnet", !!!args$glmnet)
 
-  reg_fit <- parsnip::fit_xy(spec, x = train_data, y = outcome)
+  reg_fit <- parsnip::fit_xy(
+    spec,
+    x = train_data,
+    y = outcome,
+    case_weights = as_glmnet_weights(wts)
+  )
 
   new_rule_fit(
     rules = rules,
@@ -254,7 +292,8 @@ rule_fit_lgb_bridge <- function(
     blueprint = processed$blueprint,
     training = list(
       rows = nrow(train_data),
-      ptype = ptype
+      ptype = ptype,
+      weights = attr(wts, "weights_class")
     ),
     class = c("rule_fit_lgb", "rule_fit")
   )

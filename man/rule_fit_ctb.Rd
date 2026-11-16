@@ -7,7 +7,7 @@
 \alias{rule_fit_ctb.matrix}
 \alias{rule_fit_ctb.formula}
 \alias{rule_fit_ctb.recipe}
-\title{Fit a \code{rule_fit_ctb}}
+\title{Fit a RuleFit Model via CatBoost}
 \usage{
 rule_fit_ctb(x, ...)
 
@@ -16,49 +16,52 @@ rule_fit_ctb(x, ...)
 \method{rule_fit_ctb}{data.frame}(
   x,
   y,
+  ...,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 
 \method{rule_fit_ctb}{matrix}(
   x,
   y,
+  ...,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 
 \method{rule_fit_ctb}{formula}(
   formula,
   data,
+  ...,
+  weights = NULL,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 
 \method{rule_fit_ctb}{recipe}(
   x,
   data,
+  ...,
   trees = 50,
   mtry = 1,
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1,
-  ...
+  mixture = 1
 )
 }
 \arguments{
@@ -70,7 +73,23 @@ rule_fit_ctb(x, ...)
 created from \code{\link[recipes:recipe]{recipes::recipe()}}.
 }}
 
-\item{...}{Not currently used, but required for extensibility.}
+\item{...}{Named options for the boosting model and the glmnet model,
+given together as one set. Each option is sent to one of the two models
+by its name:
+\itemize{
+\item Options for catboost go to the boosting model. These are catboost's
+training parameters and their aliases, and the arguments of
+\code{\link[bonsai:train_catboost]{bonsai::train_catboost()}} (e.g., \code{l2_leaf_reg}, \code{random_strength}, or
+\code{logging_level}).
+\item Arguments of \code{\link[glmnet:glmnet]{glmnet::glmnet()}} go to the glmnet model (e.g.,
+\code{standardize} or \code{penalty.factor}).
+}
+
+A name that is valid for both models goes to the boosting model. An
+unknown name is an error. Options that \code{rule_fit_ctb()} sets itself
+(e.g., \code{iterations} or \code{depth}) are also errors; use the main arguments
+(e.g., \code{trees} or \code{tree_depth}) instead. \code{min_n} is ignored with a
+warning, and \code{final_ctr_computation_mode} is always \code{"Skip"}.}
 
 \item{y}{When \code{x} is a \strong{data frame} or \strong{matrix}, \code{y} is the outcome
 specified as:
@@ -79,6 +98,12 @@ specified as:
 \item A \strong{matrix} with 1 numeric column.
 \item A numeric \strong{vector}.
 }}
+
+\item{weights}{An optional vector of non-negative case weights with one
+value per row of the training set. It can be a numeric vector or one
+created by \code{\link[hardhat:importance_weights]{hardhat::importance_weights()}} or
+\code{\link[hardhat:frequency_weights]{hardhat::frequency_weights()}}. Not used by the recipe method; see the
+"Case weights" section.}
 
 \item{trees}{An integer for the number of trees contained in
 the ensemble.}
@@ -120,3 +145,19 @@ A \code{rule_fit_ctb} object.
 \description{
 \code{rule_fit_ctb()} fits a model.
 }
+\section{Case weights}{
+
+
+Case weights are used to fit both the boosted trees that create the rules
+and the glmnet model that is fit to the rules. Rows with a weight of zero
+are not used to decide which rules are removed for having a single unique
+value or being linear combinations of other columns.
+
+For the data frame, matrix, and formula methods, pass the weights to
+\code{weights}. A case weights column cannot also be a predictor. For the recipe
+method, add the weights as a column of \code{data} that is created by
+\code{\link[hardhat:importance_weights]{hardhat::importance_weights()}} or \code{\link[hardhat:frequency_weights]{hardhat::frequency_weights()}};
+\code{\link[recipes:recipe]{recipes::recipe()}} gives these columns the \code{"case_weights"} role, so they
+are not used as predictors.
+}
+

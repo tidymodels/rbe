@@ -14,6 +14,9 @@ print.rule_fit <- function(x, ...) {
       i = "Rules: {nrow(x$rules)}"
     )
   )
+  if (!is.null(x$training$weights)) {
+    cli::cli_bullets(c(i = "Case weights: {x$training$weights}"))
+  }
 
   # unlist() would coerce mixed types (e.g. FALSE to 0) and misalign
   # vector-valued arguments; braces are escaped for cli

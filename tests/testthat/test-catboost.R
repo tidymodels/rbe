@@ -176,10 +176,6 @@ test_that("protected and duplicated arguments error before fitting", {
     rule_fit_ctb(mpg ~ ., data = mtcars, lambda = 1, alpha = 0.5),
     error = TRUE
   )
-  expect_snapshot(
-    rule_fit_ctb(mtcars[, -1], mtcars$mpg, weights = 1:32),
-    error = TRUE
-  )
 })
 
 test_that("rules use the column names of the predictors", {
