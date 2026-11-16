@@ -271,19 +271,6 @@ drop_ctb_min_n <- function(dots, call = rlang::caller_env()) {
   dots[names(dots) != "min_n"]
 }
 
-force_ctb_args <- function(args, call = rlang::caller_env()) {
-  ctr_mode <- args$final_ctr_computation_mode
-  if (!is.null(ctr_mode) && !identical(ctr_mode, "Skip")) {
-    cli::cli_warn(
-      "{.arg final_ctr_computation_mode} is always set to {.val Skip};
-       the value {.val {ctr_mode}} was ignored.",
-      call = call
-    )
-  }
-  args$final_ctr_computation_mode <- "Skip"
-  args
-}
-
 # ------------------------------------------------------------------------------
 # Valid catboost parameters
 

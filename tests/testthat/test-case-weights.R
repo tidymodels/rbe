@@ -250,7 +250,7 @@ test_that("the type of weights is recorded", {
       weights = hardhat::frequency_weights(ceiling(wts))
     )
     expect_identical(freq_mod$training$weights, "frequency")
-    expect_s3_class(freq_mod, "rule_fit")
+    expect_s3_class(freq_mod, "rulefit")
   }
 })
 

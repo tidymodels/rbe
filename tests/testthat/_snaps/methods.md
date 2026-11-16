@@ -26,7 +26,6 @@
       * mixture: 1
       * logging_level: Silent
       * allow_writing_files: FALSE
-      * final_ctr_computation_mode: Skip
 
 # print() counts the original predictors, not indicators
 
@@ -69,7 +68,6 @@
       * allow_writing_files: FALSE
       * custom_metric: RMSE, MAE
       * name: {experiment}
-      * final_ctr_computation_mode: Skip
       * standardize: FALSE
 
 # predict() errors when predictors are missing

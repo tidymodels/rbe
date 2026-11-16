@@ -307,7 +307,7 @@ rule_fit_xgb_bridge <- function(
       one_hot = one_hot_ptype,
       weights = attr(wts, "weights_class")
     ),
-    class = c("rule_fit_xgb", "rule_fit")
+    class = c("rule_fit_xgb", "rulefit")
   )
 }
 

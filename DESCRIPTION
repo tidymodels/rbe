@@ -45,9 +45,11 @@ Collate:
     'dials.R'
     'lightgbm.R'
     'misc.R'
+    'parsnip.R'
     'recipes.R'
     'rule_fit.R'
     'rulefit-package.R'
     'rules.R'
     'xgboost.R'
+    'zzz.R'
 Config/testthat/edition: 3

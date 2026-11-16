@@ -43,7 +43,7 @@
 #'   unknown name is an error. Options that `rule_fit_ctb()` sets itself
 #'   (e.g., `iterations` or `depth`) are also errors; use the main arguments
 #'   (e.g., `trees` or `tree_depth`) instead. `min_n` is ignored with a
-#'   warning, and `final_ctr_computation_mode` is always `"Skip"`.
+#'   warning.
 #' @inheritParams rule_fit_xgb
 #' @inheritSection rule_fit_xgb Case weights
 #'
@@ -207,7 +207,6 @@ rule_fit_ctb_bridge <- function(
   rlang::check_installed("catboost")
   dots <- drop_ctb_min_n(list(...), call = rlang::caller_env())
   args <- split_dots(dots, engine = "ctb", call = rlang::caller_env())
-  args$boost <- force_ctb_args(args$boost, call = rlang::caller_env())
   predictors <- processed$predictors
   outcome <- processed$outcomes[[1]]
   wts <- resolve_weights(processed, weights, call = rlang::caller_env())
@@ -274,7 +273,7 @@ rule_fit_ctb_bridge <- function(
       ptype = ptype,
       weights = attr(wts, "weights_class")
     ),
-    class = c("rule_fit_ctb", "rule_fit")
+    class = c("rule_fit_ctb", "rulefit")
   )
 }
 

@@ -89,7 +89,7 @@ A name that is valid for both models goes to the boosting model. An
 unknown name is an error. Options that \code{rule_fit_ctb()} sets itself
 (e.g., \code{iterations} or \code{depth}) are also errors; use the main arguments
 (e.g., \code{trees} or \code{tree_depth}) instead. \code{min_n} is ignored with a
-warning, and \code{final_ctr_computation_mode} is always \code{"Skip"}.}
+warning.}
 
 \item{y}{When \code{x} is a \strong{data frame} or \strong{matrix}, \code{y} is the outcome
 specified as:

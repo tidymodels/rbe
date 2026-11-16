@@ -91,7 +91,7 @@ expect_interfaces_agree <- function(engine) {
   set.seed(5302)
   rec_mod <- fit_engine(engine, rec, data = mtcars)
 
-  cls <- c(paste0("rule_fit_", engine), "rule_fit")
+  cls <- c(paste0("rule_fit_", engine), "rulefit")
   expected <- predict(df_mod, new_data)
   for (mod in list(df_mod, mat_mod, form_mod, rec_mod)) {
     testthat::expect_s3_class(mod, cls)
@@ -220,10 +220,33 @@ expect_method_matches <- function(
   direct <- fit_engine(engine, ...)
   set.seed(6178)
   via <- fit_method(engine, ...)
-  testthat::expect_s3_class(via, c(paste0("rule_fit_", engine), "rule_fit"))
+  testthat::expect_s3_class(via, c(paste0("rule_fit_", engine), "rulefit"))
   testthat::expect_equal(via$rules, direct$rules)
   testthat::expect_equal(via$arguments, direct$arguments)
   testthat::expect_equal(via$training, direct$training)
   testthat::expect_equal(predict(via, new_data), predict(direct, new_data))
   invisible(via)
+}
+
+# A parsnip `rule_fit()` specification for the "rulefit" engine; catboost is
+# kept silent
+rulefit_spec <- function(engine, mode = "regression", ..., trees = 5) {
+  skip_if_no_engine(engine)
+  spec <- parsnip::rule_fit(trees = !!trees, ...)
+  if (engine == "ctb") {
+    spec <- parsnip::set_engine(
+      spec,
+      "rulefit",
+      method = !!engine_method[[engine]],
+      logging_level = "Silent",
+      allow_writing_files = FALSE
+    )
+  } else {
+    spec <- parsnip::set_engine(
+      spec,
+      "rulefit",
+      method = !!engine_method[[engine]]
+    )
+  }
+  parsnip::set_mode(spec, mode)
 }

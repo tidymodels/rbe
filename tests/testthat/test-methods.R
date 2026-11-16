@@ -329,10 +329,36 @@ test_that("tidy() errors with a bad `what`", {
 # ------------------------------------------------------------------------------
 # required_pkgs()
 
-test_that("required_pkgs() for every engine", {
+test_that("required_pkgs() includes the boosting package", {
+  expected <- list(
+    ctb = c("rulefit", "glmnet", "bonsai", "catboost"),
+    lgb = c("rulefit", "glmnet", "bonsai", "lightgbm"),
+    xgb = c("rulefit", "glmnet", "xgboost")
+  )
   for (engine in engines) {
     set.seed(8091)
     mod <- fit_engine(engine, mpg ~ ., data = mtcars)
-    expect_identical(required_pkgs(mod), c("rulefit", "glmnet"))
+    expect_identical(required_pkgs(mod), expected[[engine]])
   }
+})
+
+test_that("required_pkgs() follows the method used by rule_fit()", {
+  expected <- list(
+    ctb = "catboost",
+    lgb = "lightgbm",
+    xgb = "xgboost"
+  )
+  for (engine in engines) {
+    set.seed(2537)
+    mod <- fit_method(engine, mpg ~ ., data = mtcars)
+    expect_contains(required_pkgs(mod), expected[[engine]])
+  }
+})
+
+test_that("required_pkgs() without a boosting class", {
+  skip_if_no_engine("xgb")
+  set.seed(6904)
+  mod <- fit_engine("xgb", mpg ~ ., data = mtcars)
+  class(mod) <- class(mod)[-1]
+  expect_identical(required_pkgs(mod), c("rulefit", "glmnet"))
 })

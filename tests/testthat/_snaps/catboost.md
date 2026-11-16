@@ -1,7 +1,3 @@
-# final_ctr_computation_mode is always 'Skip'
-
-    `final_ctr_computation_mode` is always set to "Skip"; the value "Default" was ignored.
-
 # min_n is ignored with a warning
 
     `min_n` is not used by `rule_fit_ctb()` and was ignored.

@@ -150,7 +150,3 @@
     i catboost's default "SymmetricTree" grow policy does not use a minimum node size.
     i To set one, pass `min_data_in_leaf` along with `grow_policy = "Depthwise"` or `grow_policy = "Lossguide"`.
 
-# force_ctb_args() always sets 'Skip'
-
-    `final_ctr_computation_mode` is always set to "Skip"; the value "Default" was ignored.
-
