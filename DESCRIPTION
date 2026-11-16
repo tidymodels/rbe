@@ -13,6 +13,7 @@ Depends:
 Imports: 
     bonsai,
     cli,
+    dials,
     dplyr,
     generics,
     ggplot2,
@@ -41,6 +42,7 @@ Collate:
     'methods.R'
     'catboost.R'
     'constructor.R'
+    'dials.R'
     'lightgbm.R'
     'misc.R'
     'recipes.R'
