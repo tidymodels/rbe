@@ -1,3 +1,3 @@
 .onLoad <- function(libname, pkgname) {
-  make_rule_fit_rulefit()
+  make_rule_fit_rule_ensemble()
 }

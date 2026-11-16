@@ -52,10 +52,10 @@ test_that("methods agree with engine functions for classification", {
 test_that("the default method is xgboost", {
   skip_if_no_engine("xgb")
   set.seed(3907)
-  via <- rule_fit(mpg ~ ., data = mtcars, trees = 5)
+  via <- rule_ensemble(mpg ~ ., data = mtcars, trees = 5)
   set.seed(3907)
-  direct <- rule_fit_xgb(mpg ~ ., data = mtcars, trees = 5)
-  expect_s3_class(via, c("rule_fit_xgb", "rulefit"))
+  direct <- rule_ensemble_xgb(mpg ~ ., data = mtcars, trees = 5)
+  expect_s3_class(via, c("rule_ensemble_xgb", "rule_ensemble"))
   expect_equal(via$rules, direct$rules)
 })
 
@@ -74,7 +74,7 @@ test_that("unsupported `x` uses the engine's error", {
   for (engine in engines) {
     skip_if_no_engine(engine)
     expect_snapshot(
-      rule_fit(letters, method = engine_method[[engine]]),
+      rule_ensemble(letters, method = engine_method[[engine]]),
       error = TRUE
     )
   }
@@ -181,7 +181,7 @@ test_that("boosting and glmnet options are passed on", {
 test_that("an option for one engine is an error for another", {
   skip_if_no_engine("xgb")
   expect_snapshot(
-    rule_fit(mpg ~ ., data = mtcars, method = "xgboost", l2_leaf_reg = 2),
+    rule_ensemble(mpg ~ ., data = mtcars, method = "xgboost", l2_leaf_reg = 2),
     error = TRUE
   )
 })
@@ -190,7 +190,7 @@ test_that("unknown options are errors", {
   for (engine in engines) {
     skip_if_no_engine(engine)
     expect_snapshot(
-      rule_fit(
+      rule_ensemble(
         mpg ~ .,
         data = mtcars,
         method = engine_method[[engine]],
@@ -211,7 +211,7 @@ test_that("protected options are errors", {
     skip_if_no_engine(engine)
     expect_snapshot(
       rlang::exec(
-        rule_fit,
+        rule_ensemble,
         mpg ~ .,
         data = mtcars,
         method = engine_method[[engine]],
@@ -225,7 +225,7 @@ test_that("protected options are errors", {
 test_that("main arguments cannot also be given in `...` by engine name", {
   skip_if_no_engine("xgb")
   expect_snapshot(
-    rule_fit(mpg ~ ., data = mtcars, eta = 0.1),
+    rule_ensemble(mpg ~ ., data = mtcars, eta = 0.1),
     error = TRUE
   )
 })
@@ -262,7 +262,7 @@ test_that("`weights` cannot be used with a recipe", {
   skip_if_no_engine("xgb")
   rec <- recipes::recipe(mpg ~ ., data = mtcars)
   expect_snapshot(
-    rule_fit(rec, data = mtcars, weights = mtcars_weights()),
+    rule_ensemble(rec, data = mtcars, weights = mtcars_weights()),
     error = TRUE
   )
 })
@@ -272,34 +272,46 @@ test_that("`weights` cannot be used with a recipe", {
 
 test_that("`method` must be one of the supported values", {
   expect_snapshot(
-    rule_fit(mpg ~ ., data = mtcars, method = "ranger"),
+    rule_ensemble(mpg ~ ., data = mtcars, method = "ranger"),
     error = TRUE
   )
   expect_snapshot(
-    rule_fit(mpg ~ ., data = mtcars, method = "xgb"),
+    rule_ensemble(mpg ~ ., data = mtcars, method = "xgb"),
     error = TRUE
   )
   expect_snapshot(
-    rule_fit(mpg ~ ., data = mtcars, method = "XGBoost"),
+    rule_ensemble(mpg ~ ., data = mtcars, method = "XGBoost"),
     error = TRUE
   )
-  expect_snapshot(rule_fit(mpg ~ ., data = mtcars, method = ""), error = TRUE)
+  expect_snapshot(
+    rule_ensemble(mpg ~ ., data = mtcars, method = ""),
+    error = TRUE
+  )
 })
 
 test_that("`method` must be a single string", {
-  expect_snapshot(rule_fit(mpg ~ ., data = mtcars, method = NA), error = TRUE)
   expect_snapshot(
-    rule_fit(mpg ~ ., data = mtcars, method = NA_character_),
-    error = TRUE
-  )
-  expect_snapshot(rule_fit(mpg ~ ., data = mtcars, method = NULL), error = TRUE)
-  expect_snapshot(rule_fit(mpg ~ ., data = mtcars, method = 1), error = TRUE)
-  expect_snapshot(
-    rule_fit(mpg ~ ., data = mtcars, method = c("xgboost", "lightgbm")),
+    rule_ensemble(mpg ~ ., data = mtcars, method = NA),
     error = TRUE
   )
   expect_snapshot(
-    rule_fit(mpg ~ ., data = mtcars, method = character()),
+    rule_ensemble(mpg ~ ., data = mtcars, method = NA_character_),
+    error = TRUE
+  )
+  expect_snapshot(
+    rule_ensemble(mpg ~ ., data = mtcars, method = NULL),
+    error = TRUE
+  )
+  expect_snapshot(
+    rule_ensemble(mpg ~ ., data = mtcars, method = 1),
+    error = TRUE
+  )
+  expect_snapshot(
+    rule_ensemble(mpg ~ ., data = mtcars, method = c("xgboost", "lightgbm")),
+    error = TRUE
+  )
+  expect_snapshot(
+    rule_ensemble(mpg ~ ., data = mtcars, method = character()),
     error = TRUE
   )
 })

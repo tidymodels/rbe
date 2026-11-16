@@ -18,7 +18,7 @@ A \code{qual_param} object from the dials package.
 }
 \description{
 \code{boosting_method()} is a qualitative parameter for the \code{method} argument of
-\code{rule_fit()}, which picks the boosting library used to make the rules.
+\code{rule_ensemble()}, which picks the boosting library used to make the rules.
 }
 \examples{
 boosting_method()

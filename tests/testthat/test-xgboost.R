@@ -3,7 +3,7 @@ skip_if_not_installed("xgboost")
 test_that("factor predictors are converted to one-hot indicators", {
   penguins <- penguins_complete()
   set.seed(4093)
-  mod <- rule_fit_xgb(body_mass_g ~ ., data = penguins, trees = 5)
+  mod <- rule_ensemble_xgb(body_mass_g ~ ., data = penguins, trees = 5)
 
   expect_s3_class(mod$training$one_hot$species, "factor")
   expect_all_true(
@@ -24,18 +24,18 @@ test_that("xy and recipe interfaces with factor predictors", {
   new_data <- penguins[1, -6]
 
   set.seed(7735)
-  xy_mod <- rule_fit_xgb(penguins[, -6], penguins$body_mass_g, trees = 5)
+  xy_mod <- rule_ensemble_xgb(penguins[, -6], penguins$body_mass_g, trees = 5)
   expect_identical(nrow(predict(xy_mod, new_data)), 1L)
 
   rec <- recipes::recipe(body_mass_g ~ ., data = penguins)
   set.seed(1590)
-  rec_mod <- rule_fit_xgb(rec, penguins, trees = 5)
+  rec_mod <- rule_ensemble_xgb(rec, penguins, trees = 5)
   expect_identical(nrow(predict(rec_mod, new_data)), 1L)
 })
 
 test_that("numeric predictors are unchanged", {
   set.seed(2261)
-  mod <- rule_fit_xgb(mpg ~ ., data = mtcars, trees = 5)
+  mod <- rule_ensemble_xgb(mpg ~ ., data = mtcars, trees = 5)
   expect_identical(names(mod$training$ptype), names(mtcars)[-1])
   expect_identical(nrow(predict(mod, mtcars[1:2, -1])), 2L)
 })
@@ -44,10 +44,10 @@ test_that("numeric predictors are unchanged", {
 # Interfaces
 
 test_that("the default method errors for unsupported inputs", {
-  expect_snapshot(rule_fit_xgb(1:3), error = TRUE)
-  expect_snapshot(rule_fit_xgb(letters), error = TRUE)
-  expect_snapshot(rule_fit_xgb(list(a = 1)), error = TRUE)
-  expect_snapshot(rule_fit_xgb(NULL), error = TRUE)
+  expect_snapshot(rule_ensemble_xgb(1:3), error = TRUE)
+  expect_snapshot(rule_ensemble_xgb(letters), error = TRUE)
+  expect_snapshot(rule_ensemble_xgb(list(a = 1)), error = TRUE)
+  expect_snapshot(rule_ensemble_xgb(NULL), error = TRUE)
 })
 
 test_that("data frame, matrix, formula, and recipe interfaces agree", {
@@ -84,7 +84,7 @@ test_that("default and main arguments are recorded", {
   expect_false(mod$arguments$counts)
 
   set.seed(7704)
-  mod <- rule_fit_xgb(
+  mod <- rule_ensemble_xgb(
     mpg ~ .,
     data = mtcars,
     trees = 4,
@@ -120,7 +120,7 @@ test_that("default and main arguments are recorded", {
 
 test_that("options are passed to xgboost and glmnet", {
   set.seed(2481)
-  mod <- rule_fit_xgb(
+  mod <- rule_ensemble_xgb(
     mpg ~ .,
     data = mtcars,
     trees = 3,
@@ -136,11 +136,16 @@ test_that("options are passed to xgboost and glmnet", {
 
 test_that("protected arguments error before fitting", {
   expect_snapshot(
-    rule_fit_xgb(mpg ~ ., data = mtcars, nrounds = 10, learning_rate = 0.1),
+    rule_ensemble_xgb(
+      mpg ~ .,
+      data = mtcars,
+      nrounds = 10,
+      learning_rate = 0.1
+    ),
     error = TRUE
   )
   expect_snapshot(
-    rule_fit_xgb(mpg ~ ., data = mtcars, evals = list()),
+    rule_ensemble_xgb(mpg ~ ., data = mtcars, evals = list()),
     error = TRUE
   )
 })
@@ -191,5 +196,5 @@ test_that("a factor named like an indicator of another factor is an error", {
     a_b = c(0.1, 0.4, 0.3, 0.9, 0.2, 0.5),
     y = c(1.2, 3.4, 2.2, 5.1, 0.7, 4.4)
   )
-  expect_snapshot(rule_fit_xgb(y ~ ., data = dat, trees = 2), error = TRUE)
+  expect_snapshot(rule_ensemble_xgb(y ~ ., data = dat, trees = 2), error = TRUE)
 })

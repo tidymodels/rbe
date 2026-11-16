@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(rulefit)
+library(rbe)
 
-test_check("rulefit")
+test_check("rbe")

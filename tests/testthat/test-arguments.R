@@ -141,7 +141,7 @@ test_that("split_dots() keeps NULL and vector values", {
   expect_null(res$glmnet$exclude)
 })
 
-test_that("protected arguments set by rulefit and renamed ones together", {
+test_that("protected arguments set by rbe and renamed ones together", {
   expect_snapshot(
     split_dots(list(formula = 1, data = 2, iterations = 3), "ctb"),
     error = TRUE
@@ -205,7 +205,7 @@ test_that("suggest_names() picks the closest candidate and drops duplicates", {
   expect_match(res[[2]], "thresh", fixed = TRUE)
 })
 
-test_that("glmnet_arg_names() excludes arguments set by rulefit", {
+test_that("glmnet_arg_names() excludes arguments set by rbe", {
   res <- glmnet_arg_names()
   excl <- c("x", "y", "family", "weights", "offset", "alpha", "lambda", "...")
   expect_length(intersect(res, excl), 0)
@@ -240,7 +240,7 @@ test_that("protected argument tables have unique names", {
   }
 })
 
-test_that("main argument aliases point to rulefit arguments", {
+test_that("main argument aliases point to rbe arguments", {
   skip_if_not_installed("lightgbm")
   lgb <- protected_args("lgb")
   expect_identical(lgb$use[lgb$name == "num_trees"], "trees")
@@ -251,7 +251,7 @@ test_that("main argument aliases point to rulefit arguments", {
   expect_identical(ctb$use[ctb$name == "reg_lambda"], "l2_leaf_reg")
 })
 
-test_that("bonsai_alias_table() prefers rulefit's argument names", {
+test_that("bonsai_alias_table() prefers rbe's argument names", {
   aliases <- data.frame(
     parsnip = c("trees", "sample_size"),
     alias = c("n_trees", "sub_row"),

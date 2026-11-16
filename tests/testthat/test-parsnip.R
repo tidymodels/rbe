@@ -1,12 +1,12 @@
 # ------------------------------------------------------------------------------
 # Registration
 
-test_that("the rulefit engine is registered for both modes", {
+test_that("the rule_ensemble engine is registered for both modes", {
   env <- parsnip::get_model_env()
-  modes <- env$rule_fit[env$rule_fit$engine == "rulefit", ]
+  modes <- env$rule_fit[env$rule_fit$engine == "rule_ensemble", ]
   expect_setequal(modes$mode, c("classification", "regression"))
 
-  args <- env$rule_fit_args[env$rule_fit_args$engine == "rulefit", ]
+  args <- env$rule_fit_args[env$rule_fit_args$engine == "rule_ensemble", ]
   expect_setequal(
     args$parsnip,
     c(
@@ -23,14 +23,16 @@ test_that("the rulefit engine is registered for both modes", {
   expect_identical(args$parsnip, args$original)
   expect_identical(args$parsnip[args$has_submodel], "penalty")
 
-  fits <- env$rule_fit_fit[env$rule_fit_fit$engine == "rulefit", ]
+  fits <- env$rule_fit_fit[env$rule_fit_fit$engine == "rule_ensemble", ]
   for (val in fits$value) {
     expect_identical(val$interface, "data.frame")
-    expect_identical(val$func, c(pkg = "rulefit", fun = "rule_fit"))
+    expect_identical(val$func, c(pkg = "rbe", fun = "rule_ensemble"))
     expect_true("weights" %in% val$protect)
   }
 
-  preds <- env$rule_fit_predict[env$rule_fit_predict$engine == "rulefit", ]
+  preds <- env$rule_fit_predict[
+    env$rule_fit_predict$engine == "rule_ensemble",
+  ]
   expect_setequal(
     paste(preds$mode, preds$type),
     c(
@@ -42,13 +44,13 @@ test_that("the rulefit engine is registered for both modes", {
 })
 
 test_that("registering the engine again does not fail", {
-  expect_no_error(make_rule_fit_rulefit())
+  expect_no_error(make_rule_fit_rule_ensemble())
   env <- parsnip::get_model_env()
-  args <- env$rule_fit_args[env$rule_fit_args$engine == "rulefit", ]
+  args <- env$rule_fit_args[env$rule_fit_args$engine == "rule_ensemble", ]
   expect_false(anyDuplicated(args$parsnip) > 0)
 })
 
-test_that("translate() maps the arguments to rule_fit()", {
+test_that("translate() maps the arguments to rule_ensemble()", {
   skip_if_no_engine("xgb")
   spec <- parsnip::rule_fit(
     trees = 7,
@@ -59,7 +61,7 @@ test_that("translate() maps the arguments to rule_fit()", {
     penalty = 0.01
   ) |>
     parsnip::set_engine(
-      "rulefit",
+      "rule_ensemble",
       method = "xgboost",
       mixture = 0.5
     ) |>
@@ -67,9 +69,9 @@ test_that("translate() maps the arguments to rule_fit()", {
   expect_snapshot(parsnip::translate(spec))
 })
 
-test_that("unused main arguments are not passed to rule_fit()", {
+test_that("unused main arguments are not passed to rule_ensemble()", {
   skip_if_no_engine("xgb")
-  spec <- rulefit_spec("xgb", trees = 5)
+  spec <- rule_ensemble_spec("xgb", trees = 5)
   fit_args <- parsnip::translate(spec)$method$fit$args
   expect_named(fit_args, c("x", "y", "weights", "trees", "method"))
 })
@@ -77,10 +79,10 @@ test_that("unused main arguments are not passed to rule_fit()", {
 # ------------------------------------------------------------------------------
 # Fitting and prediction
 
-test_that("regression fits match rule_fit()", {
+test_that("regression fits match rule_ensemble()", {
   new_data <- mtcars[c(4, 15, 27), -1]
   for (engine in engines) {
-    spec <- rulefit_spec(engine)
+    spec <- rule_ensemble_spec(engine)
     set.seed(7316)
     via_form <- parsnip::fit(spec, mpg ~ ., data = mtcars)
     set.seed(7316)
@@ -89,8 +91,11 @@ test_that("regression fits match rule_fit()", {
     direct <- fit_method(engine, mtcars[, -1], mtcars$mpg)
 
     for (mod in list(via_form, via_xy)) {
-      expect_s3_class(mod, c(paste0("_rule_fit_", engine), "model_fit"))
-      expect_s3_class(mod$fit, c(paste0("rule_fit_", engine), "rulefit"))
+      expect_s3_class(mod, c(paste0("_rule_ensemble_", engine), "model_fit"))
+      expect_s3_class(
+        mod$fit,
+        c(paste0("rule_ensemble_", engine), "rule_ensemble")
+      )
       expect_equal(mod$fit$rules, direct$rules)
       pred <- predict(mod, new_data)
       expect_named(pred, ".pred")
@@ -100,11 +105,11 @@ test_that("regression fits match rule_fit()", {
   }
 })
 
-test_that("binary classification fits match rule_fit()", {
+test_that("binary classification fits match rule_ensemble()", {
   two_class <- two_class_data()
   new_data <- two_class[c(2, 90, 455), 1:2]
   for (engine in engines) {
-    spec <- rulefit_spec(engine, mode = "classification")
+    spec <- rule_ensemble_spec(engine, mode = "classification")
     set.seed(2958)
     mod <- parsnip::fit(spec, Class ~ ., data = two_class)
     set.seed(2958)
@@ -125,11 +130,11 @@ test_that("binary classification fits match rule_fit()", {
   }
 })
 
-test_that("multiclass fits match rule_fit()", {
+test_that("multiclass fits match rule_ensemble()", {
   hpc <- hpc_subset()
   new_data <- hpc[c(3, 64, 251), -6]
   for (engine in engines) {
-    spec <- rulefit_spec(engine, mode = "classification")
+    spec <- rule_ensemble_spec(engine, mode = "classification")
     set.seed(5841)
     mod <- parsnip::fit(spec, class ~ ., data = hpc)
     set.seed(5841)
@@ -150,7 +155,7 @@ test_that("factor predictors are used without indicators", {
   penguins <- penguins_complete()
   new_data <- penguins[c(5, 199), -6]
   for (engine in engines) {
-    spec <- rulefit_spec(engine)
+    spec <- rule_ensemble_spec(engine)
     set.seed(9402)
     mod <- parsnip::fit(spec, body_mass_g ~ ., data = penguins)
     set.seed(9402)
@@ -163,7 +168,7 @@ test_that("factor predictors are used without indicators", {
 
 test_that("main and engine arguments reach the fitted model", {
   for (engine in engines) {
-    spec <- rulefit_spec(
+    spec <- rule_ensemble_spec(
       engine,
       trees = 4,
       mtry = 0.8,
@@ -188,7 +193,7 @@ test_that("main and engine arguments reach the fitted model", {
 
 test_that("boosting options are passed as engine arguments", {
   for (engine in engines) {
-    spec <- rulefit_spec(engine)
+    spec <- rule_ensemble_spec(engine)
     spec <- rlang::exec(
       parsnip::set_args,
       spec,
@@ -204,43 +209,43 @@ test_that("boosting options are passed as engine arguments", {
 test_that("the default boosting method is xgboost", {
   skip_if_no_engine("xgb")
   spec <- parsnip::rule_fit(trees = 5) |>
-    parsnip::set_engine("rulefit") |>
+    parsnip::set_engine("rule_ensemble") |>
     parsnip::set_mode("regression")
   set.seed(4471)
   mod <- parsnip::fit(spec, mpg ~ ., data = mtcars)
-  expect_s3_class(mod, "_rule_fit_xgb")
+  expect_s3_class(mod, "_rule_ensemble_xgb")
 })
 
 test_that("an invalid method is an error", {
   skip_if_no_engine("xgb")
   spec <- parsnip::rule_fit(trees = 5) |>
-    parsnip::set_engine("rulefit", method = "ranger") |>
+    parsnip::set_engine("rule_ensemble", method = "ranger") |>
     parsnip::set_mode("regression")
   expect_snapshot(parsnip::fit(spec, mpg ~ ., data = mtcars), error = TRUE)
 })
 
 test_that("an unknown engine argument is an error", {
   skip_if_no_engine("xgb")
-  spec <- rulefit_spec("xgb") |>
+  spec <- rule_ensemble_spec("xgb") |>
     parsnip::set_args(not_an_option = 1)
   expect_snapshot(parsnip::fit(spec, mpg ~ ., data = mtcars), error = TRUE)
 })
 
 test_that("min_n with catboost is ignored with a warning", {
-  spec <- rulefit_spec("ctb", min_n = 3)
+  spec <- rule_ensemble_spec("ctb", min_n = 3)
   set.seed(6620)
   expect_snapshot_warning(parsnip::fit(spec, mpg ~ ., data = mtcars))
 })
 
 test_that("catboost does not warn when min_n is not given", {
-  spec <- rulefit_spec("ctb")
+  spec <- rule_ensemble_spec("ctb")
   set.seed(3054)
   expect_no_warning(parsnip::fit(spec, mpg ~ ., data = mtcars))
 })
 
 test_that("predictions work for one row and for missing values", {
   for (engine in engines) {
-    spec <- rulefit_spec(engine)
+    spec <- rule_ensemble_spec(engine)
     set.seed(2187)
     mod <- parsnip::fit(spec, mpg ~ ., data = mtcars)
     set.seed(2187)
@@ -259,11 +264,11 @@ test_that("predictions work for one row and for missing values", {
 # ------------------------------------------------------------------------------
 # Case weights
 
-test_that("case weights match rule_fit() with weights", {
+test_that("case weights match rule_ensemble() with weights", {
   wts <- mtcars_weights()
   new_data <- mtcars[c(6, 11, 30), -1]
   for (engine in engines) {
-    spec <- rulefit_spec(engine)
+    spec <- rule_ensemble_spec(engine)
     set.seed(5513)
     mod <- parsnip::fit(
       spec,
@@ -283,7 +288,7 @@ test_that("case weights match rule_fit() with weights", {
 test_that("frequency weights are used", {
   wts <- ceiling(mtcars_weights())
   for (engine in engines) {
-    spec <- rulefit_spec(engine)
+    spec <- rule_ensemble_spec(engine)
     set.seed(9076)
     mod <- parsnip::fit(
       spec,
@@ -302,7 +307,7 @@ test_that("frequency weights are used", {
 
 test_that("penalty is a submodel parameter", {
   for (engine in engines) {
-    spec <- rulefit_spec(engine)
+    spec <- rule_ensemble_spec(engine)
     set.seed(3329)
     mod <- parsnip::fit(spec, mpg ~ ., data = mtcars)
     expect_true(has_multi_predict(mod))
@@ -314,7 +319,7 @@ test_that("multi_predict() for regression", {
   pens <- c(0.001, 0.01, 0.1)
   new_data <- mtcars[c(1, 13, 22, 31), -1]
   for (engine in engines) {
-    spec <- rulefit_spec(engine, penalty = 0.01)
+    spec <- rule_ensemble_spec(engine, penalty = 0.01)
     set.seed(4816)
     mod <- parsnip::fit(spec, mpg ~ ., data = mtcars)
 
@@ -340,7 +345,7 @@ test_that("multi_predict() for classification", {
   hpc <- hpc_subset()
   pens <- c(0.001, 0.1)
   for (engine in engines) {
-    spec <- rulefit_spec(engine, mode = "classification")
+    spec <- rule_ensemble_spec(engine, mode = "classification")
     set.seed(1092)
     bin_mod <- parsnip::fit(spec, Class ~ ., data = two_class)
     new_data <- two_class[c(8, 377), 1:2]
@@ -375,7 +380,7 @@ test_that("multi_predict() for classification", {
 })
 
 test_that("multi_predict() catches `newdata`", {
-  spec <- rulefit_spec("xgb")
+  spec <- rule_ensemble_spec("xgb")
   set.seed(7745)
   mod <- parsnip::fit(spec, mpg ~ ., data = mtcars)
   expect_snapshot(
@@ -388,8 +393,8 @@ test_that("multi_predict() catches `newdata`", {
 # Packages and printing
 
 test_that("required_pkgs() for the specification and the fit", {
-  spec <- rulefit_spec("xgb")
-  expected <- c("parsnip", "rulefit", "glmnet", "bonsai")
+  spec <- rule_ensemble_spec("xgb")
+  expected <- c("parsnip", "rbe", "glmnet", "bonsai")
   expect_setequal(required_pkgs(spec), expected)
   set.seed(6233)
   mod <- parsnip::fit(spec, mpg ~ ., data = mtcars)
@@ -397,7 +402,7 @@ test_that("required_pkgs() for the specification and the fit", {
 })
 
 test_that("print() for a specification and a fit", {
-  spec <- rulefit_spec("xgb", penalty = 0.01)
+  spec <- rule_ensemble_spec("xgb", penalty = 0.01)
   expect_snapshot(print(spec))
   set.seed(8851)
   mod <- parsnip::fit(spec, mpg ~ ., data = mtcars)

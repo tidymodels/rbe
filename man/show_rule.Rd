@@ -7,7 +7,7 @@
 show_rule(x, id)
 }
 \arguments{
-\item{x}{An object with class \code{"rulefit"}.}
+\item{x}{An object with class \code{"rule_ensemble"}.}
 
 \item{id}{A single character value for the rule identifier (e.g. \code{"rule_01"}).}
 }

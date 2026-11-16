@@ -3,7 +3,7 @@ skip_if_not_installed("modeldata")
 
 test_that("options are passed to lightgbm and glmnet", {
   set.seed(3591)
-  mod <- rule_fit_lgb(
+  mod <- rule_ensemble_lgb(
     class ~ .,
     data = hpc_subset(),
     trees = 5,
@@ -16,9 +16,14 @@ test_that("options are passed to lightgbm and glmnet", {
   expect_true(mod$arguments$quiet)
 })
 
-test_that("quiet and counts have rulefit defaults", {
+test_that("quiet and counts have rbe defaults", {
   set.seed(6427)
-  mod <- rule_fit_lgb(class ~ ., data = hpc_subset(), trees = 5, mtry = 0.5)
+  mod <- rule_ensemble_lgb(
+    class ~ .,
+    data = hpc_subset(),
+    trees = 5,
+    mtry = 0.5
+  )
   expect_true(mod$arguments$quiet)
   expect_false(mod$arguments$counts)
   expect_equal(mod$arguments$min_n, 5)
@@ -27,23 +32,28 @@ test_that("quiet and counts have rulefit defaults", {
 test_that("small data sets can be split with the default min_n", {
   # lightgbm's own default of 20 cannot split 32 rows, so no rules are made
   set.seed(2394)
-  mod <- rule_fit_lgb(mpg ~ ., data = mtcars, trees = 5)
+  mod <- rule_ensemble_lgb(mpg ~ ., data = mtcars, trees = 5)
   expect_gt(nrow(mod$rules), 0)
 })
 
 test_that("min_n is passed to lightgbm", {
   set.seed(5861)
-  mod <- rule_fit_lgb(class ~ ., data = hpc_subset(), trees = 5, min_n = 12)
+  mod <- rule_ensemble_lgb(
+    class ~ .,
+    data = hpc_subset(),
+    trees = 5,
+    min_n = 12
+  )
   expect_equal(mod$arguments$min_n, 12)
   expect_snapshot(
-    rule_fit_lgb(class ~ ., data = hpc_subset(), min_data_in_leaf = 12),
+    rule_ensemble_lgb(class ~ ., data = hpc_subset(), min_data_in_leaf = 12),
     error = TRUE
   )
 })
 
 test_that("counts can be changed", {
   set.seed(8150)
-  mod <- rule_fit_lgb(
+  mod <- rule_ensemble_lgb(
     class ~ .,
     data = hpc_subset(),
     trees = 5,
@@ -56,7 +66,7 @@ test_that("counts can be changed", {
 test_that("factor predictors get separated indicator names", {
   penguins <- penguins_complete()
   set.seed(6650)
-  mod <- rule_fit_lgb(body_mass_g ~ ., data = penguins, trees = 5)
+  mod <- rule_ensemble_lgb(body_mass_g ~ ., data = penguins, trees = 5)
 
   ptype <- mod$training$ptype
   expect_s3_class(ptype$island, "factor")
@@ -71,10 +81,10 @@ test_that("factor predictors get separated indicator names", {
 # Interfaces
 
 test_that("the default method errors for unsupported inputs", {
-  expect_snapshot(rule_fit_lgb(1:3), error = TRUE)
-  expect_snapshot(rule_fit_lgb(letters), error = TRUE)
-  expect_snapshot(rule_fit_lgb(list(a = 1)), error = TRUE)
-  expect_snapshot(rule_fit_lgb(NULL), error = TRUE)
+  expect_snapshot(rule_ensemble_lgb(1:3), error = TRUE)
+  expect_snapshot(rule_ensemble_lgb(letters), error = TRUE)
+  expect_snapshot(rule_ensemble_lgb(list(a = 1)), error = TRUE)
+  expect_snapshot(rule_ensemble_lgb(NULL), error = TRUE)
 })
 
 test_that("data frame, matrix, formula, and recipe interfaces agree", {
@@ -110,7 +120,7 @@ test_that("default and main arguments are recorded", {
   expect_default_arguments(mod)
 
   set.seed(9425)
-  mod <- rule_fit_lgb(
+  mod <- rule_ensemble_lgb(
     mpg ~ .,
     data = mtcars,
     trees = 4,
@@ -147,19 +157,19 @@ test_that("default and main arguments are recorded", {
 
 test_that("protected arguments and aliases error before fitting", {
   expect_snapshot(
-    rule_fit_lgb(mpg ~ ., data = mtcars, num_trees = 10, eta = 0.1),
+    rule_ensemble_lgb(mpg ~ ., data = mtcars, num_trees = 10, eta = 0.1),
     error = TRUE
   )
   expect_snapshot(
-    rule_fit_lgb(mpg ~ ., data = mtcars, subsample = 0.5),
+    rule_ensemble_lgb(mpg ~ ., data = mtcars, subsample = 0.5),
     error = TRUE
   )
   expect_snapshot(
-    rule_fit_lgb(mpg ~ ., data = mtcars, callbacks = list()),
+    rule_ensemble_lgb(mpg ~ ., data = mtcars, callbacks = list()),
     error = TRUE
   )
   expect_snapshot(
-    rule_fit_lgb(mpg ~ ., data = mtcars, num_leavs = 4),
+    rule_ensemble_lgb(mpg ~ ., data = mtcars, num_leavs = 4),
     error = TRUE
   )
 })
@@ -214,14 +224,14 @@ test_that("lightgbm's weight argument points to weights", {
   skip_if_not_installed("recipes")
   rec <- recipes::recipe(mpg ~ ., data = mtcars)
   expect_snapshot(
-    rule_fit_lgb(rec, data = mtcars, weight = mtcars_weights()),
+    rule_ensemble_lgb(rec, data = mtcars, weight = mtcars_weights()),
     error = TRUE
   )
 })
 
 test_that("weight does not partially match weights", {
   expect_snapshot(
-    rule_fit_lgb(mpg ~ ., data = mtcars, weight = mtcars_weights()),
+    rule_ensemble_lgb(mpg ~ ., data = mtcars, weight = mtcars_weights()),
     error = TRUE
   )
 })
