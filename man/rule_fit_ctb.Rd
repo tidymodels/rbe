@@ -161,3 +161,4 @@ method, add the weights as a column of \code{data} that is created by
 are not used as predictors.
 }
 
+\keyword{internal}

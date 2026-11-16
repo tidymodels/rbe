@@ -44,6 +44,7 @@ Collate:
     'lightgbm.R'
     'misc.R'
     'recipes.R'
+    'rule_fit.R'
     'rulefit-package.R'
     'rules.R'
     'xgboost.R'

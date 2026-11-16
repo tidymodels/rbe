@@ -54,6 +54,7 @@
 #'
 #' A `rule_fit_lgb` object.
 #'
+#' @keywords internal
 #' @export
 rule_fit_lgb <- function(x, ...) {
   UseMethod("rule_fit_lgb")

@@ -51,6 +51,7 @@
 #'
 #' A `rule_fit_ctb` object.
 #'
+#' @keywords internal
 #' @export
 rule_fit_ctb <- function(x, ...) {
   UseMethod("rule_fit_ctb")
