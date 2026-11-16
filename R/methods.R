@@ -1,5 +1,5 @@
 #' @export
-print.rule_fit <- function(x, ...) {
+print.rulefit <- function(x, ...) {
   cli::cli_inform(" ")
   cli::cli_inform("Training Set:")
   cli::cli_bullets(c(i = "Samples: {x$training$rows}"))
@@ -42,7 +42,7 @@ print.rule_fit <- function(x, ...) {
 #' regularized model for multiple values of the `penalty` parameter without
 #' refitting. The same rule set is used for each penalty value.
 #'
-#' @param object A `rule_fit` object created by [rule_fit_xgb()],
+#' @param object A `rulefit` object created by [rule_fit_xgb()],
 #'   [rule_fit_lgb()], or [rule_fit_ctb()].
 #' @param new_data A data frame of predictors.
 #' @param type A single character value or `NULL`. Possible values are
@@ -63,7 +63,7 @@ print.rule_fit <- function(x, ...) {
 #'   res$.pred[[1]]
 #' }
 #' @export
-multi_predict.rule_fit <- function(
+multi_predict.rulefit <- function(
   object,
   new_data,
   type = NULL,
@@ -80,15 +80,15 @@ multi_predict.rule_fit <- function(
   )
 }
 
-#' @rdname multi_predict.rule_fit
+#' @rdname multi_predict.rulefit
 #' @export
-has_multi_predict.rule_fit <- function(object, ...) {
+has_multi_predict.rulefit <- function(object, ...) {
   TRUE
 }
 
-#' @rdname multi_predict.rule_fit
+#' @rdname multi_predict.rulefit
 #' @export
-multi_predict_args.rule_fit <- function(object, ...) {
+multi_predict_args.rulefit <- function(object, ...) {
   "penalty"
 }
 
@@ -105,13 +105,13 @@ parsnip::has_multi_predict
 parsnip::multi_predict_args
 
 #' @export
-predict.rule_fit <- function(object, new_data, type = NULL, ...) {
+predict.rulefit <- function(object, new_data, type = NULL, ...) {
   pred_data <- predictor_matrix(object, new_data)
   stats::predict(object$fit, new_data = pred_data, type = type)
 }
 
 #' @export
-augment.rule_fit <- function(x, new_data, ...) {
+augment.rulefit <- function(x, new_data, ...) {
   pred_data <- predictor_matrix(x, new_data)
   # parsnip's augment() returns the rule matrix columns; keep only the
   # predictions and attach them to the original data
@@ -121,12 +121,21 @@ augment.rule_fit <- function(x, new_data, ...) {
 }
 
 #' @export
-required_pkgs.rule_fit <- function(x, ...) {
-  c("rulefit", "glmnet")
+required_pkgs.rulefit <- function(x, ...) {
+  if (inherits(x, "rule_fit_xgb")) {
+    boost_pkgs <- "xgboost"
+  } else if (inherits(x, "rule_fit_lgb")) {
+    boost_pkgs <- c("bonsai", "lightgbm")
+  } else if (inherits(x, "rule_fit_ctb")) {
+    boost_pkgs <- c("bonsai", "catboost")
+  } else {
+    boost_pkgs <- character(0)
+  }
+  c("rulefit", "glmnet", boost_pkgs)
 }
 
 #' @export
-tidy.rule_fit <- function(x, penalty = NULL, what = c("glmnet", "rules"), ...) {
+tidy.rulefit <- function(x, penalty = NULL, what = c("glmnet", "rules"), ...) {
   what <- rlang::arg_match(what, c("glmnet", "rules"))
   if (what == "rules") {
     return(x$rules)
@@ -142,7 +151,7 @@ tidy.rule_fit <- function(x, penalty = NULL, what = c("glmnet", "rules"), ...) {
 #' @return A ggplot2 object.
 #' @export
 #' @inheritParams parsnip::autoplot.glmnet
-autoplot.rule_fit <- function(
+autoplot.rulefit <- function(
   object,
   ...,
   min_penalty = 0,

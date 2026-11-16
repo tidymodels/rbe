@@ -94,6 +94,27 @@ has no minimum node size. When \code{method = "catboost"}, the default value of
 set a minimum node size for catboost, pass \code{min_data_in_leaf} along with
 \code{grow_policy = "Depthwise"} or \code{grow_policy = "Lossguide"}.
 }
+
+\subsection{Using parsnip}{
+
+rulefit adds a \code{"rulefit"} engine to parsnip's \code{\link[parsnip:rule_fit]{parsnip::rule_fit()}} model.
+The main arguments \code{trees}, \code{mtry}, \code{learn_rate}, \code{tree_depth}, \code{min_n}, and
+\code{penalty} are used, and \code{method} and \code{mixture} are engine arguments. Other
+engine arguments are passed on as boosting or glmnet options. \code{penalty} is
+a submodel parameter, so tuning it with the tune package fits one model for
+all \code{penalty} values. When \code{mtry} is tuned, its values are proportions
+(\code{\link[dials:mtry_prop]{dials::mtry_prop()}}).
+
+This function and parsnip's model function are both named \code{rule_fit()}.
+When both packages are attached, use \code{parsnip::rule_fit()} to make the model
+specification:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{spec <-
+  parsnip::rule_fit(trees = 100, penalty = tune()) |>
+  set_engine("rulefit", method = "lightgbm", mixture = 0.5) |>
+  set_mode("regression")
+}\if{html}{\out{</div>}}
+}
 }
 \section{Case weights}{
 

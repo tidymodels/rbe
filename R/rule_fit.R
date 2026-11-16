@@ -47,6 +47,27 @@
 #' set a minimum node size for catboost, pass `min_data_in_leaf` along with
 #' `grow_policy = "Depthwise"` or `grow_policy = "Lossguide"`.
 #'
+#' ## Using parsnip
+#'
+#' rulefit adds a `"rulefit"` engine to parsnip's [parsnip::rule_fit()] model.
+#' The main arguments `trees`, `mtry`, `learn_rate`, `tree_depth`, `min_n`, and
+#' `penalty` are used, and `method` and `mixture` are engine arguments. Other
+#' engine arguments are passed on as boosting or glmnet options. `penalty` is
+#' a submodel parameter, so tuning it with the tune package fits one model for
+#' all `penalty` values. When `mtry` is tuned, its values are proportions
+#' ([dials::mtry_prop()]).
+#'
+#' This function and parsnip's model function are both named `rule_fit()`.
+#' When both packages are attached, use `parsnip::rule_fit()` to make the model
+#' specification:
+#'
+#' ```r
+#' spec <-
+#'   parsnip::rule_fit(trees = 100, penalty = tune()) |>
+#'   set_engine("rulefit", method = "lightgbm", mixture = 0.5) |>
+#'   set_mode("regression")
+#' ```
+#'
 #' @inheritSection rule_fit_xgb Case weights
 #'
 #' @return

@@ -55,7 +55,7 @@ test_that("the default method is xgboost", {
   via <- rule_fit(mpg ~ ., data = mtcars, trees = 5)
   set.seed(3907)
   direct <- rule_fit_xgb(mpg ~ ., data = mtcars, trees = 5)
-  expect_s3_class(via, c("rule_fit_xgb", "rule_fit"))
+  expect_s3_class(via, c("rule_fit_xgb", "rulefit"))
   expect_equal(via$rules, direct$rules)
 })
 

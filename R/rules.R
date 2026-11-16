@@ -35,16 +35,16 @@ predictor_matrix <- function(object, new_data) {
 }
 
 #' Show a Specific Rule
-#' @param x An object with class `"rule_fit"`.
+#' @param x An object with class `"rulefit"`.
 #' @param id A single character value for the rule identifier (e.g. `"rule_01"`).
 #' @return The rule expression, invisibly.
 #' @export
 show_rule <- function(x, id) {
-  if (!inherits(x, "rule_fit")) {
+  if (!inherits(x, "rulefit")) {
     cli::cli_abort(
       c(
         "{.fn show_rules} is not defined for {.obj_type_friendly {x}}.",
-        i = "{.arg x} should be an object with class {.cls rule_fit}."
+        i = "{.arg x} should be an object with class {.cls rulefit}."
       )
     )
   }

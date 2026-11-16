@@ -274,7 +274,7 @@ rule_fit_ctb_bridge <- function(
       ptype = ptype,
       weights = attr(wts, "weights_class")
     ),
-    class = c("rule_fit_ctb", "rule_fit")
+    class = c("rule_fit_ctb", "rulefit")
   )
 }
 

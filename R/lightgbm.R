@@ -296,7 +296,7 @@ rule_fit_lgb_bridge <- function(
       ptype = ptype,
       weights = attr(wts, "weights_class")
     ),
-    class = c("rule_fit_lgb", "rule_fit")
+    class = c("rule_fit_lgb", "rulefit")
   )
 }
 
