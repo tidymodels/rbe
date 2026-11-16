@@ -82,7 +82,10 @@ jobs:
           library(catboost)
         shell: Rscript {0}
 
+      # `--as-cran` is not used: it restricts the tests to packages declared in
+      # DESCRIPTION, so catboost (which can't be declared) would be skipped.
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
+          args: 'c("--no-manual")'
           build_args: 'c("--no-manual","--compact-vignettes=gs+qpdf")'
