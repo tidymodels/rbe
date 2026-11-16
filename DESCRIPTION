@@ -9,9 +9,9 @@ Authors@R: c(
 Description: RuleFit models for regression and classification. 
 License: MIT + file LICENSE
 Depends:
-    R (>= 4.1.0)
+    R (>= 4.3.0)
 Imports: 
-    bonsai,
+    bonsai (>= 0.4.1.9000),
     cli,
     dials,
     dplyr,
@@ -32,6 +32,8 @@ Suggests:
     spelling,
     xgboost,
     testthat (>= 3.0.0)
+Remotes:
+    tidymodels/bonsai
 Config/roxygen2/version: 8.1.0
 Encoding: UTF-8
 Language: en-US
