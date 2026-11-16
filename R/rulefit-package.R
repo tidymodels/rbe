@@ -6,7 +6,10 @@
 #' @export
 generics::augment
 
-## usethis namespace: start
+#' @importFrom ggplot2 autoplot
+#' @export
+ggplot2::autoplot
+
 #' @importFrom generics tidy
 #' @export
 generics::tidy
