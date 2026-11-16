@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 # rulefit
 
 <!-- badges: start -->
+[![Codecov test coverage](https://codecov.io/gh/topepo/rulefit/graph/badge.svg)](https://app.codecov.io/gh/topepo/rulefit)
+[![R-CMD-check](https://github.com/topepo/rulefit/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/topepo/rulefit/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 This package is another implementation of the RuleFit model of REFERENCE that uses modern boosting methods such as XGBoost, LightGBM, and CatBoost. 

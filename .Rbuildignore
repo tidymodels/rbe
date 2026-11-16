@@ -8,3 +8,5 @@
 ^README\.Rmd$
 ^air\.toml$
 ^data-raw$
+^codecov\.yml$
+^\.github$
