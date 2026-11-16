@@ -1,0 +1,21 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/LICENSE-text.html</loc></url>
+<url><loc>/LICENSE.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/reference/autoplot.rulefit.html</loc></url>
+<url><loc>/reference/boosting_method.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/model_matrix_sep.html</loc></url>
+<url><loc>/reference/multi_predict.rulefit.html</loc></url>
+<url><loc>/reference/multi_predict_rulefit_parsnip.html</loc></url>
+<url><loc>/reference/reexports.html</loc></url>
+<url><loc>/reference/rule_fit.html</loc></url>
+<url><loc>/reference/rule_fit_ctb.html</loc></url>
+<url><loc>/reference/rule_fit_lgb.html</loc></url>
+<url><loc>/reference/rule_fit_xgb.html</loc></url>
+<url><loc>/reference/rulefit-package.html</loc></url>
+<url><loc>/reference/show_rule.html</loc></url>
+</urlset>
+
