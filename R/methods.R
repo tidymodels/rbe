@@ -18,8 +18,6 @@ print.rule_fit <- function(x, ...) {
     cli::cli_bullets(c(i = "Case weights: {x$training$weights}"))
   }
 
-  # unlist() would coerce mixed types (e.g. FALSE to 0) and misalign
-  # vector-valued arguments; braces are escaped for cli
   vals <- vapply(
     x$arguments,
     function(arg) paste(format(arg), collapse = ", "),
@@ -135,6 +133,7 @@ tidy.rule_fit <- function(x, penalty = NULL, what = c("glmnet", "rules"), ...) {
   } else {
     return(tidy(x$fit, penalty = penalty))
   }
+  invisible(NULL)
 }
 
 #' Create a ggplot for a glmnet object
