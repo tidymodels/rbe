@@ -181,3 +181,49 @@ glmnet_coefs <- function(mod) {
   res <- res[order(res$term), ]
   stats::setNames(res$estimate, res$term)
 }
+
+# `rule_fit()` method for each engine abbreviation
+engine_method <- c(ctb = "catboost", lgb = "lightgbm", xgb = "xgboost")
+
+# A boosting option that is specific to each engine
+engine_option <- list(
+  ctb = list(l2_leaf_reg = 2),
+  lgb = list(lambda_l2 = 2),
+  xgb = list(gamma = 0.5)
+)
+
+# Like `fit_engine()`, but fit through `rule_fit()`
+fit_method <- function(engine, ...) {
+  skip_if_no_engine(engine)
+  if (engine == "ctb") {
+    res <- rule_fit(
+      ...,
+      method = engine_method[[engine]],
+      trees = 5,
+      logging_level = "Silent",
+      allow_writing_files = FALSE
+    )
+  } else {
+    res <- rule_fit(..., method = engine_method[[engine]], trees = 5)
+  }
+  res
+}
+
+# Check that `rule_fit()` and the engine's function give the same model when
+# given the same arguments and seed
+expect_method_matches <- function(
+  engine,
+  ...,
+  new_data = mtcars[c(2, 21), -1]
+) {
+  set.seed(6178)
+  direct <- fit_engine(engine, ...)
+  set.seed(6178)
+  via <- fit_method(engine, ...)
+  testthat::expect_s3_class(via, c(paste0("rule_fit_", engine), "rule_fit"))
+  testthat::expect_equal(via$rules, direct$rules)
+  testthat::expect_equal(via$arguments, direct$arguments)
+  testthat::expect_equal(via$training, direct$training)
+  testthat::expect_equal(predict(via, new_data), predict(direct, new_data))
+  invisible(via)
+}

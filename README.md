@@ -49,14 +49,16 @@ delivery_test <- modeldata::deliveries[-in_train, ]
 
 ``` r
 set.seed(871)
-rf_fit <- rule_fit_ctb(time_to_delivery ~ ., data = delivery_train)
+rf_fit <- rule_fit(time_to_delivery ~ ., data = delivery_train, method = "catboost")
 rf_fit
 #> RuleFit Using CatBoost
 #> 
 #> Training Set:
 #> ℹ Samples: 8000
 #> 
-#> ℹ Predictors: 417, including 381 rules
+#> ℹ Predictors: 30
+#> 
+#> ℹ Rules: 381
 #> 
 #> 
 #> Arguments:
@@ -71,6 +73,8 @@ rf_fit
 #> • penalty: 0.001
 #> 
 #> • mixture: 1
+#> 
+#> • final_ctr_computation_mode: Skip
 
 rf_pred <- 
   predict(rf_fit, new_data = delivery_test) |> 

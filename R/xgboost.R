@@ -69,6 +69,7 @@
 #'
 #' A `rule_fit_xgb` object.
 #'
+#' @keywords internal
 #' @export
 rule_fit_xgb <- function(x, ...) {
   UseMethod("rule_fit_xgb")

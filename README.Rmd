@@ -59,7 +59,7 @@ delivery_test <- modeldata::deliveries[-in_train, ]
 #| label: fit
 
 set.seed(871)
-rf_fit <- rule_fit_ctb(time_to_delivery ~ ., data = delivery_train)
+rf_fit <- rule_fit(time_to_delivery ~ ., data = delivery_train, method = "catboost")
 rf_fit
 
 rf_pred <- 
