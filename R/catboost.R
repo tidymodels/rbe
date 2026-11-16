@@ -1,6 +1,6 @@
 #' Fit a RuleFit Model via CatBoost
 #'
-#' `rule_fit_ctb()` fits a model.
+#' `rule_ensemble_ctb()` fits a model.
 #'
 #' @include methods.R
 #' @inheritParams parsnip::boost_tree
@@ -40,29 +40,29 @@
 #'     `standardize` or `penalty.factor`).
 #'
 #'   A name that is valid for both models goes to the boosting model. An
-#'   unknown name is an error. Options that `rule_fit_ctb()` sets itself
+#'   unknown name is an error. Options that `rule_ensemble_ctb()` sets itself
 #'   (e.g., `iterations` or `depth`) are also errors; use the main arguments
 #'   (e.g., `trees` or `tree_depth`) instead. `min_n` is ignored with a
 #'   warning.
-#' @inheritParams rule_fit_xgb
-#' @inheritSection rule_fit_xgb Case weights
+#' @inheritParams rule_ensemble_xgb
+#' @inheritSection rule_ensemble_xgb Case weights
 #'
 #' @return
 #'
-#' A `rule_fit_ctb` object.
+#' A `rule_ensemble_ctb` object.
 #'
 #' @keywords internal
 #' @export
-rule_fit_ctb <- function(x, ...) {
-  UseMethod("rule_fit_ctb")
+rule_ensemble_ctb <- function(x, ...) {
+  UseMethod("rule_ensemble_ctb")
 }
 
 #' @export
-#' @rdname rule_fit_ctb
-rule_fit_ctb.default <- function(x, ...) {
+#' @rdname rule_ensemble_ctb
+rule_ensemble_ctb.default <- function(x, ...) {
   cli::cli_abort(
     c(
-      "{.fn rule_fit_ctb} is not defined for {.obj_type_friendly {x}}.",
+      "{.fn rule_ensemble_ctb} is not defined for {.obj_type_friendly {x}}.",
       i = "{.arg x} should be a data frame, matrix, formula, or recipe."
     )
   )
@@ -71,8 +71,8 @@ rule_fit_ctb.default <- function(x, ...) {
 # XY method - data frame
 
 #' @export
-#' @rdname rule_fit_ctb
-rule_fit_ctb.data.frame <- function(
+#' @rdname rule_ensemble_ctb
+rule_ensemble_ctb.data.frame <- function(
   x,
   y,
   ...,
@@ -85,7 +85,7 @@ rule_fit_ctb.data.frame <- function(
   mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
-  rule_fit_ctb_bridge(
+  rule_ensemble_ctb_bridge(
     processed,
     weights = weights,
     trees = trees,
@@ -101,8 +101,8 @@ rule_fit_ctb.data.frame <- function(
 # XY method - matrix
 
 #' @export
-#' @rdname rule_fit_ctb
-rule_fit_ctb.matrix <- function(
+#' @rdname rule_ensemble_ctb
+rule_ensemble_ctb.matrix <- function(
   x,
   y,
   ...,
@@ -115,7 +115,7 @@ rule_fit_ctb.matrix <- function(
   mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
-  rule_fit_ctb_bridge(
+  rule_ensemble_ctb_bridge(
     processed,
     weights = weights,
     trees = trees,
@@ -131,8 +131,8 @@ rule_fit_ctb.matrix <- function(
 # Formula method
 
 #' @export
-#' @rdname rule_fit_ctb
-rule_fit_ctb.formula <- function(
+#' @rdname rule_ensemble_ctb
+rule_ensemble_ctb.formula <- function(
   formula,
   data,
   ...,
@@ -147,7 +147,7 @@ rule_fit_ctb.formula <- function(
   check_formula_weights(formula, data)
   bp <- hardhat::default_formula_blueprint(indicators = "none")
   processed <- hardhat::mold(formula, data, blueprint = bp)
-  rule_fit_ctb_bridge(
+  rule_ensemble_ctb_bridge(
     processed,
     weights = weights,
     trees = trees,
@@ -163,8 +163,8 @@ rule_fit_ctb.formula <- function(
 # Recipe method
 
 #' @export
-#' @rdname rule_fit_ctb
-rule_fit_ctb.recipe <- function(
+#' @rdname rule_ensemble_ctb
+rule_ensemble_ctb.recipe <- function(
   x,
   data,
   ...,
@@ -177,7 +177,7 @@ rule_fit_ctb.recipe <- function(
 ) {
   check_recipe_dots(list(...))
   processed <- hardhat::mold(x, data)
-  rule_fit_ctb_bridge(
+  rule_ensemble_ctb_bridge(
     processed,
     weights = NULL,
     trees = trees,
@@ -193,7 +193,7 @@ rule_fit_ctb.recipe <- function(
 # ------------------------------------------------------------------------------
 # Bridge
 
-rule_fit_ctb_bridge <- function(
+rule_ensemble_ctb_bridge <- function(
   processed,
   weights,
   trees,
@@ -252,7 +252,7 @@ rule_fit_ctb_bridge <- function(
     case_weights = as_glmnet_weights(wts)
   )
 
-  new_rule_fit(
+  new_rule_ensemble(
     rules = rules,
     fit = reg_fit,
     arguments = c(
@@ -273,12 +273,12 @@ rule_fit_ctb_bridge <- function(
       ptype = ptype,
       weights = attr(wts, "weights_class")
     ),
-    class = c("rule_fit_ctb", "rulefit")
+    class = c("rule_ensemble_ctb", "rule_ensemble")
   )
 }
 
 #' @export
-print.rule_fit_ctb <- function(x, ...) {
+print.rule_ensemble_ctb <- function(x, ...) {
   cli::cli_inform("RuleFit Using CatBoost")
   NextMethod()
 }

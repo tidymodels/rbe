@@ -32,7 +32,7 @@
     Condition
       Error:
       ! These arguments cannot be passed to `...`:
-      * `x` is set by rulefit.
+      * `x` is set by rbe.
       * Use `penalty` instead of `lambda`.
       * Use `learn_rate` instead of `eta`.
       * Use `early_stopping_rounds` instead of `od_wait`.
@@ -47,7 +47,7 @@
       ! These arguments cannot be passed to `...`:
       * Use `tree_depth` instead of `max_depth`.
       * Use `min_n` instead of `min_child_weight`.
-      * `params` is set by rulefit.
+      * `params` is set by rbe.
 
 # split_dots() errors with unknown arguments
 
@@ -100,15 +100,15 @@
       Error:
       ! Arguments `a` and `b` were passed to `...` more than once.
 
-# protected arguments set by rulefit and renamed ones together
+# protected arguments set by rbe and renamed ones together
 
     Code
       split_dots(list(formula = 1, data = 2, iterations = 3), "ctb")
     Condition
       Error:
       ! These arguments cannot be passed to `...`:
-      * `data` is set by rulefit.
-      * `formula` is set by rulefit.
+      * `data` is set by rbe.
+      * `formula` is set by rbe.
       * Use `trees` instead of `iterations`.
 
 # protected arguments are reported before unknown arguments
@@ -140,13 +140,13 @@
 
 # drop_ctb_min_n() removes min_n
 
-    `min_n` is not used by `rule_fit_ctb()` and was ignored.
+    `min_n` is not used by `rule_ensemble_ctb()` and was ignored.
     i catboost's default "SymmetricTree" grow policy does not use a minimum node size.
     i To set one, pass `min_data_in_leaf` along with `grow_policy = "Depthwise"` or `grow_policy = "Lossguide"`.
 
 ---
 
-    `min_n` is not used by `rule_fit_ctb()` and was ignored.
+    `min_n` is not used by `rule_ensemble_ctb()` and was ignored.
     i catboost's default "SymmetricTree" grow policy does not use a minimum node size.
     i To set one, pass `min_data_in_leaf` along with `grow_policy = "Depthwise"` or `grow_policy = "Lossguide"`.
 

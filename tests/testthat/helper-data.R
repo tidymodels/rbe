@@ -1,5 +1,5 @@
 fit_ctb <- function(formula, data, ...) {
-  rule_fit_ctb(
+  rule_ensemble_ctb(
     formula,
     data = data,
     trees = 5,
@@ -24,16 +24,16 @@ skip_if_no_engine <- function(engine) {
 fit_engine <- function(engine, ...) {
   skip_if_no_engine(engine)
   if (engine == "ctb") {
-    res <- rule_fit_ctb(
+    res <- rule_ensemble_ctb(
       ...,
       trees = 5,
       logging_level = "Silent",
       allow_writing_files = FALSE
     )
   } else if (engine == "lgb") {
-    res <- rule_fit_lgb(..., trees = 5)
+    res <- rule_ensemble_lgb(..., trees = 5)
   } else {
-    res <- rule_fit_xgb(..., trees = 5)
+    res <- rule_ensemble_xgb(..., trees = 5)
   }
   res
 }
@@ -91,7 +91,7 @@ expect_interfaces_agree <- function(engine) {
   set.seed(5302)
   rec_mod <- fit_engine(engine, rec, data = mtcars)
 
-  cls <- c(paste0("rule_fit_", engine), "rulefit")
+  cls <- c(paste0("rule_ensemble_", engine), "rule_ensemble")
   expected <- predict(df_mod, new_data)
   for (mod in list(df_mod, mat_mod, form_mod, rec_mod)) {
     testthat::expect_s3_class(mod, cls)
@@ -182,7 +182,7 @@ glmnet_coefs <- function(mod) {
   stats::setNames(res$estimate, res$term)
 }
 
-# `rule_fit()` method for each engine abbreviation
+# `rule_ensemble()` method for each engine abbreviation
 engine_method <- c(ctb = "catboost", lgb = "lightgbm", xgb = "xgboost")
 
 # A boosting option that is specific to each engine
@@ -192,11 +192,11 @@ engine_option <- list(
   xgb = list(gamma = 0.5)
 )
 
-# Like `fit_engine()`, but fit through `rule_fit()`
+# Like `fit_engine()`, but fit through `rule_ensemble()`
 fit_method <- function(engine, ...) {
   skip_if_no_engine(engine)
   if (engine == "ctb") {
-    res <- rule_fit(
+    res <- rule_ensemble(
       ...,
       method = engine_method[[engine]],
       trees = 5,
@@ -204,12 +204,12 @@ fit_method <- function(engine, ...) {
       allow_writing_files = FALSE
     )
   } else {
-    res <- rule_fit(..., method = engine_method[[engine]], trees = 5)
+    res <- rule_ensemble(..., method = engine_method[[engine]], trees = 5)
   }
   res
 }
 
-# Check that `rule_fit()` and the engine's function give the same model when
+# Check that `rule_ensemble()` and the engine's function give the same model when
 # given the same arguments and seed
 expect_method_matches <- function(
   engine,
@@ -220,7 +220,10 @@ expect_method_matches <- function(
   direct <- fit_engine(engine, ...)
   set.seed(6178)
   via <- fit_method(engine, ...)
-  testthat::expect_s3_class(via, c(paste0("rule_fit_", engine), "rulefit"))
+  testthat::expect_s3_class(
+    via,
+    c(paste0("rule_ensemble_", engine), "rule_ensemble")
+  )
   testthat::expect_equal(via$rules, direct$rules)
   testthat::expect_equal(via$arguments, direct$arguments)
   testthat::expect_equal(via$training, direct$training)
@@ -228,15 +231,15 @@ expect_method_matches <- function(
   invisible(via)
 }
 
-# A parsnip `rule_fit()` specification for the "rulefit" engine; catboost is
+# A parsnip `rule_fit()` specification for the "rule_ensemble" engine; catboost is
 # kept silent
-rulefit_spec <- function(engine, mode = "regression", ..., trees = 5) {
+rule_ensemble_spec <- function(engine, mode = "regression", ..., trees = 5) {
   skip_if_no_engine(engine)
   spec <- parsnip::rule_fit(trees = !!trees, ...)
   if (engine == "ctb") {
     spec <- parsnip::set_engine(
       spec,
-      "rulefit",
+      "rule_ensemble",
       method = !!engine_method[[engine]],
       logging_level = "Silent",
       allow_writing_files = FALSE
@@ -244,7 +247,7 @@ rulefit_spec <- function(engine, mode = "regression", ..., trees = 5) {
   } else {
     spec <- parsnip::set_engine(
       spec,
-      "rulefit",
+      "rule_ensemble",
       method = !!engine_method[[engine]]
     )
   }

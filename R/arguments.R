@@ -105,7 +105,7 @@ lightgbm_param_aliases <- function() {
 }
 
 # Returns a data frame of argument names that cannot be passed through `...`.
-# `use` is the argument to use instead, or `NA` when rulefit sets the value.
+# `use` is the argument to use instead, or `NA` when rbe sets the value.
 protected_args <- function(engine) {
   internal <- c("x", "y", "data", "weights", "formula")
   res <- data.frame(name = internal, use = NA_character_)
@@ -214,7 +214,7 @@ protected_args <- function(engine) {
 }
 
 # bonsai errors when aliases of its main arguments are used, so redirect users
-# to rulefit's argument or the main engine argument name.
+# to rbe's argument or the main engine argument name.
 bonsai_alias_table <- function(aliases, engine_col, main_args) {
   use <- ifelse(
     aliases$parsnip %in% main_args,
@@ -235,7 +235,7 @@ check_protected_args <- function(nms, engine, call = rlang::caller_env()) {
           passed to {.arg ...}:"
   for (i in seq_len(nrow(prot))) {
     if (is.na(prot$use[i])) {
-      bullet <- paste0("{.arg ", prot$name[i], "} is set by rulefit.")
+      bullet <- paste0("{.arg ", prot$name[i], "} is set by rbe.")
     } else {
       bullet <- paste0(
         "Use {.arg ",
@@ -251,7 +251,7 @@ check_protected_args <- function(nms, engine, call = rlang::caller_env()) {
 }
 
 # catboost's default symmetric trees have no minimum node size, so
-# `rule_fit_ctb()` has no `min_n` argument. Warn instead of erroring since
+# `rule_ensemble_ctb()` has no `min_n` argument. Warn instead of erroring since
 # `min_n` is a main argument for the other engines.
 drop_ctb_min_n <- function(dots, call = rlang::caller_env()) {
   if (!"min_n" %in% names(dots)) {
@@ -259,7 +259,7 @@ drop_ctb_min_n <- function(dots, call = rlang::caller_env()) {
   }
   cli::cli_warn(
     c(
-      "{.arg min_n} is not used by {.fn rule_fit_ctb} and was ignored.",
+      "{.arg min_n} is not used by {.fn rule_ensemble_ctb} and was ignored.",
       i = "catboost's default {.val SymmetricTree} grow policy does not use
            a minimum node size.",
       i = "To set one, pass {.arg min_data_in_leaf} along with

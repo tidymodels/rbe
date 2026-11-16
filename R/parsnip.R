@@ -1,19 +1,29 @@
 # ------------------------------------------------------------------------------
-# Register the "rulefit" engine for parsnip's `rule_fit()` model
+# Register the "rule_ensemble" engine for parsnip's `rule_fit()` model
 
-make_rule_fit_rulefit <- function() {
-  parsnip::set_model_engine("rule_fit", "regression", "rulefit")
-  parsnip::set_model_engine("rule_fit", "classification", "rulefit")
-  parsnip::set_dependency("rule_fit", "rulefit", "rulefit", "regression")
-  parsnip::set_dependency("rule_fit", "rulefit", "glmnet", "regression")
-  parsnip::set_dependency("rule_fit", "rulefit", "bonsai", "regression")
-  parsnip::set_dependency("rule_fit", "rulefit", "rulefit", "classification")
-  parsnip::set_dependency("rule_fit", "rulefit", "glmnet", "classification")
-  parsnip::set_dependency("rule_fit", "rulefit", "bonsai", "classification")
+make_rule_fit_rule_ensemble <- function() {
+  parsnip::set_model_engine("rule_fit", "regression", "rule_ensemble")
+  parsnip::set_model_engine("rule_fit", "classification", "rule_ensemble")
+  parsnip::set_dependency("rule_fit", "rule_ensemble", "rbe", "regression")
+  parsnip::set_dependency("rule_fit", "rule_ensemble", "glmnet", "regression")
+  parsnip::set_dependency("rule_fit", "rule_ensemble", "bonsai", "regression")
+  parsnip::set_dependency("rule_fit", "rule_ensemble", "rbe", "classification")
+  parsnip::set_dependency(
+    "rule_fit",
+    "rule_ensemble",
+    "glmnet",
+    "classification"
+  )
+  parsnip::set_dependency(
+    "rule_fit",
+    "rule_ensemble",
+    "bonsai",
+    "classification"
+  )
 
   parsnip::set_model_arg(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     parsnip = "trees",
     original = "trees",
     func = list(pkg = "dials", fun = "trees", range = c(10, 100)),
@@ -22,7 +32,7 @@ make_rule_fit_rulefit <- function() {
 
   parsnip::set_model_arg(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     parsnip = "mtry",
     original = "mtry",
     func = list(pkg = "dials", fun = "mtry_prop"),
@@ -31,7 +41,7 @@ make_rule_fit_rulefit <- function() {
 
   parsnip::set_model_arg(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     parsnip = "learn_rate",
     original = "learn_rate",
     func = list(pkg = "dials", fun = "learn_rate", range = c(-3, -1)),
@@ -40,7 +50,7 @@ make_rule_fit_rulefit <- function() {
 
   parsnip::set_model_arg(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     parsnip = "tree_depth",
     original = "tree_depth",
     func = list(pkg = "dials", fun = "tree_depth", range = c(1, 8)),
@@ -49,7 +59,7 @@ make_rule_fit_rulefit <- function() {
 
   parsnip::set_model_arg(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     parsnip = "min_n",
     original = "min_n",
     func = list(pkg = "dials", fun = "min_n", range = c(2, 20)),
@@ -58,7 +68,7 @@ make_rule_fit_rulefit <- function() {
 
   parsnip::set_model_arg(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     parsnip = "penalty",
     original = "penalty",
     func = list(pkg = "dials", fun = "penalty", range = c(-5, -1)),
@@ -67,7 +77,7 @@ make_rule_fit_rulefit <- function() {
 
   parsnip::set_model_arg(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     parsnip = "mixture",
     original = "mixture",
     func = list(pkg = "dials", fun = "mixture"),
@@ -76,28 +86,28 @@ make_rule_fit_rulefit <- function() {
 
   parsnip::set_model_arg(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     parsnip = "method",
     original = "method",
-    func = list(pkg = "rulefit", fun = "boosting_method"),
+    func = list(pkg = "rbe", fun = "boosting_method"),
     has_submodel = FALSE
   )
 
   parsnip::set_fit(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     mode = "regression",
     value = list(
       interface = "data.frame",
       protect = c("x", "y", "weights"),
-      func = c(pkg = "rulefit", fun = "rule_fit"),
+      func = c(pkg = "rbe", fun = "rule_ensemble"),
       defaults = list()
     )
   )
 
   parsnip::set_encoding(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     mode = "regression",
     options = list(
       predictor_indicators = "none",
@@ -109,19 +119,19 @@ make_rule_fit_rulefit <- function() {
 
   parsnip::set_fit(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     mode = "classification",
     value = list(
       interface = "data.frame",
       protect = c("x", "y", "weights"),
-      func = c(pkg = "rulefit", fun = "rule_fit"),
+      func = c(pkg = "rbe", fun = "rule_ensemble"),
       defaults = list()
     )
   )
 
   parsnip::set_encoding(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     mode = "classification",
     options = list(
       predictor_indicators = "none",
@@ -133,7 +143,7 @@ make_rule_fit_rulefit <- function() {
 
   parsnip::set_pred(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     mode = "regression",
     type = "numeric",
     value = list(
@@ -150,7 +160,7 @@ make_rule_fit_rulefit <- function() {
 
   parsnip::set_pred(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     mode = "classification",
     type = "class",
     value = list(
@@ -167,7 +177,7 @@ make_rule_fit_rulefit <- function() {
 
   parsnip::set_pred(
     model = "rule_fit",
-    eng = "rulefit",
+    eng = "rule_ensemble",
     mode = "classification",
     type = "prob",
     value = list(
@@ -197,17 +207,17 @@ pull_pred_class <- function(x, object) {
 #' Model predictions across many sub-models for parsnip fits
 #'
 #' These methods are used when a RuleFit model is fit with
-#' `parsnip::rule_fit()` and the `"rulefit"` engine. They produce predictions
+#' `parsnip::rule_fit()` and the `"rule_ensemble"` engine. They produce predictions
 #' for multiple values of `penalty` without refitting.
 #'
-#' @param object A `model_fit` object from the `"rulefit"` engine.
-#' @inheritParams multi_predict.rulefit
+#' @param object A `model_fit` object from the `"rule_ensemble"` engine.
+#' @inheritParams multi_predict.rule_ensemble
 #' @return A tibble with the same number of rows as `new_data` and a list
 #'   column `.pred`.
 #' @keywords internal
-#' @name multi_predict_rulefit_parsnip
+#' @name multi_predict_rule_ensemble_parsnip
 #' @export
-multi_predict._rule_fit_xgb <- function(
+multi_predict._rule_ensemble_xgb <- function(
   object,
   new_data,
   type = NULL,
@@ -217,9 +227,9 @@ multi_predict._rule_fit_xgb <- function(
   multi_predict_model_fit(object, new_data, type, penalty, ...)
 }
 
-#' @rdname multi_predict_rulefit_parsnip
+#' @rdname multi_predict_rule_ensemble_parsnip
 #' @export
-multi_predict._rule_fit_lgb <- function(
+multi_predict._rule_ensemble_lgb <- function(
   object,
   new_data,
   type = NULL,
@@ -229,9 +239,9 @@ multi_predict._rule_fit_lgb <- function(
   multi_predict_model_fit(object, new_data, type, penalty, ...)
 }
 
-#' @rdname multi_predict_rulefit_parsnip
+#' @rdname multi_predict_rule_ensemble_parsnip
 #' @export
-multi_predict._rule_fit_ctb <- function(
+multi_predict._rule_ensemble_ctb <- function(
   object,
   new_data,
   type = NULL,

@@ -1,45 +1,45 @@
 # the default method errors for unsupported inputs
 
     Code
-      rule_fit_xgb(1:3)
+      rule_ensemble_xgb(1:3)
     Condition
-      Error in `rule_fit_xgb()`:
-      ! `rule_fit_xgb()` is not defined for an integer vector.
+      Error in `rule_ensemble_xgb()`:
+      ! `rule_ensemble_xgb()` is not defined for an integer vector.
       i `x` should be a data frame, matrix, formula, or recipe.
 
 ---
 
     Code
-      rule_fit_xgb(letters)
+      rule_ensemble_xgb(letters)
     Condition
-      Error in `rule_fit_xgb()`:
-      ! `rule_fit_xgb()` is not defined for a character vector.
+      Error in `rule_ensemble_xgb()`:
+      ! `rule_ensemble_xgb()` is not defined for a character vector.
       i `x` should be a data frame, matrix, formula, or recipe.
 
 ---
 
     Code
-      rule_fit_xgb(list(a = 1))
+      rule_ensemble_xgb(list(a = 1))
     Condition
-      Error in `rule_fit_xgb()`:
-      ! `rule_fit_xgb()` is not defined for a list.
+      Error in `rule_ensemble_xgb()`:
+      ! `rule_ensemble_xgb()` is not defined for a list.
       i `x` should be a data frame, matrix, formula, or recipe.
 
 ---
 
     Code
-      rule_fit_xgb(NULL)
+      rule_ensemble_xgb(NULL)
     Condition
-      Error in `rule_fit_xgb()`:
-      ! `rule_fit_xgb()` is not defined for NULL.
+      Error in `rule_ensemble_xgb()`:
+      ! `rule_ensemble_xgb()` is not defined for NULL.
       i `x` should be a data frame, matrix, formula, or recipe.
 
 # protected arguments error before fitting
 
     Code
-      rule_fit_xgb(mpg ~ ., data = mtcars, nrounds = 10, learning_rate = 0.1)
+      rule_ensemble_xgb(mpg ~ ., data = mtcars, nrounds = 10, learning_rate = 0.1)
     Condition
-      Error in `rule_fit_xgb()`:
+      Error in `rule_ensemble_xgb()`:
       ! These arguments cannot be passed to `...`:
       * Use `trees` instead of `nrounds`.
       * Use `learn_rate` instead of `learning_rate`.
@@ -47,11 +47,11 @@
 ---
 
     Code
-      rule_fit_xgb(mpg ~ ., data = mtcars, evals = list())
+      rule_ensemble_xgb(mpg ~ ., data = mtcars, evals = list())
     Condition
-      Error in `rule_fit_xgb()`:
+      Error in `rule_ensemble_xgb()`:
       ! This argument cannot be passed to `...`:
-      * `evals` is set by rulefit.
+      * `evals` is set by rbe.
 
 # new factor levels give missing predictions with a warning
 
@@ -61,7 +61,7 @@
 # a factor named like an indicator of another factor is an error
 
     Code
-      rule_fit_xgb(y ~ ., data = dat, trees = 2)
+      rule_ensemble_xgb(y ~ ., data = dat, trees = 2)
     Condition
       Error in `one_hot()`:
       ! Converting factors to indicators creates duplicate column name "a_b".

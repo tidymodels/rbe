@@ -1,7 +1,7 @@
 #' Parameter for the boosting method
 #'
 #' `boosting_method()` is a qualitative parameter for the `method` argument of
-#' `rule_fit()`, which picks the boosting library used to make the rules.
+#' `rule_ensemble()`, which picks the boosting library used to make the rules.
 #'
 #' @param values A character vector of possible boosting methods. The default
 #'   is `values_boosting_method`.

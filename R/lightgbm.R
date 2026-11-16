@@ -1,6 +1,6 @@
 #' Fit a RuleFit Model via LightGBM
 #'
-#' `rule_fit_lgb()` fits a model.
+#' `rule_ensemble_lgb()` fits a model.
 #'
 #' @include methods.R
 #' @inheritParams parsnip::boost_tree
@@ -43,29 +43,29 @@
 #'     `standardize` or `penalty.factor`).
 #'
 #'   A name that is valid for both models goes to the boosting model. An
-#'   unknown name is an error. Options that `rule_fit_lgb()` sets itself
+#'   unknown name is an error. Options that `rule_ensemble_lgb()` sets itself
 #'   (e.g., `num_iterations` or `learning_rate`) are also errors; use the main
 #'   arguments (e.g., `trees` or `learn_rate`) instead. `quiet` defaults to
 #'   `TRUE`.
-#' @inheritParams rule_fit_xgb
-#' @inheritSection rule_fit_xgb Case weights
+#' @inheritParams rule_ensemble_xgb
+#' @inheritSection rule_ensemble_xgb Case weights
 #'
 #' @return
 #'
-#' A `rule_fit_lgb` object.
+#' A `rule_ensemble_lgb` object.
 #'
 #' @keywords internal
 #' @export
-rule_fit_lgb <- function(x, ...) {
-  UseMethod("rule_fit_lgb")
+rule_ensemble_lgb <- function(x, ...) {
+  UseMethod("rule_ensemble_lgb")
 }
 
 #' @export
-#' @rdname rule_fit_lgb
-rule_fit_lgb.default <- function(x, ...) {
+#' @rdname rule_ensemble_lgb
+rule_ensemble_lgb.default <- function(x, ...) {
   cli::cli_abort(
     c(
-      "{.fn rule_fit_lgb} is not defined for {.obj_type_friendly {x}}.",
+      "{.fn rule_ensemble_lgb} is not defined for {.obj_type_friendly {x}}.",
       i = "{.arg x} should be a data frame, matrix, formula, or recipe."
     )
   )
@@ -74,8 +74,8 @@ rule_fit_lgb.default <- function(x, ...) {
 # XY method - data frame
 
 #' @export
-#' @rdname rule_fit_lgb
-rule_fit_lgb.data.frame <- function(
+#' @rdname rule_ensemble_lgb
+rule_ensemble_lgb.data.frame <- function(
   x,
   y,
   ...,
@@ -89,7 +89,7 @@ rule_fit_lgb.data.frame <- function(
   mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
-  rule_fit_lgb_bridge(
+  rule_ensemble_lgb_bridge(
     processed,
     weights = weights,
     trees = trees,
@@ -106,8 +106,8 @@ rule_fit_lgb.data.frame <- function(
 # XY method - matrix
 
 #' @export
-#' @rdname rule_fit_lgb
-rule_fit_lgb.matrix <- function(
+#' @rdname rule_ensemble_lgb
+rule_ensemble_lgb.matrix <- function(
   x,
   y,
   ...,
@@ -121,7 +121,7 @@ rule_fit_lgb.matrix <- function(
   mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
-  rule_fit_lgb_bridge(
+  rule_ensemble_lgb_bridge(
     processed,
     weights = weights,
     trees = trees,
@@ -138,8 +138,8 @@ rule_fit_lgb.matrix <- function(
 # Formula method
 
 #' @export
-#' @rdname rule_fit_lgb
-rule_fit_lgb.formula <- function(
+#' @rdname rule_ensemble_lgb
+rule_ensemble_lgb.formula <- function(
   formula,
   data,
   ...,
@@ -155,7 +155,7 @@ rule_fit_lgb.formula <- function(
   check_formula_weights(formula, data)
   bp <- hardhat::default_formula_blueprint(indicators = "none")
   processed <- hardhat::mold(formula, data, blueprint = bp)
-  rule_fit_lgb_bridge(
+  rule_ensemble_lgb_bridge(
     processed,
     weights = weights,
     trees = trees,
@@ -172,8 +172,8 @@ rule_fit_lgb.formula <- function(
 # Recipe method
 
 #' @export
-#' @rdname rule_fit_lgb
-rule_fit_lgb.recipe <- function(
+#' @rdname rule_ensemble_lgb
+rule_ensemble_lgb.recipe <- function(
   x,
   data,
   ...,
@@ -187,7 +187,7 @@ rule_fit_lgb.recipe <- function(
 ) {
   check_recipe_dots(list(...))
   processed <- hardhat::mold(x, data)
-  rule_fit_lgb_bridge(
+  rule_ensemble_lgb_bridge(
     processed,
     weights = NULL,
     trees = trees,
@@ -204,7 +204,7 @@ rule_fit_lgb.recipe <- function(
 # ------------------------------------------------------------------------------
 # Bridge
 
-rule_fit_lgb_bridge <- function(
+rule_ensemble_lgb_bridge <- function(
   processed,
   weights,
   trees,
@@ -274,7 +274,7 @@ rule_fit_lgb_bridge <- function(
     case_weights = as_glmnet_weights(wts)
   )
 
-  new_rule_fit(
+  new_rule_ensemble(
     rules = rules,
     fit = reg_fit,
     arguments = c(
@@ -296,12 +296,12 @@ rule_fit_lgb_bridge <- function(
       ptype = ptype,
       weights = attr(wts, "weights_class")
     ),
-    class = c("rule_fit_lgb", "rulefit")
+    class = c("rule_ensemble_lgb", "rule_ensemble")
   )
 }
 
 #' @export
-print.rule_fit_lgb <- function(x, ...) {
+print.rule_ensemble_lgb <- function(x, ...) {
   cli::cli_inform("RuleFit Using LightGBM")
   NextMethod()
 }

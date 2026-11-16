@@ -1,10 +1,10 @@
 #' Fit a RuleFit Model
 #'
-#' `rule_fit()` fits a RuleFit model with the boosting library chosen by
-#' `method`. It passes its arguments to [rule_fit_xgb()], [rule_fit_lgb()], or
-#' [rule_fit_ctb()].
+#' `rule_ensemble()` fits a RuleFit model with the boosting library chosen by
+#' `method`. It passes its arguments to [rule_ensemble_xgb()], [rule_ensemble_lgb()], or
+#' [rule_ensemble_ctb()].
 #'
-#' @inheritParams rule_fit_xgb
+#' @inheritParams rule_ensemble_xgb
 #' @param x Depending on the context:
 #'
 #'   * A __data frame__ of predictors.
@@ -21,12 +21,12 @@
 #'   * `weights`, for case weights (not used with a recipe; see the "Case
 #'     weights" section).
 #'   * Named options for the boosting model and the glmnet model. The valid
-#'     boosting options depend on `method`; see [rule_fit_xgb()],
-#'     [rule_fit_lgb()], and [rule_fit_ctb()].
+#'     boosting options depend on `method`; see [rule_ensemble_xgb()],
+#'     [rule_ensemble_lgb()], and [rule_ensemble_ctb()].
 #'
 #' @param method A single character string for the boosting library:
-#'   `"xgboost"` (the default) uses [rule_fit_xgb()], `"lightgbm"` uses
-#'   [rule_fit_lgb()], and `"catboost"` uses [rule_fit_ctb()].
+#'   `"xgboost"` (the default) uses [rule_ensemble_xgb()], `"lightgbm"` uses
+#'   [rule_ensemble_lgb()], and `"catboost"` uses [rule_ensemble_ctb()].
 #' @param mtry The proportion of predictors randomly sampled, on (0, 1]. For
 #'   xgboost and lightgbm, the predictors are sampled at each split. For
 #'   catboost, they are sampled for each tree level (catboost's `rsm`).
@@ -49,7 +49,7 @@
 #'
 #' ## Using parsnip
 #'
-#' rulefit adds a `"rulefit"` engine to parsnip's [parsnip::rule_fit()] model.
+#' rbe adds a `"rule_ensemble"` engine to parsnip's [parsnip::rule_fit()] model.
 #' The main arguments `trees`, `mtry`, `learn_rate`, `tree_depth`, `min_n`, and
 #' `penalty` are used, and `method` and `mixture` are engine arguments. Other
 #' engine arguments are passed on as boosting or glmnet options. `penalty` is
@@ -57,27 +57,42 @@
 #' all `penalty` values. When `mtry` is tuned, its values are proportions
 #' ([dials::mtry_prop()]).
 #'
-#' This function and parsnip's model function are both named `rule_fit()`.
-#' When both packages are attached, use `parsnip::rule_fit()` to make the model
-#' specification:
-#'
 #' ```r
 #' spec <-
-#'   parsnip::rule_fit(trees = 100, penalty = tune()) |>
-#'   set_engine("rulefit", method = "lightgbm", mixture = 0.5) |>
+#'   rule_fit(trees = 100, penalty = tune()) |>
+#'   set_engine("rule_ensemble", method = "lightgbm", mixture = 0.5) |>
 #'   set_mode("regression")
 #' ```
 #'
-#' @inheritSection rule_fit_xgb Case weights
+#' @inheritSection rule_ensemble_xgb Case weights
 #'
 #' @return
 #'
-#' A `rule_fit_xgb`, `rule_fit_lgb`, or `rule_fit_ctb` object, depending on
-#' `method`.
+#' A `rule_ensemble_xgb`, `rule_ensemble_lgb`, or `rule_ensemble_ctb` object,
+#' depending on `method`.
 #'
-#' @seealso [rule_fit_xgb()], [rule_fit_lgb()], [rule_fit_ctb()]
+#' @references
+#' Friedman, J, and B Popescu. 2008. "Predictive Learning via Rule Ensembles."
+#' _The Annals of Applied Statistics_ 2 (3): 916-54.
+#'
+#' Chen, T, and G Guestrin. 2016. "XGBoost: A Scalable Tree Boosting System."
+#' In _Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge
+#' Discovery and Data Mining_, 785-94.
+#'
+#' Ke, G, Q Meng, T Finley, T Wang, W Chen, W Ma, Q Ye, and TY Liu. 2017.
+#' "LightGBM: A Highly Efficient Gradient Boosting Decision Tree." In _Advances
+#' in Neural Information Processing Systems_, edited by I Guyon, U Von Luxburg,
+#' S Bengio, H Wallach, R Fergus, S Vishwanathan, and R Garnett. Vol. 30.
+#' Curran Associates, Inc.
+#'
+#' Prokhorenkova, L, G Gusev, A Vorobev, AV Dorogush, and A Gulin. 2018.
+#' "CatBoost: Unbiased Boosting with Categorical Features." In _Advances in
+#' Neural Information Processing Systems_, edited by S Bengio, H Wallach,
+#' H Larochelle, K Grauman, N Cesa-Bianchi, and R Garnett. Vol. 31.
+#'
+#' @seealso [rule_ensemble_xgb()], [rule_ensemble_lgb()], [rule_ensemble_ctb()]
 #' @export
-rule_fit <- function(
+rule_ensemble <- function(
   x,
   ...,
   method = c("xgboost", "lightgbm", "catboost"),
@@ -108,11 +123,11 @@ rule_fit <- function(
   )
 
   if (method == "xgboost") {
-    fn <- "rule_fit_xgb"
+    fn <- "rule_ensemble_xgb"
   } else if (method == "lightgbm") {
-    fn <- "rule_fit_lgb"
+    fn <- "rule_ensemble_lgb"
   } else {
-    fn <- "rule_fit_ctb"
+    fn <- "rule_ensemble_ctb"
     # Only a user-supplied `min_n` is passed on, so that catboost warns about
     # it; the default value is dropped silently.
     if (missing(min_n)) {

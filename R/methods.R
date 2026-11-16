@@ -1,5 +1,5 @@
 #' @export
-print.rulefit <- function(x, ...) {
+print.rule_ensemble <- function(x, ...) {
   cli::cli_inform(" ")
   cli::cli_inform("Training Set:")
   cli::cli_bullets(c(i = "Samples: {x$training$rows}"))
@@ -42,8 +42,8 @@ print.rulefit <- function(x, ...) {
 #' regularized model for multiple values of the `penalty` parameter without
 #' refitting. The same rule set is used for each penalty value.
 #'
-#' @param object A `rulefit` object created by [rule_fit_xgb()],
-#'   [rule_fit_lgb()], or [rule_fit_ctb()].
+#' @param object A `rule_ensemble` object created by [rule_ensemble_xgb()],
+#'   [rule_ensemble_lgb()], or [rule_ensemble_ctb()].
 #' @param new_data A data frame of predictors.
 #' @param type A single character value or `NULL`. Possible values are
 #'   `"numeric"`, `"class"`, `"prob"`, or `"raw"`. When `NULL`, `"numeric"` is
@@ -56,14 +56,14 @@ print.rulefit <- function(x, ...) {
 #'   prediction column(s) for that value.
 #' @examples
 #' if (rlang::is_installed("catboost")) {
-#'   mod <- rule_fit_ctb(mpg ~ ., data = mtcars, logging_level = "Silent")
+#'   mod <- rule_ensemble_ctb(mpg ~ ., data = mtcars, logging_level = "Silent")
 #'
 #'   res <- multi_predict(mod, mtcars[1:3, -1], penalty = c(0.01, 0.1))
 #'   res
 #'   res$.pred[[1]]
 #' }
 #' @export
-multi_predict.rulefit <- function(
+multi_predict.rule_ensemble <- function(
   object,
   new_data,
   type = NULL,
@@ -80,15 +80,15 @@ multi_predict.rulefit <- function(
   )
 }
 
-#' @rdname multi_predict.rulefit
+#' @rdname multi_predict.rule_ensemble
 #' @export
-has_multi_predict.rulefit <- function(object, ...) {
+has_multi_predict.rule_ensemble <- function(object, ...) {
   TRUE
 }
 
-#' @rdname multi_predict.rulefit
+#' @rdname multi_predict.rule_ensemble
 #' @export
-multi_predict_args.rulefit <- function(object, ...) {
+multi_predict_args.rule_ensemble <- function(object, ...) {
   "penalty"
 }
 
@@ -105,13 +105,13 @@ parsnip::has_multi_predict
 parsnip::multi_predict_args
 
 #' @export
-predict.rulefit <- function(object, new_data, type = NULL, ...) {
+predict.rule_ensemble <- function(object, new_data, type = NULL, ...) {
   pred_data <- predictor_matrix(object, new_data)
   stats::predict(object$fit, new_data = pred_data, type = type)
 }
 
 #' @export
-augment.rulefit <- function(x, new_data, ...) {
+augment.rule_ensemble <- function(x, new_data, ...) {
   pred_data <- predictor_matrix(x, new_data)
   # parsnip's augment() returns the rule matrix columns; keep only the
   # predictions and attach them to the original data
@@ -121,21 +121,26 @@ augment.rulefit <- function(x, new_data, ...) {
 }
 
 #' @export
-required_pkgs.rulefit <- function(x, ...) {
-  if (inherits(x, "rule_fit_xgb")) {
+required_pkgs.rule_ensemble <- function(x, ...) {
+  if (inherits(x, "rule_ensemble_xgb")) {
     boost_pkgs <- "xgboost"
-  } else if (inherits(x, "rule_fit_lgb")) {
+  } else if (inherits(x, "rule_ensemble_lgb")) {
     boost_pkgs <- c("bonsai", "lightgbm")
-  } else if (inherits(x, "rule_fit_ctb")) {
+  } else if (inherits(x, "rule_ensemble_ctb")) {
     boost_pkgs <- c("bonsai", "catboost")
   } else {
     boost_pkgs <- character(0)
   }
-  c("rulefit", "glmnet", boost_pkgs)
+  c("rbe", "glmnet", boost_pkgs)
 }
 
 #' @export
-tidy.rulefit <- function(x, penalty = NULL, what = c("glmnet", "rules"), ...) {
+tidy.rule_ensemble <- function(
+  x,
+  penalty = NULL,
+  what = c("glmnet", "rules"),
+  ...
+) {
   what <- rlang::arg_match(what, c("glmnet", "rules"))
   if (what == "rules") {
     return(x$rules)
@@ -151,7 +156,7 @@ tidy.rulefit <- function(x, penalty = NULL, what = c("glmnet", "rules"), ...) {
 #' @return A ggplot2 object.
 #' @export
 #' @inheritParams parsnip::autoplot.glmnet
-autoplot.rulefit <- function(
+autoplot.rule_ensemble <- function(
   object,
   ...,
   min_penalty = 0,

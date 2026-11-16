@@ -1,6 +1,6 @@
 #' Fit a RuleFit Model via XGBoost
 #'
-#' `rule_fit_xgb()` fits a model.
+#' `rule_ensemble_xgb()` fits a model.
 #'
 #' @include methods.R
 #' @inheritParams parsnip::boost_tree
@@ -47,7 +47,7 @@
 #'     `standardize` or `penalty.factor`).
 #'
 #'   A name that is valid for both models goes to the boosting model. An
-#'   unknown name is an error. Options that `rule_fit_xgb()` sets itself
+#'   unknown name is an error. Options that `rule_ensemble_xgb()` sets itself
 #'   (e.g., `nrounds` or `eta`) are also errors; use the main arguments
 #'   (e.g., `trees` or `learn_rate`) instead.
 #'
@@ -67,20 +67,20 @@
 #'
 #' @return
 #'
-#' A `rule_fit_xgb` object.
+#' A `rule_ensemble_xgb` object.
 #'
 #' @keywords internal
 #' @export
-rule_fit_xgb <- function(x, ...) {
-  UseMethod("rule_fit_xgb")
+rule_ensemble_xgb <- function(x, ...) {
+  UseMethod("rule_ensemble_xgb")
 }
 
 #' @export
-#' @rdname rule_fit_xgb
-rule_fit_xgb.default <- function(x, ...) {
+#' @rdname rule_ensemble_xgb
+rule_ensemble_xgb.default <- function(x, ...) {
   cli::cli_abort(
     c(
-      "{.fn rule_fit_xgb} is not defined for {.obj_type_friendly {x}}.",
+      "{.fn rule_ensemble_xgb} is not defined for {.obj_type_friendly {x}}.",
       i = "{.arg x} should be a data frame, matrix, formula, or recipe."
     )
   )
@@ -89,8 +89,8 @@ rule_fit_xgb.default <- function(x, ...) {
 # XY method - data frame
 
 #' @export
-#' @rdname rule_fit_xgb
-rule_fit_xgb.data.frame <- function(
+#' @rdname rule_ensemble_xgb
+rule_ensemble_xgb.data.frame <- function(
   x,
   y,
   ...,
@@ -104,7 +104,7 @@ rule_fit_xgb.data.frame <- function(
   mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
-  rule_fit_xgb_bridge(
+  rule_ensemble_xgb_bridge(
     processed,
     weights = weights,
     trees = trees,
@@ -121,8 +121,8 @@ rule_fit_xgb.data.frame <- function(
 # XY method - matrix
 
 #' @export
-#' @rdname rule_fit_xgb
-rule_fit_xgb.matrix <- function(
+#' @rdname rule_ensemble_xgb
+rule_ensemble_xgb.matrix <- function(
   x,
   y,
   ...,
@@ -136,7 +136,7 @@ rule_fit_xgb.matrix <- function(
   mixture = 1
 ) {
   processed <- hardhat::mold(x, y)
-  rule_fit_xgb_bridge(
+  rule_ensemble_xgb_bridge(
     processed,
     weights = weights,
     trees = trees,
@@ -153,8 +153,8 @@ rule_fit_xgb.matrix <- function(
 # Formula method
 
 #' @export
-#' @rdname rule_fit_xgb
-rule_fit_xgb.formula <- function(
+#' @rdname rule_ensemble_xgb
+rule_ensemble_xgb.formula <- function(
   formula,
   data,
   ...,
@@ -170,7 +170,7 @@ rule_fit_xgb.formula <- function(
   check_formula_weights(formula, data)
   bp <- hardhat::default_formula_blueprint(indicators = "none")
   processed <- hardhat::mold(formula, data, blueprint = bp)
-  rule_fit_xgb_bridge(
+  rule_ensemble_xgb_bridge(
     processed,
     weights = weights,
     trees = trees,
@@ -187,8 +187,8 @@ rule_fit_xgb.formula <- function(
 # Recipe method
 
 #' @export
-#' @rdname rule_fit_xgb
-rule_fit_xgb.recipe <- function(
+#' @rdname rule_ensemble_xgb
+rule_ensemble_xgb.recipe <- function(
   x,
   data,
   ...,
@@ -202,7 +202,7 @@ rule_fit_xgb.recipe <- function(
 ) {
   check_recipe_dots(list(...))
   processed <- hardhat::mold(x, data)
-  rule_fit_xgb_bridge(
+  rule_ensemble_xgb_bridge(
     processed,
     weights = NULL,
     trees = trees,
@@ -219,7 +219,7 @@ rule_fit_xgb.recipe <- function(
 # ------------------------------------------------------------------------------
 # Bridge
 
-rule_fit_xgb_bridge <- function(
+rule_ensemble_xgb_bridge <- function(
   processed,
   weights,
   trees,
@@ -284,7 +284,7 @@ rule_fit_xgb_bridge <- function(
     case_weights = as_glmnet_weights(wts)
   )
 
-  new_rule_fit(
+  new_rule_ensemble(
     rules = rules,
     fit = reg_fit,
     arguments = c(
@@ -307,12 +307,12 @@ rule_fit_xgb_bridge <- function(
       one_hot = one_hot_ptype,
       weights = attr(wts, "weights_class")
     ),
-    class = c("rule_fit_xgb", "rulefit")
+    class = c("rule_ensemble_xgb", "rule_ensemble")
   )
 }
 
 #' @export
-print.rule_fit_xgb <- function(x, ...) {
+print.rule_ensemble_xgb <- function(x, ...) {
   cli::cli_inform("RuleFit Using XGBoost")
   NextMethod()
 }

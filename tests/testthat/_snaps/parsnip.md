@@ -1,4 +1,4 @@
-# translate() maps the arguments to rule_fit()
+# translate() maps the arguments to rule_ensemble()
 
     Code
       parsnip::translate(spec)
@@ -17,10 +17,10 @@
         method = xgboost
         mixture = 0.5
       
-      Computational engine: rulefit 
+      Computational engine: rule_ensemble 
       
       Model fit template:
-      rulefit::rule_fit(x = missing_arg(), y = missing_arg(), weights = missing_arg(), 
+      rbe::rule_ensemble(x = missing_arg(), y = missing_arg(), weights = missing_arg(), 
           mtry = 0.5, trees = 7, min_n = 2, tree_depth = 3, learn_rate = 0.1, 
           penalty = 0.01, method = "xgboost", mixture = 0.5)
 
@@ -29,7 +29,7 @@
     Code
       parsnip::fit(spec, mpg ~ ., data = mtcars)
     Condition
-      Error in `rulefit::rule_fit()`:
+      Error in `rbe::rule_ensemble()`:
       ! `method` must be one of "xgboost", "lightgbm", or "catboost", not "ranger".
 
 # an unknown engine argument is an error
@@ -37,12 +37,12 @@
     Code
       parsnip::fit(spec, mpg ~ ., data = mtcars)
     Condition
-      Error in `rule_fit_xgb()`:
+      Error in `rule_ensemble_xgb()`:
       ! `not_an_option` is not a valid argument for xgboost or `glmnet::glmnet()`.
 
 # min_n with catboost is ignored with a warning
 
-    `min_n` is not used by `rule_fit_ctb()` and was ignored.
+    `min_n` is not used by `rule_ensemble_ctb()` and was ignored.
     i catboost's default "SymmetricTree" grow policy does not use a minimum node size.
     i To set one, pass `min_data_in_leaf` along with `grow_policy = "Depthwise"` or `grow_policy = "Lossguide"`.
 
@@ -68,7 +68,7 @@
       Engine-Specific Arguments:
         method = xgboost
       
-      Computational engine: rulefit 
+      Computational engine: rule_ensemble 
       
 
 ---

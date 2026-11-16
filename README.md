@@ -1,10 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# rulefit
+# rbe
 
 <!-- badges: start -->
 
+[![Codecov test
+coverage](https://codecov.io/gh/topepo/rbe/graph/badge.svg)](https://app.codecov.io/gh/topepo/rbe)
+[![R-CMD-check](https://github.com/topepo/rbe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/topepo/rbe/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 This package is another implementation of the RuleFit model of REFERENCE
@@ -22,7 +25,7 @@ The model has two parts:
 
 ## Installation
 
-You can install the development version of rulefit like so:
+You can install the development version of rbe like so:
 
 ``` r
 # FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
@@ -33,7 +36,7 @@ You can install the development version of rulefit like so:
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(rulefit)
+library(rbe)
 ```
 
 ``` r
@@ -49,7 +52,7 @@ delivery_test <- modeldata::deliveries[-in_train, ]
 
 ``` r
 set.seed(871)
-rf_fit <- rule_fit(time_to_delivery ~ ., data = delivery_train, method = "catboost")
+rf_fit <- rule_ensemble(time_to_delivery ~ ., data = delivery_train, method = "catboost")
 rf_fit
 #> RuleFit Using CatBoost
 #> 
@@ -73,8 +76,6 @@ rf_fit
 #> • penalty: 0.001
 #> 
 #> • mixture: 1
-#> 
-#> • final_ctr_computation_mode: Skip
 
 rf_pred <- 
   predict(rf_fit, new_data = delivery_test) |> 

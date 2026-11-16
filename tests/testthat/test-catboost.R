@@ -24,7 +24,7 @@ test_that("rules are made from CTR splits of a factor predictor", {
   skip_if_not_installed("modeldata")
   dat <- modeldata::deliveries[1:900, ]
   set.seed(2964)
-  mod <- rule_fit_ctb(
+  mod <- rule_ensemble_ctb(
     time_to_delivery ~ .,
     data = dat,
     trees = 25,
@@ -50,7 +50,7 @@ test_that("min_n is ignored with a warning", {
 
 test_that("unknown options error before fitting", {
   expect_snapshot(
-    rule_fit_ctb(mpg ~ ., data = mtcars, fooo = 1),
+    rule_ensemble_ctb(mpg ~ ., data = mtcars, fooo = 1),
     error = TRUE
   )
 })
@@ -82,10 +82,10 @@ test_that("factor predictors get separated indicator names", {
 # Interfaces
 
 test_that("the default method errors for unsupported inputs", {
-  expect_snapshot(rule_fit_ctb(1:3), error = TRUE)
-  expect_snapshot(rule_fit_ctb(letters), error = TRUE)
-  expect_snapshot(rule_fit_ctb(list(a = 1)), error = TRUE)
-  expect_snapshot(rule_fit_ctb(NULL), error = TRUE)
+  expect_snapshot(rule_ensemble_ctb(1:3), error = TRUE)
+  expect_snapshot(rule_ensemble_ctb(letters), error = TRUE)
+  expect_snapshot(rule_ensemble_ctb(list(a = 1)), error = TRUE)
+  expect_snapshot(rule_ensemble_ctb(NULL), error = TRUE)
 })
 
 test_that("data frame, matrix, formula, and recipe interfaces agree", {
@@ -138,7 +138,7 @@ test_that("default and main arguments are recorded", {
   expect_null(mod$arguments$min_n)
 
   set.seed(2604)
-  mod <- rule_fit_ctb(
+  mod <- rule_ensemble_ctb(
     mpg ~ .,
     data = mtcars,
     trees = 4,
@@ -184,11 +184,11 @@ test_that("min_n is ignored with other engine arguments", {
 
 test_that("protected and duplicated arguments error before fitting", {
   expect_snapshot(
-    rule_fit_ctb(mpg ~ ., data = mtcars, iterations = 10),
+    rule_ensemble_ctb(mpg ~ ., data = mtcars, iterations = 10),
     error = TRUE
   )
   expect_snapshot(
-    rule_fit_ctb(mpg ~ ., data = mtcars, lambda = 1, alpha = 0.5),
+    rule_ensemble_ctb(mpg ~ ., data = mtcars, lambda = 1, alpha = 0.5),
     error = TRUE
   )
 })
