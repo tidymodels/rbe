@@ -58,7 +58,8 @@ rule_ensemble_ctb()."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/
 <span>  tree_depth <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  min_n <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  penalty <span class="op">=</span> <span class="fl">0.001</span>,</span>
-<span>  mixture <span class="op">=</span> <span class="fl">1</span></span>
+<span>  mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -133,6 +134,12 @@ proportion of L1 regularization (i.e. lasso) in the model.</p><ul><li><p><code>m
 <li><p><code>0 &lt; mixture &lt; 1</code> specifies an elastic net model, interpolating lasso and ridge.</p></li>
 </ul><p>Available for specific engines only.</p></dd>
 
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>A single logical. If <code>TRUE</code>, the boosting library prints its
+training log, and <code><a href="rule_ensemble_ctb.html">rule_ensemble_ctb()</a></code> warns when <code>min_n</code> is given and
+ignored.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -148,9 +155,10 @@ own parameters.</p><div class="section">
 
 <p>catboost does not use <code>min_n</code>. Its default <code>"SymmetricTree"</code> grow policy
 has no minimum node size. When <code>method = "catboost"</code>, the default value of
-<code>min_n</code> is ignored, and a value that is given is ignored with a warning. To
-set a minimum node size for catboost, pass <code>min_data_in_leaf</code> along with
-<code>grow_policy = "Depthwise"</code> or <code>grow_policy = "Lossguide"</code>.</p>
+<code>min_n</code> is ignored silently. A value that is given is also ignored, with a
+warning when <code>verbose = TRUE</code>. To set a minimum node size for catboost, pass
+<code>min_data_in_leaf</code> along with <code>grow_policy = "Depthwise"</code> or
+<code>grow_policy = "Lossguide"</code>.</p>
 </div>
 
 <div class="section">
@@ -159,8 +167,9 @@ set a minimum node size for catboost, pass <code>min_data_in_leaf</code> along w
 
 <p>rbe adds a <code>"rule_ensemble"</code> engine to parsnip's <code><a href="https://parsnip.tidymodels.org/reference/rule_fit.html" class="external-link">parsnip::rule_fit()</a></code> model.
 The main arguments <code>trees</code>, <code>mtry</code>, <code>learn_rate</code>, <code>tree_depth</code>, <code>min_n</code>, and
-<code>penalty</code> are used, and <code>method</code> and <code>mixture</code> are engine arguments. Other
-engine arguments are passed on as boosting or glmnet options. <code>penalty</code> is
+<code>penalty</code> are used, and <code>method</code>, <code>mixture</code>, and <code>verbose</code> are engine
+arguments. Other engine arguments are passed on as boosting or glmnet
+options. <code>penalty</code> is
 a submodel parameter, so tuning it with the tune package fits one model for
 all <code>penalty</code> values. When <code>mtry</code> is tuned, its values are proportions
 (<code><a href="https://dials.tidymodels.org/reference/mtry_prop.html" class="external-link">dials::mtry_prop()</a></code>).</p>
@@ -190,10 +199,10 @@ are not used as predictors.</p>
     <div id="references">
     <h2>References</h2>
     <p>Friedman, J, and B Popescu. 2008. "Predictive Learning via Rule Ensembles."
-<em>The Annals of Applied Statistics</em> 2 (3): 916–54.</p>
+<em>The Annals of Applied Statistics</em> 2 (3): 916-54.</p>
 <p>Chen, T, and G Guestrin. 2016. "XGBoost: A Scalable Tree Boosting System."
 In <em>Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge
-Discovery and Data Mining</em>, 785–94.</p>
+Discovery and Data Mining</em>, 785-94.</p>
 <p>Ke, G, Q Meng, T Finley, T Wang, W Chen, W Ma, Q Ye, and TY Liu. 2017.
 "LightGBM: A Highly Efficient Gradient Boosting Decision Tree." In <em>Advances
 in Neural Information Processing Systems</em>, edited by I Guyon, U Von Luxburg,

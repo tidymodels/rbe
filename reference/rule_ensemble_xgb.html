@@ -61,7 +61,8 @@
 <span>  tree_depth <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  min_n <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  penalty <span class="op">=</span> <span class="fl">0.001</span>,</span>
-<span>  mixture <span class="op">=</span> <span class="fl">1</span></span>
+<span>  mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'matrix'</span></span>
@@ -76,7 +77,8 @@
 <span>  tree_depth <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  min_n <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  penalty <span class="op">=</span> <span class="fl">0.001</span>,</span>
-<span>  mixture <span class="op">=</span> <span class="fl">1</span></span>
+<span>  mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'formula'</span></span>
@@ -91,7 +93,8 @@
 <span>  tree_depth <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  min_n <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  penalty <span class="op">=</span> <span class="fl">0.001</span>,</span>
-<span>  mixture <span class="op">=</span> <span class="fl">1</span></span>
+<span>  mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'recipe'</span></span>
@@ -105,7 +108,8 @@
 <span>  tree_depth <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  min_n <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  penalty <span class="op">=</span> <span class="fl">0.001</span>,</span>
-<span>  mixture <span class="op">=</span> <span class="fl">1</span></span>
+<span>  mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -127,7 +131,7 @@ given together as one set. Each option is sent to one of the two models
 by its name:</p><ul><li><p>Options for xgboost go to the boosting model. These are the arguments
 of <code><a href="https://rdrr.io/pkg/xgboost/man/xgb.params.html" class="external-link">xgboost::xgb.params()</a></code>, <code><a href="https://rdrr.io/pkg/xgboost/man/xgb.train.html" class="external-link">xgboost::xgb.train()</a></code>, and
 <code><a href="https://parsnip.tidymodels.org/reference/xgb_train.html" class="external-link">parsnip::xgb_train()</a></code> (e.g., <code>gamma</code>, <code>subsample</code>, etc.).</p></li>
-<li><p>Arguments of <code><a href="https://rdrr.io/pkg/glmnet/man/glmnet.html" class="external-link">glmnet::glmnet()</a></code> go to the glmnet model (e.g.,
+<li><p>Arguments of <code><a href="https://glmnet.stanford.edu/reference/glmnet.html" class="external-link">glmnet::glmnet()</a></code> go to the glmnet model (e.g.,
 <code>standardize</code> or <code>penalty.factor</code>).</p></li>
 </ul><p>A name that is valid for both models goes to the boosting model. An
 unknown name is an error. Options that <code>rule_ensemble_xgb()</code> sets itself
@@ -188,6 +192,12 @@ proportion of L1 regularization (i.e. lasso) in the model.</p><ul><li><p><code>m
 <li><p><code>mixture = 0</code>  specifies a ridge regression model, and</p></li>
 <li><p><code>0 &lt; mixture &lt; 1</code> specifies an elastic net model, interpolating lasso and ridge.</p></li>
 </ul><p>Available for specific engines only.</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>A single logical. If <code>TRUE</code>, the boosting library prints its
+training log, and <code><a href="rule_ensemble_ctb.html">rule_ensemble_ctb()</a></code> warns when <code>min_n</code> is given and
+ignored.</p></dd>
 
 
 <dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>

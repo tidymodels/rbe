@@ -60,7 +60,8 @@
 <span>  learn_rate <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>  tree_depth <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  penalty <span class="op">=</span> <span class="fl">0.001</span>,</span>
-<span>  mixture <span class="op">=</span> <span class="fl">1</span></span>
+<span>  mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'matrix'</span></span>
@@ -74,7 +75,8 @@
 <span>  learn_rate <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>  tree_depth <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  penalty <span class="op">=</span> <span class="fl">0.001</span>,</span>
-<span>  mixture <span class="op">=</span> <span class="fl">1</span></span>
+<span>  mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'formula'</span></span>
@@ -88,7 +90,8 @@
 <span>  learn_rate <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>  tree_depth <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  penalty <span class="op">=</span> <span class="fl">0.001</span>,</span>
-<span>  mixture <span class="op">=</span> <span class="fl">1</span></span>
+<span>  mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'recipe'</span></span>
@@ -101,7 +104,8 @@
 <span>  learn_rate <span class="op">=</span> <span class="fl">0.01</span>,</span>
 <span>  tree_depth <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  penalty <span class="op">=</span> <span class="fl">0.001</span>,</span>
-<span>  mixture <span class="op">=</span> <span class="fl">1</span></span>
+<span>  mixture <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -124,13 +128,13 @@ by its name:</p><ul><li><p>Options for catboost go to the boosting model. These 
 training parameters and their aliases, and the arguments of
 <code><a href="https://bonsai.tidymodels.org/reference/train_catboost.html" class="external-link">bonsai::train_catboost()</a></code> (e.g., <code>l2_leaf_reg</code>, <code>random_strength</code>, or
 <code>logging_level</code>).</p></li>
-<li><p>Arguments of <code><a href="https://rdrr.io/pkg/glmnet/man/glmnet.html" class="external-link">glmnet::glmnet()</a></code> go to the glmnet model (e.g.,
+<li><p>Arguments of <code><a href="https://glmnet.stanford.edu/reference/glmnet.html" class="external-link">glmnet::glmnet()</a></code> go to the glmnet model (e.g.,
 <code>standardize</code> or <code>penalty.factor</code>).</p></li>
 </ul><p>A name that is valid for both models goes to the boosting model. An
 unknown name is an error. Options that <code>rule_ensemble_ctb()</code> sets itself
 (e.g., <code>iterations</code> or <code>depth</code>) are also errors; use the main arguments
-(e.g., <code>trees</code> or <code>tree_depth</code>) instead. <code>min_n</code> is ignored with a
-warning.</p></dd>
+(e.g., <code>trees</code> or <code>tree_depth</code>) instead. <code>min_n</code> is ignored, with a
+warning when <code>verbose = TRUE</code>.</p></dd>
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
@@ -181,6 +185,12 @@ proportion of L1 regularization (i.e. lasso) in the model.</p><ul><li><p><code>m
 <li><p><code>mixture = 0</code>  specifies a ridge regression model, and</p></li>
 <li><p><code>0 &lt; mixture &lt; 1</code> specifies an elastic net model, interpolating lasso and ridge.</p></li>
 </ul><p>Available for specific engines only.</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>A single logical. If <code>TRUE</code>, the boosting library prints its
+training log, and <code>rule_ensemble_ctb()</code> warns when <code>min_n</code> is given and
+ignored.</p></dd>
 
 
 <dt id="arg-formula">formula<a class="anchor" aria-label="anchor" href="#arg-formula"></a></dt>
