@@ -42,8 +42,8 @@
 #'   A name that is valid for both models goes to the boosting model. An
 #'   unknown name is an error. Options that `rule_ensemble_ctb()` sets itself
 #'   (e.g., `iterations` or `depth`) are also errors; use the main arguments
-#'   (e.g., `trees` or `tree_depth`) instead. `min_n` is ignored with a
-#'   warning.
+#'   (e.g., `trees` or `tree_depth`) instead. `min_n` is ignored, with a
+#'   warning when `verbose = TRUE`.
 #' @inheritParams rule_ensemble_xgb
 #' @inheritSection rule_ensemble_xgb Case weights
 #'
@@ -82,7 +82,8 @@ rule_ensemble_ctb.data.frame <- function(
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   processed <- hardhat::mold(x, y)
   rule_ensemble_ctb_bridge(
@@ -94,6 +95,7 @@ rule_ensemble_ctb.data.frame <- function(
     tree_depth = tree_depth,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -112,7 +114,8 @@ rule_ensemble_ctb.matrix <- function(
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   processed <- hardhat::mold(x, y)
   rule_ensemble_ctb_bridge(
@@ -124,6 +127,7 @@ rule_ensemble_ctb.matrix <- function(
     tree_depth = tree_depth,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -142,7 +146,8 @@ rule_ensemble_ctb.formula <- function(
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   check_formula_weights(formula, data)
   bp <- hardhat::default_formula_blueprint(indicators = "none")
@@ -156,6 +161,7 @@ rule_ensemble_ctb.formula <- function(
     tree_depth = tree_depth,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -173,7 +179,8 @@ rule_ensemble_ctb.recipe <- function(
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   check_recipe_dots(list(...))
   processed <- hardhat::mold(x, data)
@@ -186,6 +193,7 @@ rule_ensemble_ctb.recipe <- function(
     tree_depth = tree_depth,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -202,10 +210,16 @@ rule_ensemble_ctb_bridge <- function(
   tree_depth,
   penalty,
   mixture,
+  verbose,
   ...
 ) {
   rlang::check_installed("catboost")
-  dots <- drop_ctb_min_n(list(...), call = rlang::caller_env())
+  rlang::check_bool(verbose, call = rlang::caller_env())
+  dots <- drop_ctb_min_n(
+    list(...),
+    verbose = verbose,
+    call = rlang::caller_env()
+  )
   args <- split_dots(dots, engine = "ctb", call = rlang::caller_env())
   predictors <- processed$predictors
   outcome <- processed$outcomes[[1]]
@@ -220,6 +234,7 @@ rule_ensemble_ctb_bridge <- function(
     learning_rate = learn_rate,
     depth = tree_depth,
     weights = as_boost_weights(wts),
+    quiet = !verbose,
     !!!args$boost
   )
 
@@ -262,7 +277,8 @@ rule_ensemble_ctb_bridge <- function(
         learn_rate = learn_rate,
         tree_depth = tree_depth,
         penalty = penalty,
-        mixture = mixture
+        mixture = mixture,
+        verbose = verbose
       ),
       args$boost,
       args$glmnet

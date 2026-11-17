@@ -138,7 +138,7 @@
       Error in `wrapper()`:
       ! `fooo` is not a valid argument for catboost or `glmnet::glmnet()`.
 
-# drop_ctb_min_n() removes min_n
+# drop_ctb_min_n() warns about min_n when verbose
 
     `min_n` is not used by `rule_ensemble_ctb()` and was ignored.
     i catboost's default "SymmetricTree" grow policy does not use a minimum node size.

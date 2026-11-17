@@ -3,11 +3,7 @@ print.rule_ensemble <- function(x, ...) {
   cli::cli_inform(" ")
   cli::cli_inform("Training Set:")
   cli::cli_bullets(c(i = "Samples: {x$training$rows}"))
-  if (is.null(x$training$one_hot)) {
-    num_pred <- ncol(x$training$ptype)
-  } else {
-    num_pred <- ncol(x$training$one_hot)
-  }
+  num_pred <- ncol(x$training$ptype)
   cli::cli_bullets(
     c(
       i = "Predictors: {num_pred}",

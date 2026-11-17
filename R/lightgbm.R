@@ -45,8 +45,8 @@
 #'   A name that is valid for both models goes to the boosting model. An
 #'   unknown name is an error. Options that `rule_ensemble_lgb()` sets itself
 #'   (e.g., `num_iterations` or `learning_rate`) are also errors; use the main
-#'   arguments (e.g., `trees` or `learn_rate`) instead. `quiet` defaults to
-#'   `TRUE`.
+#'   arguments (e.g., `trees` or `learn_rate`) instead. Use `verbose` instead
+#'   of `quiet`.
 #' @inheritParams rule_ensemble_xgb
 #' @inheritSection rule_ensemble_xgb Case weights
 #'
@@ -86,7 +86,8 @@ rule_ensemble_lgb.data.frame <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   processed <- hardhat::mold(x, y)
   rule_ensemble_lgb_bridge(
@@ -99,6 +100,7 @@ rule_ensemble_lgb.data.frame <- function(
     min_n = min_n,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -118,7 +120,8 @@ rule_ensemble_lgb.matrix <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   processed <- hardhat::mold(x, y)
   rule_ensemble_lgb_bridge(
@@ -131,6 +134,7 @@ rule_ensemble_lgb.matrix <- function(
     min_n = min_n,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -150,7 +154,8 @@ rule_ensemble_lgb.formula <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   check_formula_weights(formula, data)
   bp <- hardhat::default_formula_blueprint(indicators = "none")
@@ -165,6 +170,7 @@ rule_ensemble_lgb.formula <- function(
     min_n = min_n,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -183,7 +189,8 @@ rule_ensemble_lgb.recipe <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   check_recipe_dots(list(...))
   processed <- hardhat::mold(x, data)
@@ -197,6 +204,7 @@ rule_ensemble_lgb.recipe <- function(
     min_n = min_n,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -214,13 +222,12 @@ rule_ensemble_lgb_bridge <- function(
   min_n,
   penalty,
   mixture,
+  verbose,
   ...
 ) {
   rlang::check_installed("lightgbm")
+  rlang::check_bool(verbose, call = rlang::caller_env())
   args <- split_dots(list(...), engine = "lgb", call = rlang::caller_env())
-  if (is.null(args$boost$quiet)) {
-    args$boost$quiet <- TRUE
-  }
   if (is.null(args$boost$counts)) {
     args$boost$counts <- FALSE
   }
@@ -238,6 +245,7 @@ rule_ensemble_lgb_bridge <- function(
     max_depth = tree_depth,
     min_data_in_leaf = min_n,
     weights = as_boost_weights(wts),
+    quiet = !verbose,
     !!!args$boost
   )
 
@@ -285,7 +293,8 @@ rule_ensemble_lgb_bridge <- function(
         tree_depth = tree_depth,
         min_n = min_n,
         penalty = penalty,
-        mixture = mixture
+        mixture = mixture,
+        verbose = verbose
       ),
       args$boost,
       args$glmnet

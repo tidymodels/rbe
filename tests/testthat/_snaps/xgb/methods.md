@@ -16,5 +16,6 @@
       * min_n: 5
       * penalty: 0.001
       * mixture: 1
+      * verbose: FALSE
       * counts: FALSE
 

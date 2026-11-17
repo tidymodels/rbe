@@ -231,10 +231,20 @@ test_that("an unknown engine argument is an error", {
   expect_snapshot(parsnip::fit(spec, mpg ~ ., data = mtcars), error = TRUE)
 })
 
-test_that("min_n with catboost is ignored with a warning", {
+test_that("min_n with catboost is ignored without a warning by default", {
   spec <- rule_ensemble_spec("ctb", min_n = 3)
   set.seed(6620)
-  expect_snapshot_warning(parsnip::fit(spec, mpg ~ ., data = mtcars))
+  expect_no_warning(fit <- parsnip::fit(spec, mpg ~ ., data = mtcars))
+  expect_null(fit$fit$arguments$min_n)
+})
+
+test_that("min_n with catboost is ignored with a warning when verbose", {
+  spec <- rule_ensemble_spec("ctb", min_n = 3) |>
+    parsnip::set_args(verbose = TRUE)
+  set.seed(6620)
+  expect_snapshot_warning(fit <- parsnip::fit(spec, mpg ~ ., data = mtcars))
+  expect_null(fit$fit$arguments$min_n)
+  expect_true(fit$fit$arguments$verbose)
 })
 
 test_that("catboost does not warn when min_n is not given", {

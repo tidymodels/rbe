@@ -25,13 +25,13 @@
       ! `rule_ensemble_xgb()` is not defined for a character vector.
       i `x` should be a data frame, matrix, formula, or recipe.
 
-# catboost warns about a min_n that is given
+# catboost warns about a min_n that is given when verbose
 
     `min_n` is not used by `rule_ensemble_ctb()` and was ignored.
     i catboost's default "SymmetricTree" grow policy does not use a minimum node size.
     i To set one, pass `min_data_in_leaf` along with `grow_policy = "Depthwise"` or `grow_policy = "Lossguide"`.
 
-# catboost warns about a given min_n equal to the default
+# catboost warns about a given min_n equal to the default when verbose
 
     `min_n` is not used by `rule_ensemble_ctb()` and was ignored.
     i catboost's default "SymmetricTree" grow policy does not use a minimum node size.
@@ -113,6 +113,83 @@
       Error in `rule_ensemble_xgb()`:
       ! This argument cannot be passed to `...`:
       * Use `learn_rate` instead of `eta`.
+
+# verbose must be a single logical
+
+    Code
+      rule_ensemble(mpg ~ ., data = mtcars, method = engine_method[[engine]],
+      verbose = "yes")
+    Condition
+      Error in `rule_ensemble_ctb()`:
+      ! `verbose` must be `TRUE` or `FALSE`, not the string "yes".
+
+---
+
+    Code
+      rule_ensemble(mpg ~ ., data = mtcars, method = engine_method[[engine]],
+      verbose = "yes")
+    Condition
+      Error in `rule_ensemble_lgb()`:
+      ! `verbose` must be `TRUE` or `FALSE`, not the string "yes".
+
+---
+
+    Code
+      rule_ensemble(mpg ~ ., data = mtcars, method = engine_method[[engine]],
+      verbose = "yes")
+    Condition
+      Error in `rule_ensemble_xgb()`:
+      ! `verbose` must be `TRUE` or `FALSE`, not the string "yes".
+
+---
+
+    Code
+      rule_ensemble(mpg ~ ., data = mtcars, verbose = NA)
+    Condition
+      Error in `rule_ensemble_xgb()`:
+      ! `verbose` must be `TRUE` or `FALSE`, not `NA`.
+
+---
+
+    Code
+      rule_ensemble(mpg ~ ., data = mtcars, verbose = 1)
+    Condition
+      Error in `rule_ensemble_xgb()`:
+      ! `verbose` must be `TRUE` or `FALSE`, not the number 1.
+
+---
+
+    Code
+      rule_ensemble(mpg ~ ., data = mtcars, verbose = c(TRUE, FALSE))
+    Condition
+      Error in `rule_ensemble_xgb()`:
+      ! `verbose` must be `TRUE` or `FALSE`, not a logical vector.
+
+---
+
+    Code
+      rule_ensemble(mpg ~ ., data = mtcars, verbose = NULL)
+    Condition
+      Error in `rule_ensemble_xgb()`:
+      ! `verbose` must be `TRUE` or `FALSE`, not `NULL`.
+
+# bonsai's `quiet` is an error for lightgbm and catboost
+
+    Code
+      rule_ensemble(mpg ~ ., data = mtcars, method = engine_method[[engine]], quiet = FALSE)
+    Condition
+      Error in `rule_ensemble_ctb()`:
+      ! This argument cannot be passed to `...`:
+      * Use `verbose` instead of `quiet`.
+
+---
+
+    Code
+      rule_ensemble(mpg ~ ., data = mtcars, method = engine_method[[engine]], quiet = FALSE)
+    Condition
+      Error in `rule_ensemble_lgb()`:
+      ! This argument cannot be passed to `...`:
+      * Use `verbose` instead of `quiet`.
 
 # `weights` cannot be used with a recipe
 

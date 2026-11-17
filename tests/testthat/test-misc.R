@@ -549,35 +549,3 @@ test_that("predictor_ptype() keeps the levels of character columns", {
   expect_identical(levels(res$y), c("q", "p"))
   expect_type(res$z, "integer")
 })
-
-# ------------------------------------------------------------------------------
-# one_hot()
-
-test_that("one_hot() makes indicators for all levels of every factor", {
-  dat <- data.frame(
-    num = c(1.5, 2.5, 3.5),
-    x = factor(c("a", "b", "c")),
-    `my var` = factor(c("p", "q", "p")),
-    l = c(TRUE, FALSE, NA),
-    check.names = FALSE
-  )
-  ptype <- predictor_ptype(dat)
-  res <- one_hot(dat, ptype)
-  expect_s3_class(res, "tbl_df")
-  expect_named(
-    res,
-    c("num", "x_a", "x_b", "x_c", "my var_p", "my var_q", "l")
-  )
-  expect_equal(res$x_b, c(0, 1, 0))
-  expect_equal(res$`my var_q`, c(0, 1, 0))
-  expect_identical(res$l, dat$l)
-
-  new_res <- one_hot(dat[2, rev(names(dat))], ptype)
-  expect_named(new_res, names(res))
-  expect_equal(new_res, res[2, ], ignore_attr = "row.names")
-})
-
-test_that("one_hot() errors on duplicate names", {
-  dat <- data.frame(x = factor(c("a", "b")), x_a = c(1, 2))
-  expect_snapshot(one_hot(dat, predictor_ptype(dat)), error = TRUE)
-})

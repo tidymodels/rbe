@@ -8,6 +8,9 @@
 #'   on (0, 1].
 #' @param min_n The minimum number of data points in a node needed to
 #'   split it further (`min_child_weight` in xgboost).
+#' @param verbose A single logical. If `TRUE`, the boosting library prints its
+#'   training log, and `rule_ensemble_ctb()` warns when `min_n` is given and
+#'   ignored.
 #' @inheritParams parsnip::linear_reg
 #' @param x Depending on the context:
 #'
@@ -101,7 +104,8 @@ rule_ensemble_xgb.data.frame <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   processed <- hardhat::mold(x, y)
   rule_ensemble_xgb_bridge(
@@ -114,6 +118,7 @@ rule_ensemble_xgb.data.frame <- function(
     min_n = min_n,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -133,7 +138,8 @@ rule_ensemble_xgb.matrix <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   processed <- hardhat::mold(x, y)
   rule_ensemble_xgb_bridge(
@@ -146,6 +152,7 @@ rule_ensemble_xgb.matrix <- function(
     min_n = min_n,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -165,7 +172,8 @@ rule_ensemble_xgb.formula <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   check_formula_weights(formula, data)
   bp <- hardhat::default_formula_blueprint(indicators = "none")
@@ -180,6 +188,7 @@ rule_ensemble_xgb.formula <- function(
     min_n = min_n,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -198,7 +207,8 @@ rule_ensemble_xgb.recipe <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   check_recipe_dots(list(...))
   processed <- hardhat::mold(x, data)
@@ -212,6 +222,7 @@ rule_ensemble_xgb.recipe <- function(
     min_n = min_n,
     penalty = penalty,
     mixture = mixture,
+    verbose = verbose,
     ...
   )
 }
@@ -229,9 +240,11 @@ rule_ensemble_xgb_bridge <- function(
   min_n,
   penalty,
   mixture,
+  verbose,
   ...
 ) {
   rlang::check_installed("xgboost", version = "3.0.0")
+  rlang::check_bool(verbose, call = rlang::caller_env())
   args <- split_dots(list(...), engine = "xgb", call = rlang::caller_env())
   if (is.null(args$boost$counts)) {
     args$boost$counts <- FALSE
@@ -239,12 +252,10 @@ rule_ensemble_xgb_bridge <- function(
   outcome <- processed$outcomes[[1]]
   wts <- resolve_weights(processed, weights, call = rlang::caller_env())
 
-  # Temporary (#5): lorax cannot yet extract rules from xgboost models
-  # that use native categorical splits, so factors are made into one-hot
-  # indicators before boosting. Remove this (and `training$one_hot`) once lorax
-  # supports them.
-  one_hot_ptype <- predictor_ptype(processed$predictors)
-  predictors <- one_hot(processed$predictors, one_hot_ptype)
+  # xgboost only makes categorical splits for factor columns
+  predictors <- processed$predictors
+  is_chr <- vapply(predictors, is.character, logical(1))
+  predictors[is_chr] <- lapply(predictors[is_chr], factor)
 
   tree_fit <- rlang::exec(
     parsnip::xgb_train,
@@ -256,11 +267,16 @@ rule_ensemble_xgb_bridge <- function(
     max_depth = tree_depth,
     min_child_weight = min_n,
     weights = as_boost_weights(wts),
+    verbose = as.integer(verbose),
     !!!args$boost
   )
 
   trees_actual <- lorax::num_ensemble_members(tree_fit)
-  rules <- lorax::extract_rules(tree_fit, tree = 1:trees_actual)
+  rules <- lorax::extract_rules(
+    tree_fit,
+    tree = 1:trees_actual,
+    data = predictors
+  )
   rules$label <- names0(nrow(rules))
 
   ptype <- predictor_ptype(predictors)
@@ -295,7 +311,8 @@ rule_ensemble_xgb_bridge <- function(
         tree_depth = tree_depth,
         min_n = min_n,
         penalty = penalty,
-        mixture = mixture
+        mixture = mixture,
+        verbose = verbose
       ),
       args$boost,
       args$glmnet
@@ -304,7 +321,6 @@ rule_ensemble_xgb_bridge <- function(
     training = list(
       rows = nrow(train_data),
       ptype = ptype,
-      one_hot = one_hot_ptype,
       weights = attr(wts, "weights_class")
     ),
     class = c("rule_ensemble_xgb", "rule_ensemble")

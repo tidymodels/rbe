@@ -117,11 +117,3 @@
       Error in `model_matrix_sep()`:
       ! argument "ptype" is missing, with no default
 
-# one_hot() errors on duplicate names
-
-    Code
-      one_hot(dat, predictor_ptype(dat))
-    Condition
-      Error in `one_hot()`:
-      ! Converting factors to indicators creates duplicate column name "x_a".
-

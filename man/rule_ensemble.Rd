@@ -14,7 +14,8 @@ rule_ensemble(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -73,6 +74,10 @@ proportion of L1 regularization (i.e. lasso) in the model.
 }
 
 Available for specific engines only.}
+
+\item{verbose}{A single logical. If \code{TRUE}, the boosting library prints its
+training log, and \code{rule_ensemble_ctb()} warns when \code{min_n} is given and
+ignored.}
 }
 \value{
 A \code{rule_ensemble_xgb}, \code{rule_ensemble_lgb}, or \code{rule_ensemble_ctb} object,
@@ -90,17 +95,19 @@ own parameters.
 
 catboost does not use \code{min_n}. Its default \code{"SymmetricTree"} grow policy
 has no minimum node size. When \code{method = "catboost"}, the default value of
-\code{min_n} is ignored, and a value that is given is ignored with a warning. To
-set a minimum node size for catboost, pass \code{min_data_in_leaf} along with
-\code{grow_policy = "Depthwise"} or \code{grow_policy = "Lossguide"}.
+\code{min_n} is ignored silently. A value that is given is also ignored, with a
+warning when \code{verbose = TRUE}. To set a minimum node size for catboost, pass
+\code{min_data_in_leaf} along with \code{grow_policy = "Depthwise"} or
+\code{grow_policy = "Lossguide"}.
 }
 
 \subsection{Using parsnip}{
 
 rbe adds a \code{"rule_ensemble"} engine to parsnip's \code{\link[parsnip:rule_fit]{parsnip::rule_fit()}} model.
 The main arguments \code{trees}, \code{mtry}, \code{learn_rate}, \code{tree_depth}, \code{min_n}, and
-\code{penalty} are used, and \code{method} and \code{mixture} are engine arguments. Other
-engine arguments are passed on as boosting or glmnet options. \code{penalty} is
+\code{penalty} are used, and \code{method}, \code{mixture}, and \code{verbose} are engine
+arguments. Other engine arguments are passed on as boosting or glmnet
+options. \code{penalty} is
 a submodel parameter, so tuning it with the tune package fits one model for
 all \code{penalty} values. When \code{mtry} is tuned, its values are proportions
 (\code{\link[dials:mtry_prop]{dials::mtry_prop()}}).
@@ -130,11 +137,11 @@ are not used as predictors.
 
 \references{
 Friedman, J, and B Popescu. 2008. "Predictive Learning via Rule Ensembles."
-\emph{The Annals of Applied Statistics} 2 (3): 916–54.
+\emph{The Annals of Applied Statistics} 2 (3): 916-54.
 
 Chen, T, and G Guestrin. 2016. "XGBoost: A Scalable Tree Boosting System."
 In \emph{Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge
-Discovery and Data Mining}, 785–94.
+Discovery and Data Mining}, 785-94.
 
 Ke, G, Q Meng, T Finley, T Wang, W Chen, W Ma, Q Ye, and TY Liu. 2017.
 "LightGBM: A Highly Efficient Gradient Boosting Decision Tree." In \emph{Advances

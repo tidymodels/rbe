@@ -43,16 +43,18 @@
 #'
 #' catboost does not use `min_n`. Its default `"SymmetricTree"` grow policy
 #' has no minimum node size. When `method = "catboost"`, the default value of
-#' `min_n` is ignored, and a value that is given is ignored with a warning. To
-#' set a minimum node size for catboost, pass `min_data_in_leaf` along with
-#' `grow_policy = "Depthwise"` or `grow_policy = "Lossguide"`.
+#' `min_n` is ignored silently. A value that is given is also ignored, with a
+#' warning when `verbose = TRUE`. To set a minimum node size for catboost, pass
+#' `min_data_in_leaf` along with `grow_policy = "Depthwise"` or
+#' `grow_policy = "Lossguide"`.
 #'
 #' ## Using parsnip
 #'
 #' rbe adds a `"rule_ensemble"` engine to parsnip's [parsnip::rule_fit()] model.
 #' The main arguments `trees`, `mtry`, `learn_rate`, `tree_depth`, `min_n`, and
-#' `penalty` are used, and `method` and `mixture` are engine arguments. Other
-#' engine arguments are passed on as boosting or glmnet options. `penalty` is
+#' `penalty` are used, and `method`, `mixture`, and `verbose` are engine
+#' arguments. Other engine arguments are passed on as boosting or glmnet
+#' options. `penalty` is
 #' a submodel parameter, so tuning it with the tune package fits one model for
 #' all `penalty` values. When `mtry` is tuned, its values are proportions
 #' ([dials::mtry_prop()]).
@@ -102,7 +104,8 @@ rule_ensemble <- function(
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 ) {
   # `arg_match()` gives a misleading message for a vector of valid values
   if (!missing(method) && is.character(method) && length(method) > 1) {
@@ -119,7 +122,8 @@ rule_ensemble <- function(
     tree_depth = tree_depth,
     min_n = min_n,
     penalty = penalty,
-    mixture = mixture
+    mixture = mixture,
+    verbose = verbose
   )
 
   if (method == "xgboost") {

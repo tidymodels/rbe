@@ -24,7 +24,8 @@ rule_ensemble_xgb(x, ...)
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 )
 
 \method{rule_ensemble_xgb}{matrix}(
@@ -38,7 +39,8 @@ rule_ensemble_xgb(x, ...)
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 )
 
 \method{rule_ensemble_xgb}{formula}(
@@ -52,7 +54,8 @@ rule_ensemble_xgb(x, ...)
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 )
 
 \method{rule_ensemble_xgb}{recipe}(
@@ -65,7 +68,8 @@ rule_ensemble_xgb(x, ...)
   tree_depth = 4,
   min_n = 5,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -135,6 +139,10 @@ proportion of L1 regularization (i.e. lasso) in the model.
 }
 
 Available for specific engines only.}
+
+\item{verbose}{A single logical. If \code{TRUE}, the boosting library prints its
+training log, and \code{rule_ensemble_ctb()} warns when \code{min_n} is given and
+ignored.}
 
 \item{formula}{A formula specifying the outcome terms on the left-hand side,
 and the predictor terms on the right-hand side.}

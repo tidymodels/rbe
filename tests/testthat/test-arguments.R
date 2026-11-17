@@ -18,10 +18,10 @@ test_that("split_dots() routes lightgbm arguments", {
   skip_if_not_installed("lightgbm")
 
   res <- split_dots(
-    list(num_leaves = 7, standardize = FALSE, alpha = 0.5, quiet = FALSE),
+    list(num_leaves = 7, standardize = FALSE, alpha = 0.5, counts = TRUE),
     "lgb"
   )
-  expect_equal(res$boost, list(num_leaves = 7, alpha = 0.5, quiet = FALSE))
+  expect_equal(res$boost, list(num_leaves = 7, alpha = 0.5, counts = TRUE))
   expect_equal(res$glmnet, list(standardize = FALSE))
 })
 
@@ -251,6 +251,16 @@ test_that("main argument aliases point to rbe arguments", {
   expect_identical(ctb$use[ctb$name == "reg_lambda"], "l2_leaf_reg")
 })
 
+test_that("bonsai's `quiet` points to `verbose`", {
+  for (engine in c("ctb", "lgb")) {
+    skip_if_no_engine(engine)
+    prot <- protected_args(engine)
+    expect_identical(prot$use[prot$name == "quiet"], "verbose")
+  }
+  skip_if_no_engine("xgb")
+  expect_false("quiet" %in% protected_args("xgb")$name)
+})
+
 test_that("bonsai_alias_table() prefers rbe's argument names", {
   aliases <- data.frame(
     parsnip = c("trees", "sample_size"),
@@ -271,14 +281,29 @@ test_that("check_protected_args() is silent without protected arguments", {
 # catboost helpers
 
 test_that("drop_ctb_min_n() leaves other arguments alone", {
-  dots <- list(verbose = 0, thresh = 1e-4)
+  dots <- list(l2_leaf_reg = 2, thresh = 1e-4)
   expect_identical(drop_ctb_min_n(dots), dots)
+  expect_identical(drop_ctb_min_n(dots, verbose = TRUE), dots)
   expect_identical(drop_ctb_min_n(list()), list())
+  expect_identical(drop_ctb_min_n(list(), verbose = TRUE), list())
 })
 
-test_that("drop_ctb_min_n() removes min_n", {
-  expect_snapshot_warning(res <- drop_ctb_min_n(list(min_n = 2, verbose = 0)))
-  expect_identical(res, list(verbose = 0))
-  expect_snapshot_warning(res <- drop_ctb_min_n(list(min_n = 2)))
+test_that("drop_ctb_min_n() removes min_n silently by default", {
+  expect_no_warning(res <- drop_ctb_min_n(list(min_n = 2, l2_leaf_reg = 2)))
+  expect_identical(res, list(l2_leaf_reg = 2))
+  expect_no_warning(res <- drop_ctb_min_n(list(min_n = 2)))
+  expect_length(res, 0)
+  expect_no_warning(res <- drop_ctb_min_n(list(min_n = 2), verbose = FALSE))
+  expect_length(res, 0)
+})
+
+test_that("drop_ctb_min_n() warns about min_n when verbose", {
+  expect_snapshot_warning(
+    res <- drop_ctb_min_n(list(min_n = 2, l2_leaf_reg = 2), verbose = TRUE)
+  )
+  expect_identical(res, list(l2_leaf_reg = 2))
+  expect_snapshot_warning(
+    res <- drop_ctb_min_n(list(min_n = 2), verbose = TRUE)
+  )
   expect_length(res, 0)
 })

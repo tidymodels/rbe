@@ -23,7 +23,8 @@ rule_ensemble_ctb(x, ...)
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 )
 
 \method{rule_ensemble_ctb}{matrix}(
@@ -36,7 +37,8 @@ rule_ensemble_ctb(x, ...)
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 )
 
 \method{rule_ensemble_ctb}{formula}(
@@ -49,7 +51,8 @@ rule_ensemble_ctb(x, ...)
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 )
 
 \method{rule_ensemble_ctb}{recipe}(
@@ -61,7 +64,8 @@ rule_ensemble_ctb(x, ...)
   learn_rate = 0.01,
   tree_depth = 4,
   penalty = 0.001,
-  mixture = 1
+  mixture = 1,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -88,8 +92,8 @@ training parameters and their aliases, and the arguments of
 A name that is valid for both models goes to the boosting model. An
 unknown name is an error. Options that \code{rule_ensemble_ctb()} sets itself
 (e.g., \code{iterations} or \code{depth}) are also errors; use the main arguments
-(e.g., \code{trees} or \code{tree_depth}) instead. \code{min_n} is ignored with a
-warning.}
+(e.g., \code{trees} or \code{tree_depth}) instead. \code{min_n} is ignored, with a
+warning when \code{verbose = TRUE}.}
 
 \item{y}{When \code{x} is a \strong{data frame} or \strong{matrix}, \code{y} is the outcome
 specified as:
@@ -130,6 +134,10 @@ proportion of L1 regularization (i.e. lasso) in the model.
 }
 
 Available for specific engines only.}
+
+\item{verbose}{A single logical. If \code{TRUE}, the boosting library prints its
+training log, and \code{rule_ensemble_ctb()} warns when \code{min_n} is given and
+ignored.}
 
 \item{formula}{A formula specifying the outcome terms on the left-hand side,
 and the predictor terms on the right-hand side.}

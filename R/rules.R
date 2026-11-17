@@ -1,11 +1,11 @@
 make_rule_matrix <- function(dat, rules, ptype) {
   binary <- purrr::map(rules$rules, ~ as.numeric(rlang::eval_tidy(.x, dat)))
-  if (nrow(dat) == 1) {
-    binary <- as.integer(binary)
-    binary <- matrix(binary, nrow = 1)
-  } else {
-    binary <- do.call("cbind", binary)
-  }
+  # Also covers a single row of data and models where no rules were retained
+  binary <- matrix(
+    as.numeric(unlist(binary)),
+    nrow = nrow(dat),
+    ncol = length(binary)
+  )
 
   colnames(binary) <- rules$label
   pred_mat <- model_matrix_sep(dat, ptype)
@@ -28,9 +28,6 @@ prune_rules <- function(x, rows = seq_len(nrow(x))) {
 # Convert new data to the matrix used by the glmnet model
 predictor_matrix <- function(object, new_data) {
   predictors <- hardhat::forge(new_data, object$blueprint)$predictors
-  if (!is.null(object$training$one_hot)) {
-    predictors <- one_hot(predictors, object$training$one_hot)
-  }
   make_rule_matrix(predictors, object$rules, object$training$ptype)
 }
 

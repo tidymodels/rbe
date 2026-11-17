@@ -1,4 +1,4 @@
-# min_n is ignored with a warning
+# min_n is ignored with a warning when verbose
 
     `min_n` is not used by `rule_ensemble_ctb()` and was ignored.
     i catboost's default "SymmetricTree" grow policy does not use a minimum node size.

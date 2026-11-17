@@ -63,6 +63,7 @@
     Code
       rule_ensemble_xgb(y ~ ., data = dat, trees = 2)
     Condition
-      Error in `one_hot()`:
-      ! Converting factors to indicators creates duplicate column name "a_b".
+      Error in `model_matrix_sep()`:
+      ! Using `sep = "_"` creates duplicate column name "a_b".
+      i Use a different value of `sep`.
 

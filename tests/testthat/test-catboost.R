@@ -40,12 +40,20 @@ test_that("rules are made from CTR splits of a factor predictor", {
   expect_false(anyNA(pred$.pred))
 })
 
-test_that("min_n is ignored with a warning", {
+test_that("min_n is ignored silently by default", {
+  set.seed(4726)
+  expect_no_warning(mod <- fit_ctb(mpg ~ ., mtcars, min_n = 10))
+  expect_null(mod$arguments$min_n)
+  expect_false(mod$arguments$verbose)
+})
+
+test_that("min_n is ignored with a warning when verbose", {
   set.seed(4726)
   expect_snapshot_warning(
-    mod <- fit_ctb(mpg ~ ., mtcars, min_n = 10)
+    mod <- fit_ctb(mpg ~ ., mtcars, min_n = 10, verbose = TRUE)
   )
   expect_null(mod$arguments$min_n)
+  expect_true(mod$arguments$verbose)
 })
 
 test_that("unknown options error before fitting", {
@@ -175,7 +183,14 @@ test_that("default and main arguments are recorded", {
 test_that("min_n is ignored with other engine arguments", {
   set.seed(8320)
   expect_snapshot_warning(
-    mod <- fit_ctb(mpg ~ ., mtcars, min_n = 3, l2_leaf_reg = 2, thresh = 1e-5)
+    mod <- fit_ctb(
+      mpg ~ .,
+      mtcars,
+      min_n = 3,
+      l2_leaf_reg = 2,
+      thresh = 1e-5,
+      verbose = TRUE
+    )
   )
   expect_null(mod$arguments$min_n)
   expect_equal(mod$arguments$l2_leaf_reg, 2)
@@ -201,4 +216,11 @@ test_that("rules use the column names of the predictors", {
   expect_all_true(used %in% names(mtcars)[-1])
   expect_length(rule_text, nrow(mod$rules))
   expect_false(anyDuplicated(mod$rules$label) > 0)
+})
+
+# ------------------------------------------------------------------------------
+# Verbose
+
+test_that("verbose prints the training log with every interface", {
+  expect_verbose_engine("ctb")
 })

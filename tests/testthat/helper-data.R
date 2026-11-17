@@ -145,7 +145,8 @@ expect_default_arguments <- function(mod, min_n = TRUE) {
     tree_depth = 4,
     min_n = 5,
     penalty = 0.001,
-    mixture = 1
+    mixture = 1,
+    verbose = FALSE
   )
   if (!min_n) {
     main$min_n <- NULL
@@ -252,4 +253,77 @@ rule_ensemble_spec <- function(engine, mode = "regression", ..., trees = 5) {
     )
   }
   parsnip::set_mode(spec, mode)
+}
+
+# Names of the predictors used by the rules of a model
+rule_variables <- function(mod) {
+  unique(unlist(lapply(mod$rules$rules, all.vars)))
+}
+
+# Character values (i.e., factor levels) used by the rules of a model
+rule_strings <- function(mod) {
+  unique(unlist(lapply(mod$rules$rules, expr_strings)))
+}
+
+expr_strings <- function(x) {
+  if (is.character(x)) {
+    return(x)
+  }
+  if (!is.call(x)) {
+    return(character(0))
+  }
+  unlist(lapply(as.list(x)[-1], expr_strings))
+}
+
+# Text in each boosting library's training log
+engine_log <- c(ctb = "learn:", lgb = "LightGBM", xgb = "training-rmse")
+
+# Fit with every interface, with the default and with `verbose = TRUE`, and
+# check that only the latter prints the training log
+expect_verbose_engine <- function(engine) {
+  skip_if_no_engine(engine)
+  testthat::skip_if_not_installed("recipes")
+  fn <- paste0("rule_ensemble_", engine)
+  x <- mtcars[, -1]
+  y <- mtcars$mpg
+  calls <- list(
+    list(x, y),
+    list(as.matrix(x), y),
+    list(mpg ~ ., data = mtcars),
+    list(recipes::recipe(mpg ~ ., data = mtcars), data = mtcars)
+  )
+  for (args in calls) {
+    # catboost writes training files to the working directory by default
+    if (engine == "ctb") {
+      args$allow_writing_files <- FALSE
+    }
+    set.seed(3817)
+    testthat::expect_silent(
+      quiet_mod <- rlang::exec(fn, !!!args, trees = 2)
+    )
+    testthat::expect_false(quiet_mod$arguments$verbose)
+    set.seed(3817)
+    testthat::expect_output(
+      loud_mod <- rlang::exec(fn, !!!args, trees = 2, verbose = TRUE),
+      engine_log[[engine]]
+    )
+    testthat::expect_true(loud_mod$arguments$verbose)
+    testthat::expect_equal(loud_mod$rules, quiet_mod$rules)
+  }
+}
+
+# Fit mtcars through `rule_ensemble()` without silencing catboost's log
+fit_method_logged <- function(engine, ...) {
+  skip_if_no_engine(engine)
+  args <- list(
+    mpg ~ .,
+    data = mtcars,
+    method = engine_method[[engine]],
+    trees = 2,
+    ...
+  )
+  if (engine == "ctb") {
+    args$allow_writing_files <- FALSE
+  }
+  rlang::exec(rule_ensemble, !!!args)
 }

@@ -125,20 +125,48 @@ test_that("catboost ignores the default min_n without a warning", {
   expect_null(mod$arguments$min_n)
 })
 
-test_that("catboost warns about a min_n that is given", {
+test_that("catboost ignores the default min_n without a warning when verbose", {
   skip_if_no_engine("ctb")
-  set.seed(2618)
-  expect_snapshot_warning(
-    mod <- fit_method("ctb", mpg ~ ., data = mtcars, min_n = 10)
+  set.seed(9034)
+  expect_no_warning(
+    mod <- fit_method("ctb", mpg ~ ., data = mtcars, verbose = TRUE)
   )
   expect_null(mod$arguments$min_n)
 })
 
-test_that("catboost warns about a given min_n equal to the default", {
+test_that("catboost ignores a given min_n without a warning by default", {
+  skip_if_no_engine("ctb")
+  set.seed(2618)
+  expect_no_warning(
+    mod <- fit_method("ctb", mpg ~ ., data = mtcars, min_n = 10)
+  )
+  expect_null(mod$arguments$min_n)
+  expect_no_warning(
+    mod <- fit_method(
+      "ctb",
+      mpg ~ .,
+      data = mtcars,
+      min_n = 10,
+      verbose = FALSE
+    )
+  )
+  expect_null(mod$arguments$min_n)
+})
+
+test_that("catboost warns about a min_n that is given when verbose", {
+  skip_if_no_engine("ctb")
+  set.seed(2618)
+  expect_snapshot_warning(
+    mod <- fit_method("ctb", mpg ~ ., data = mtcars, min_n = 10, verbose = TRUE)
+  )
+  expect_null(mod$arguments$min_n)
+})
+
+test_that("catboost warns about a given min_n equal to the default when verbose", {
   skip_if_no_engine("ctb")
   set.seed(7346)
   expect_snapshot_warning(
-    mod <- fit_method("ctb", mpg ~ ., data = mtcars, min_n = 5)
+    mod <- fit_method("ctb", mpg ~ ., data = mtcars, min_n = 5, verbose = TRUE)
   )
   expect_null(mod$arguments$min_n)
 })
@@ -153,7 +181,8 @@ test_that("catboost warns about min_n with other options", {
       data = mtcars,
       min_n = 3,
       l2_leaf_reg = 2,
-      thresh = 1e-5
+      thresh = 1e-5,
+      verbose = TRUE
     )
   )
   expect_null(mod$arguments$min_n)
@@ -228,6 +257,86 @@ test_that("main arguments cannot also be given in `...` by engine name", {
     rule_ensemble(mpg ~ ., data = mtcars, eta = 0.1),
     error = TRUE
   )
+})
+
+# ------------------------------------------------------------------------------
+# Verbose
+
+test_that("verbose is passed on", {
+  for (engine in engines) {
+    skip_if_no_engine(engine)
+    set.seed(5960)
+    expect_output(
+      mod <- fit_method_logged(engine, verbose = TRUE),
+      engine_log[[engine]]
+    )
+    expect_true(mod$arguments$verbose)
+  }
+})
+
+test_that("rule_ensemble() is silent by default", {
+  for (engine in engines) {
+    skip_if_no_engine(engine)
+    set.seed(1209)
+    expect_silent(mod <- fit_method_logged(engine))
+    expect_false(mod$arguments$verbose)
+  }
+})
+
+test_that("verbose gives the same model as the engine function", {
+  for (engine in engines) {
+    skip_if_no_engine(engine)
+    capture.output(
+      expect_method_matches(engine, mpg ~ ., data = mtcars, verbose = TRUE)
+    )
+  }
+})
+
+test_that("verbose must be a single logical", {
+  for (engine in engines) {
+    skip_if_no_engine(engine)
+    expect_snapshot(
+      rule_ensemble(
+        mpg ~ .,
+        data = mtcars,
+        method = engine_method[[engine]],
+        verbose = "yes"
+      ),
+      error = TRUE
+    )
+  }
+  skip_if_no_engine("xgb")
+  expect_snapshot(
+    rule_ensemble(mpg ~ ., data = mtcars, verbose = NA),
+    error = TRUE
+  )
+  expect_snapshot(
+    rule_ensemble(mpg ~ ., data = mtcars, verbose = 1),
+    error = TRUE
+  )
+  expect_snapshot(
+    rule_ensemble(mpg ~ ., data = mtcars, verbose = c(TRUE, FALSE)),
+    error = TRUE
+  )
+  expect_snapshot(
+    rule_ensemble(mpg ~ ., data = mtcars, verbose = NULL),
+    error = TRUE
+  )
+})
+
+test_that("bonsai's `quiet` is an error for lightgbm and catboost", {
+  for (engine in c("ctb", "lgb")) {
+    skip_if_no_engine(engine)
+    expect_snapshot(
+      rule_ensemble(
+        mpg ~ .,
+        data = mtcars,
+        method = engine_method[[engine]],
+        quiet = FALSE
+      ),
+      error = TRUE
+    )
+  }
 })
 
 # ------------------------------------------------------------------------------

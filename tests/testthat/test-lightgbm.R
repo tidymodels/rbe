@@ -8,15 +8,13 @@ test_that("options are passed to lightgbm and glmnet", {
     data = hpc_subset(),
     trees = 5,
     num_leaves = 4,
-    quiet = TRUE,
     thresh = 1e-6
   )
   expect_named(mod$fit$spec$eng_args, "thresh")
   expect_equal(mod$arguments$num_leaves, 4)
-  expect_true(mod$arguments$quiet)
 })
 
-test_that("quiet and counts have rbe defaults", {
+test_that("verbose and counts have rbe defaults", {
   set.seed(6427)
   mod <- rule_ensemble_lgb(
     class ~ .,
@@ -24,7 +22,8 @@ test_that("quiet and counts have rbe defaults", {
     trees = 5,
     mtry = 0.5
   )
-  expect_true(mod$arguments$quiet)
+  expect_false(mod$arguments$verbose)
+  expect_null(mod$arguments$quiet)
   expect_false(mod$arguments$counts)
   expect_equal(mod$arguments$min_n, 5)
 })
@@ -234,4 +233,11 @@ test_that("weight does not partially match weights", {
     rule_ensemble_lgb(mpg ~ ., data = mtcars, weight = mtcars_weights()),
     error = TRUE
   )
+})
+
+# ------------------------------------------------------------------------------
+# Verbose
+
+test_that("verbose prints the training log with every interface", {
+  expect_verbose_engine("lgb")
 })

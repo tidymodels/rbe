@@ -40,7 +40,7 @@
       Error in `rule_ensemble_xgb()`:
       ! `not_an_option` is not a valid argument for xgboost or `glmnet::glmnet()`.
 
-# min_n with catboost is ignored with a warning
+# min_n with catboost is ignored with a warning when verbose
 
     `min_n` is not used by `rule_ensemble_ctb()` and was ignored.
     i catboost's default "SymmetricTree" grow policy does not use a minimum node size.
@@ -92,5 +92,6 @@
       * min_n: 5
       * penalty: 0.01
       * mixture: 1
+      * verbose: FALSE
       * counts: FALSE
 

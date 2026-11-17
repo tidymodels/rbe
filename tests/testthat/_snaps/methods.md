@@ -24,6 +24,7 @@
       * tree_depth: 4
       * penalty: 0.001
       * mixture: 1
+      * verbose: FALSE
       * logging_level: Silent
       * allow_writing_files: FALSE
 
@@ -45,6 +46,7 @@
       * min_n: 5
       * penalty: 0.001
       * mixture: 1
+      * verbose: FALSE
       * counts: FALSE
 
 # print() with logical, vector, and brace-containing arguments
@@ -64,6 +66,7 @@
       * tree_depth: 4
       * penalty: 0.001
       * mixture: 1
+      * verbose: FALSE
       * logging_level: Silent
       * allow_writing_files: FALSE
       * custom_metric: RMSE, MAE

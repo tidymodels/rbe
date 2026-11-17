@@ -170,7 +170,7 @@ protected_args <- function(engine) {
         ),
         use = NA_character_
       ),
-      data.frame(name = "weight", use = "weights")
+      data.frame(name = c("weight", "quiet"), use = c("weights", "verbose"))
     )
   } else {
     bonsai_aliases <- utils::getFromNamespace("catboost_aliases", "bonsai")
@@ -207,7 +207,8 @@ protected_args <- function(engine) {
         )
       ),
       bonsai_alias_table(bonsai_aliases, "catboost", main_args),
-      formal_aliases
+      formal_aliases,
+      data.frame(name = "quiet", use = "verbose")
     )
   }
   res[!duplicated(res$name), ]
@@ -252,10 +253,14 @@ check_protected_args <- function(nms, engine, call = rlang::caller_env()) {
 
 # catboost's default symmetric trees have no minimum node size, so
 # `rule_ensemble_ctb()` has no `min_n` argument. Warn instead of erroring since
-# `min_n` is a main argument for the other engines.
-drop_ctb_min_n <- function(dots, call = rlang::caller_env()) {
+# `min_n` is a main argument for the other engines. The warning is only given
+# when `verbose = TRUE`.
+drop_ctb_min_n <- function(dots, verbose = FALSE, call = rlang::caller_env()) {
   if (!"min_n" %in% names(dots)) {
     return(dots)
+  }
+  if (!verbose) {
+    return(dots[names(dots) != "min_n"])
   }
   cli::cli_warn(
     c(
