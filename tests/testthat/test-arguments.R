@@ -212,6 +212,20 @@ test_that("glmnet_arg_names() excludes arguments set by rbe", {
   expect_all_true(c("standardize", "thresh", "maxit", "intercept") %in% res)
 })
 
+test_that("glmnet_arg_names() includes parsnip's `path_values`", {
+  expect_true("path_values" %in% glmnet_arg_names())
+  expect_false(anyDuplicated(glmnet_arg_names()) > 0)
+})
+
+test_that("split_dots() routes `path_values` to glmnet", {
+  for (engine in engines) {
+    skip_if_no_engine(engine)
+    res <- split_dots(list(path_values = 10^(-4:-1)), engine)
+    expect_named(res$glmnet, "path_values")
+    expect_length(res$boost, 0)
+  }
+})
+
 test_that("boost_arg_names() never includes dots", {
   for (engine in engines) {
     skip_if_no_engine(engine)
@@ -306,4 +320,21 @@ test_that("drop_ctb_min_n() warns about min_n when verbose", {
     res <- drop_ctb_min_n(list(min_n = 2), verbose = TRUE)
   )
   expect_length(res, 0)
+})
+
+test_that("`path_values` sets the glmnet lambda sequence for each engine", {
+  dat <- two_class_data()
+  path <- 10^seq(-4, -1, length.out = 7)
+  for (engine in engines) {
+    res <- fit_engine(
+      engine,
+      Class ~ .,
+      data = dat,
+      path_values = path
+    )
+    expect_equal(res$fit$fit$lambda, rev(path))
+    expect_equal(res$arguments$path_values, path)
+    pred <- multi_predict(res, dat[1:3, ], penalty = path[2:3])
+    expect_equal(nrow(pred), 3)
+  }
 })

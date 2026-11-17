@@ -4,7 +4,8 @@
 #' `method`. It passes its arguments to [rule_ensemble_xgb()], [rule_ensemble_lgb()], or
 #' [rule_ensemble_ctb()].
 #'
-#' @inheritParams rule_ensemble_xgb
+#' @inheritParams parsnip::boost_tree
+#' @inheritParams parsnip::linear_reg
 #' @param x Depending on the context:
 #'
 #'   * A __data frame__ of predictors.
@@ -20,9 +21,8 @@
 #'     formula or recipe `x`).
 #'   * `weights`, for case weights (not used with a recipe; see the "Case
 #'     weights" section).
-#'   * Named options for the boosting model and the glmnet model. The valid
-#'     boosting options depend on `method`; see [rule_ensemble_xgb()],
-#'     [rule_ensemble_lgb()], and [rule_ensemble_ctb()].
+#'   * Named options for the boosting model and the glmnet model; see the
+#'     "Boosting and glmnet options" section.
 #'
 #' @param method A single character string for the boosting library:
 #'   `"xgboost"` (the default) uses [rule_ensemble_xgb()], `"lightgbm"` uses
@@ -33,6 +33,9 @@
 #' @param min_n The minimum number of data points in a node needed to split it
 #'   further (`min_child_weight` in xgboost and `min_data_in_leaf` in
 #'   lightgbm). __catboost does not use `min_n`__; see Details.
+#' @param verbose A single logical. If `TRUE`, the boosting library prints its
+#'   training log, and `rule_ensemble_ctb()` warns when `min_n` is given and
+#'   ignored.
 #'
 #' @details
 #'
@@ -66,12 +69,43 @@
 #'   set_mode("regression")
 #' ```
 #'
-#' @inheritSection rule_ensemble_xgb Case weights
+#' @section Case weights:
+#'
+#' Case weights are used to fit both the boosted trees that create the rules
+#' and the glmnet model that is fit to the rules. Rows with a weight of zero
+#' are not used to decide which rules are removed for having a single unique
+#' value or being linear combinations of other columns.
+#'
+#' For the data frame, matrix, and formula methods, pass the weights to
+#' `weights`. A case weights column cannot also be a predictor. For the recipe
+#' method, add the weights as a column of `data` that is created by
+#' [hardhat::importance_weights()] or [hardhat::frequency_weights()];
+#' [recipes::recipe()] gives these columns the `"case_weights"` role, so they
+#' are not used as predictors.
+#'
+#' @section Boosting and glmnet options:
+#'
+#' Named options for the boosting model and the glmnet model are given
+#' together as one set in `...`. Each option is sent to one of the two models
+#' by its name:
+#'
+#'   * Options for the boosting library go to the boosting model. The valid
+#'     names depend on the library; see the `...` argument of
+#'     [rule_ensemble_xgb()], [rule_ensemble_lgb()], or [rule_ensemble_ctb()].
+#'   * Arguments of [glmnet::glmnet()] go to the glmnet model (e.g.,
+#'     `standardize` or `penalty.factor`). `path_values`, a numeric vector of
+#'     penalty values for the glmnet path, also goes to the glmnet model; see
+#'     [parsnip::glmnet-details] for how it is used.
+#'
+#' A name that is valid for both models goes to the boosting model. An
+#' unknown name is an error. Options that rbe sets itself are also errors;
+#' use the main arguments (e.g., `trees` or `learn_rate`) instead.
 #'
 #' @return
 #'
 #' A `rule_ensemble_xgb`, `rule_ensemble_lgb`, or `rule_ensemble_ctb` object,
-#' depending on `method`.
+#' depending on `method`. Each inherits from `"rule_ensemble"`;
+#' see [rule_ensemble-object] for their elements.
 #'
 #' @references
 #' Friedman, J, and B Popescu. 2008. "Predictive Learning via Rule Ensembles."

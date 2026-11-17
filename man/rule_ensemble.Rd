@@ -35,9 +35,8 @@ created from \code{\link[recipes:recipe]{recipes::recipe()}}.
 formula or recipe \code{x}).
 \item \code{weights}, for case weights (not used with a recipe; see the "Case
 weights" section).
-\item Named options for the boosting model and the glmnet model. The valid
-boosting options depend on \code{method}; see \code{\link[=rule_ensemble_xgb]{rule_ensemble_xgb()}},
-\code{\link[=rule_ensemble_lgb]{rule_ensemble_lgb()}}, and \code{\link[=rule_ensemble_ctb]{rule_ensemble_ctb()}}.
+\item Named options for the boosting model and the glmnet model; see the
+"Boosting and glmnet options" section.
 }}
 
 \item{method}{A single character string for the boosting library:
@@ -81,7 +80,8 @@ ignored.}
 }
 \value{
 A \code{rule_ensemble_xgb}, \code{rule_ensemble_lgb}, or \code{rule_ensemble_ctb} object,
-depending on \code{method}.
+depending on \code{method}. Each inherits from \code{"rule_ensemble"};
+see \link{rule_ensemble-object} for their elements.
 }
 \description{
 \code{rule_ensemble()} fits a RuleFit model with the boosting library chosen by
@@ -133,6 +133,27 @@ method, add the weights as a column of \code{data} that is created by
 \code{\link[hardhat:importance_weights]{hardhat::importance_weights()}} or \code{\link[hardhat:frequency_weights]{hardhat::frequency_weights()}};
 \code{\link[recipes:recipe]{recipes::recipe()}} gives these columns the \code{"case_weights"} role, so they
 are not used as predictors.
+}
+
+\section{Boosting and glmnet options}{
+
+
+Named options for the boosting model and the glmnet model are given
+together as one set in \code{...}. Each option is sent to one of the two models
+by its name:
+\itemize{
+\item Options for the boosting library go to the boosting model. The valid
+names depend on the library; see the \code{...} argument of
+\code{\link[=rule_ensemble_xgb]{rule_ensemble_xgb()}}, \code{\link[=rule_ensemble_lgb]{rule_ensemble_lgb()}}, or \code{\link[=rule_ensemble_ctb]{rule_ensemble_ctb()}}.
+\item Arguments of \code{\link[glmnet:glmnet]{glmnet::glmnet()}} go to the glmnet model (e.g.,
+\code{standardize} or \code{penalty.factor}). \code{path_values}, a numeric vector of
+penalty values for the glmnet path, also goes to the glmnet model; see
+\link[parsnip:glmnet-details]{parsnip::glmnet-details} for how it is used.
+}
+
+A name that is valid for both models goes to the boosting model. An
+unknown name is an error. Options that rbe sets itself are also errors;
+use the main arguments (e.g., \code{trees} or \code{learn_rate}) instead.
 }
 
 \references{

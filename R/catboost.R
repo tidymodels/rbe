@@ -3,10 +3,8 @@
 #' `rule_ensemble_ctb()` fits a model.
 #'
 #' @include methods.R
-#' @inheritParams parsnip::boost_tree
 #' @param mtry The proportion of predictors randomly sampled for each tree
 #'   level (catboost's `rsm`), on (0, 1].
-#' @inheritParams parsnip::linear_reg
 #' @param x Depending on the context:
 #'
 #'   * A __data frame__ of predictors.
@@ -28,28 +26,27 @@
 #' @param formula A formula specifying the outcome terms on the left-hand side,
 #' and the predictor terms on the right-hand side.
 #'
-#' @param ... Named options for the boosting model and the glmnet model,
-#'   given together as one set. Each option is sent to one of the two models
-#'   by its name:
+#' @param ... Named options for the boosting model and the glmnet model:
 #'
 #'   * Options for catboost go to the boosting model. These are catboost's
 #'     training parameters and their aliases, and the arguments of
 #'     [bonsai::train_catboost()] (e.g., `l2_leaf_reg`, `random_strength`, or
 #'     `logging_level`).
-#'   * Arguments of [glmnet::glmnet()] go to the glmnet model (e.g.,
-#'     `standardize` or `penalty.factor`).
 #'
-#'   A name that is valid for both models goes to the boosting model. An
-#'   unknown name is an error. Options that `rule_ensemble_ctb()` sets itself
-#'   (e.g., `iterations` or `depth`) are also errors; use the main arguments
-#'   (e.g., `trees` or `tree_depth`) instead. `min_n` is ignored, with a
-#'   warning when `verbose = TRUE`.
+#'   Options that `rule_ensemble_ctb()` sets itself (e.g., `iterations` or
+#'   `depth`) are errors; use the main arguments (e.g., `trees` or
+#'   `tree_depth`) instead. `min_n` is ignored, with a warning when
+#'   `verbose = TRUE`. See the "Boosting and glmnet options" section for how
+#'   options are routed.
 #' @inheritParams rule_ensemble_xgb
-#' @inheritSection rule_ensemble_xgb Case weights
+#' @inheritParams rule_ensemble
+#' @inheritSection rule_ensemble Case weights
+#' @inheritSection rule_ensemble Boosting and glmnet options
 #'
 #' @return
 #'
-#' A `rule_ensemble_ctb` object.
+#' A `rule_ensemble_ctb` object that inherits from `"rule_ensemble"`. See
+#' [rule_ensemble-object] for its elements.
 #'
 #' @keywords internal
 #' @export

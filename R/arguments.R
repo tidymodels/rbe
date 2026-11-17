@@ -73,7 +73,9 @@ suggest_names <- function(x, candidates, max_dist = 2) {
 glmnet_arg_names <- function() {
   # `alpha` and `lambda` are set via `mixture` and `penalty`
   excl <- c("x", "y", "family", "weights", "offset", "alpha", "lambda", "...")
-  setdiff(names(formals(glmnet::glmnet)), excl)
+  # `path_values` is not a glmnet argument, but parsnip's glmnet engine uses
+  # it to set the lambda sequence
+  c(setdiff(names(formals(glmnet::glmnet)), excl), "path_values")
 }
 
 boost_arg_names <- function(engine) {

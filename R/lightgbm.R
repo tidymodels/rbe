@@ -3,12 +3,10 @@
 #' `rule_ensemble_lgb()` fits a model.
 #'
 #' @include methods.R
-#' @inheritParams parsnip::boost_tree
 #' @param mtry The proportion of predictors randomly sampled at each split,
 #'   on (0, 1].
 #' @param min_n The minimum number of data points in a node needed to
 #'   split it further (`min_data_in_leaf` in lightgbm).
-#' @inheritParams parsnip::linear_reg
 #' @param x Depending on the context:
 #'
 #'   * A __data frame__ of predictors.
@@ -30,29 +28,27 @@
 #' @param formula A formula specifying the outcome terms on the left-hand side,
 #' and the predictor terms on the right-hand side.
 #'
-#' @param ... Named options for the boosting model and the glmnet model,
-#'   given together as one set. Each option is sent to one of the two models
-#'   by its name:
+#' @param ... Named options for the boosting model and the glmnet model:
 #'
 #'   * Options for lightgbm go to the boosting model. These are lightgbm's
 #'     parameters and their aliases, and the arguments of
 #'     [lightgbm::lgb.train()], [lightgbm::lgb.Dataset()], and
 #'     [bonsai::train_lightgbm()] (e.g., `lambda_l2`, `bagging_fraction`, or
 #'     `counts`).
-#'   * Arguments of [glmnet::glmnet()] go to the glmnet model (e.g.,
-#'     `standardize` or `penalty.factor`).
 #'
-#'   A name that is valid for both models goes to the boosting model. An
-#'   unknown name is an error. Options that `rule_ensemble_lgb()` sets itself
-#'   (e.g., `num_iterations` or `learning_rate`) are also errors; use the main
-#'   arguments (e.g., `trees` or `learn_rate`) instead. Use `verbose` instead
-#'   of `quiet`.
+#'   Options that `rule_ensemble_lgb()` sets itself (e.g., `num_iterations` or
+#'   `learning_rate`) are errors; use the main arguments (e.g., `trees` or
+#'   `learn_rate`) instead. Use `verbose` instead of `quiet`. See the
+#'   "Boosting and glmnet options" section for how options are routed.
 #' @inheritParams rule_ensemble_xgb
-#' @inheritSection rule_ensemble_xgb Case weights
+#' @inheritParams rule_ensemble
+#' @inheritSection rule_ensemble Case weights
+#' @inheritSection rule_ensemble Boosting and glmnet options
 #'
 #' @return
 #'
-#' A `rule_ensemble_lgb` object.
+#' A `rule_ensemble_lgb` object that inherits from `"rule_ensemble"`. See
+#' [rule_ensemble-object] for its elements.
 #'
 #' @keywords internal
 #' @export
