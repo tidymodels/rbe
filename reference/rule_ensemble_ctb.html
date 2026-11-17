@@ -122,19 +122,15 @@ created from <code><a href="https://recipes.tidymodels.org/reference/recipe.html
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Named options for the boosting model and the glmnet model,
-given together as one set. Each option is sent to one of the two models
-by its name:</p><ul><li><p>Options for catboost go to the boosting model. These are catboost's
+<dd><p>Named options for the boosting model and the glmnet model:</p><ul><li><p>Options for catboost go to the boosting model. These are catboost's
 training parameters and their aliases, and the arguments of
 <code><a href="https://bonsai.tidymodels.org/reference/train_catboost.html" class="external-link">bonsai::train_catboost()</a></code> (e.g., <code>l2_leaf_reg</code>, <code>random_strength</code>, or
 <code>logging_level</code>).</p></li>
-<li><p>Arguments of <code><a href="https://glmnet.stanford.edu/reference/glmnet.html" class="external-link">glmnet::glmnet()</a></code> go to the glmnet model (e.g.,
-<code>standardize</code> or <code>penalty.factor</code>).</p></li>
-</ul><p>A name that is valid for both models goes to the boosting model. An
-unknown name is an error. Options that <code>rule_ensemble_ctb()</code> sets itself
-(e.g., <code>iterations</code> or <code>depth</code>) are also errors; use the main arguments
-(e.g., <code>trees</code> or <code>tree_depth</code>) instead. <code>min_n</code> is ignored, with a
-warning when <code>verbose = TRUE</code>.</p></dd>
+</ul><p>Options that <code>rule_ensemble_ctb()</code> sets itself (e.g., <code>iterations</code> or
+<code>depth</code>) are errors; use the main arguments (e.g., <code>trees</code> or
+<code>tree_depth</code>) instead. <code>min_n</code> is ignored, with a warning when
+<code>verbose = TRUE</code>. See the "Boosting and glmnet options" section for how
+options are routed.</p></dd>
 
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
@@ -205,7 +201,8 @@ and the predictor terms on the right-hand side.</p></dd>
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A <code>rule_ensemble_ctb</code> object.</p>
+    <p>A <code>rule_ensemble_ctb</code> object that inherits from <code>"rule_ensemble"</code>. See
+<a href="rule_ensemble-object.html">rule_ensemble-object</a> for its elements.</p>
     </div>
     <div id="case-weights">
     <h2>Case weights</h2>
@@ -222,6 +219,24 @@ method, add the weights as a column of <code>data</code> that is created by
 <code><a href="https://hardhat.tidymodels.org/reference/importance_weights.html" class="external-link">hardhat::importance_weights()</a></code> or <code><a href="https://hardhat.tidymodels.org/reference/frequency_weights.html" class="external-link">hardhat::frequency_weights()</a></code>;
 <code><a href="https://recipes.tidymodels.org/reference/recipe.html" class="external-link">recipes::recipe()</a></code> gives these columns the <code>"case_weights"</code> role, so they
 are not used as predictors.</p>
+    </div>
+    <div id="boosting-and-glmnet-options">
+    <h2>Boosting and glmnet options</h2>
+
+
+
+<p>Named options for the boosting model and the glmnet model are given
+together as one set in <code>...</code>. Each option is sent to one of the two models
+by its name:</p><ul><li><p>Options for the boosting library go to the boosting model. The valid
+names depend on the library; see the <code>...</code> argument of
+<code><a href="rule_ensemble_xgb.html">rule_ensemble_xgb()</a></code>, <code><a href="rule_ensemble_lgb.html">rule_ensemble_lgb()</a></code>, or <code>rule_ensemble_ctb()</code>.</p></li>
+<li><p>Arguments of <code><a href="https://glmnet.stanford.edu/reference/glmnet.html" class="external-link">glmnet::glmnet()</a></code> go to the glmnet model (e.g.,
+<code>standardize</code> or <code>penalty.factor</code>). <code>path_values</code>, a numeric vector of
+penalty values for the glmnet path, also goes to the glmnet model; see
+<a href="https://parsnip.tidymodels.org/reference/glmnet-details.html" class="external-link">parsnip::glmnet-details</a> for how it is used.</p></li>
+</ul><p>A name that is valid for both models goes to the boosting model. An
+unknown name is an error. Options that rbe sets itself are also errors;
+use the main arguments (e.g., <code>trees</code> or <code>learn_rate</code>) instead.</p>
     </div>
 
   </div>

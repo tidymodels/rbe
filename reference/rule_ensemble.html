@@ -82,9 +82,8 @@ created from <code><a href="https://recipes.tidymodels.org/reference/recipe.html
 formula or recipe <code>x</code>).</p></li>
 <li><p><code>weights</code>, for case weights (not used with a recipe; see the "Case
 weights" section).</p></li>
-<li><p>Named options for the boosting model and the glmnet model. The valid
-boosting options depend on <code>method</code>; see <code><a href="rule_ensemble_xgb.html">rule_ensemble_xgb()</a></code>,
-<code><a href="rule_ensemble_lgb.html">rule_ensemble_lgb()</a></code>, and <code><a href="rule_ensemble_ctb.html">rule_ensemble_ctb()</a></code>.</p></li>
+<li><p>Named options for the boosting model and the glmnet model; see the
+"Boosting and glmnet options" section.</p></li>
 </ul></dd>
 
 
@@ -144,7 +143,8 @@ ignored.</p></dd>
     <div id="value">
     <h2>Value</h2>
     <p>A <code>rule_ensemble_xgb</code>, <code>rule_ensemble_lgb</code>, or <code>rule_ensemble_ctb</code> object,
-depending on <code>method</code>.</p>
+depending on <code>method</code>. Each inherits from <code>"rule_ensemble"</code>;
+see <a href="rule_ensemble-object.html">rule_ensemble-object</a> for their elements.</p>
     </div>
     <div id="details">
     <h2>Details</h2>
@@ -195,6 +195,24 @@ method, add the weights as a column of <code>data</code> that is created by
 <code><a href="https://hardhat.tidymodels.org/reference/importance_weights.html" class="external-link">hardhat::importance_weights()</a></code> or <code><a href="https://hardhat.tidymodels.org/reference/frequency_weights.html" class="external-link">hardhat::frequency_weights()</a></code>;
 <code><a href="https://recipes.tidymodels.org/reference/recipe.html" class="external-link">recipes::recipe()</a></code> gives these columns the <code>"case_weights"</code> role, so they
 are not used as predictors.</p>
+    </div>
+    <div id="boosting-and-glmnet-options">
+    <h2>Boosting and glmnet options</h2>
+
+
+
+<p>Named options for the boosting model and the glmnet model are given
+together as one set in <code>...</code>. Each option is sent to one of the two models
+by its name:</p><ul><li><p>Options for the boosting library go to the boosting model. The valid
+names depend on the library; see the <code>...</code> argument of
+<code><a href="rule_ensemble_xgb.html">rule_ensemble_xgb()</a></code>, <code><a href="rule_ensemble_lgb.html">rule_ensemble_lgb()</a></code>, or <code><a href="rule_ensemble_ctb.html">rule_ensemble_ctb()</a></code>.</p></li>
+<li><p>Arguments of <code><a href="https://glmnet.stanford.edu/reference/glmnet.html" class="external-link">glmnet::glmnet()</a></code> go to the glmnet model (e.g.,
+<code>standardize</code> or <code>penalty.factor</code>). <code>path_values</code>, a numeric vector of
+penalty values for the glmnet path, also goes to the glmnet model; see
+<a href="https://parsnip.tidymodels.org/reference/glmnet-details.html" class="external-link">parsnip::glmnet-details</a> for how it is used.</p></li>
+</ul><p>A name that is valid for both models goes to the boosting model. An
+unknown name is an error. Options that rbe sets itself are also errors;
+use the main arguments (e.g., <code>trees</code> or <code>learn_rate</code>) instead.</p>
     </div>
     <div id="references">
     <h2>References</h2>
