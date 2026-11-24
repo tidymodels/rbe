@@ -19,7 +19,7 @@ Imports:
     ggplot2,
     glmnet,
     hardhat,
-    lorax (>= 0.2.0.9000),
+    lorax (>= 0.3.0),
     parsnip,
     purrr,
     rlang,
@@ -33,9 +33,8 @@ Suggests:
     xgboost,
     testthat (>= 3.0.0)
 Remotes:
-    tidymodels/bonsai,
-    tidymodels/lorax
-Config/roxygen2/version: 8.1.0
+    tidymodels/bonsai
+Config/roxygen2/version: 8.1.1
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
