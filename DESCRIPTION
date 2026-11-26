@@ -17,6 +17,8 @@ Description: Fit RuleFit models for regression and classification, as
     <https://proceedings.neurips.cc/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html>),
     or 'catboost' (Prokhorenkova et al. (2018) <doi:10.48550/arXiv.1706.09516>).
 License: MIT + file LICENSE
+URL: https://github.com/tidymodels/rbe
+BugReports: https://github.com/tidymodels/rbe/issues
 Depends:
     R (>= 4.3.0)
 Imports: 
@@ -45,6 +47,7 @@ Suggests:
 Remotes:
     tidymodels/parsnip
 Config/roxygen2/version: 8.1.1
+Config/Needs/website: tidyverse/tidytemplate, rmarkdown
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)

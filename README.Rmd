@@ -16,8 +16,10 @@ knitr::opts_chunk$set(
 # rbe <img src="man/figures/logo.png" align="right" height="138" alt="" />
 
 <!-- badges: start -->
-[![Codecov test coverage](https://codecov.io/gh/topepo/rbe/graph/badge.svg)](https://app.codecov.io/gh/topepo/rbe)
-[![R-CMD-check](https://github.com/topepo/rbe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/topepo/rbe/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/tidymodels/rbe/graph/badge.svg)](https://app.codecov.io/gh/tidymodels/rbe)
+[![R-CMD-check](https://github.com/tidymodels/rbe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidymodels/rbe/actions/workflows/R-CMD-check.yaml)
+[![CRAN status](https://www.r-pkg.org/badges/version/rbe)](https://CRAN.R-project.org/package=rbe)
+[![Downloads](https://cranlogs.r-pkg.org/badges/rbe)](https://CRAN.R-project.org/package=rbe)
 <!-- badges: end -->
 
 rbe is an implementation of the RuleFit model of [Friedman and Popescu (2008)](https://doi.org/10.1214/07-AOAS148) that uses modern boosting methods such as XGBoost, LightGBM, and CatBoost.
@@ -36,10 +38,10 @@ You can install the released version of rbe from [CRAN](https://CRAN.R-project.o
 install.packages("rbe")
 ```
 
-You can install the development version of rbe from [GitHub](https://github.com/topepo/rbe) with:
+You can install the development version of rbe from [GitHub](https://github.com/tidymodels/rbe) with:
 
 ``` r
-pak::pak("topepo/rbe")
+pak::pak("tidymodels/rbe")
 ```
 
 The xgboost and lightgbm packages are on CRAN. The catboost package is not on CRAN; see the [catboost installation instructions](https://catboost.ai/docs/en/installation/r-installation-binary-installation) to install it.

@@ -6,8 +6,11 @@
 <!-- badges: start -->
 
 [![Codecov test
-coverage](https://codecov.io/gh/topepo/rbe/graph/badge.svg)](https://app.codecov.io/gh/topepo/rbe)
-[![R-CMD-check](https://github.com/topepo/rbe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/topepo/rbe/actions/workflows/R-CMD-check.yaml)
+coverage](https://codecov.io/gh/tidymodels/rbe/graph/badge.svg)](https://app.codecov.io/gh/tidymodels/rbe)
+[![R-CMD-check](https://github.com/tidymodels/rbe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidymodels/rbe/actions/workflows/R-CMD-check.yaml)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/rbe)](https://CRAN.R-project.org/package=rbe)
+[![Downloads](https://cranlogs.r-pkg.org/badges/rbe)](https://CRAN.R-project.org/package=rbe)
 <!-- badges: end -->
 
 rbe is an implementation of the RuleFit model of [Friedman and Popescu
@@ -33,10 +36,10 @@ install.packages("rbe")
 ```
 
 You can install the development version of rbe from
-[GitHub](https://github.com/topepo/rbe) with:
+[GitHub](https://github.com/tidymodels/rbe) with:
 
 ``` r
-pak::pak("topepo/rbe")
+pak::pak("tidymodels/rbe")
 ```
 
 The xgboost and lightgbm packages are on CRAN. The catboost package is

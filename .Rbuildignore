@@ -11,3 +11,6 @@
 ^codecov\.yml$
 ^\.github$
 ^plans$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
