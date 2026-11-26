@@ -187,4 +187,17 @@ unknown name is an error. Options that rbe sets itself are also errors;
 use the main arguments (e.g., \code{trees} or \code{learn_rate}) instead.
 }
 
+\examples{
+# catboost is not on CRAN; see https://catboost.ai for installation.
+if (rlang::is_installed("catboost")) {
+  set.seed(1)
+  fit <- rule_ensemble_ctb(
+    mpg ~ .,
+    data = mtcars,
+    trees = 5,
+    logging_level = "Silent"
+  )
+  fit
+}
+}
 \keyword{internal}

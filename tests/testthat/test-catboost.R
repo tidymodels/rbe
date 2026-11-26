@@ -188,13 +188,13 @@ test_that("min_n is ignored with other engine arguments", {
       mtcars,
       min_n = 3,
       l2_leaf_reg = 2,
-      thresh = 1e-5,
+      control = list(thresh = 1e-5),
       verbose = TRUE
     )
   )
   expect_null(mod$arguments$min_n)
   expect_equal(mod$arguments$l2_leaf_reg, 2)
-  expect_equal(mod$arguments$thresh, 1e-5)
+  expect_equal(mod$arguments$control, list(thresh = 1e-5))
 })
 
 test_that("protected and duplicated arguments error before fitting", {

@@ -1,4 +1,5 @@
 ACM
+AOAS
 Bengio
 Bianchi
 CMD
@@ -23,6 +24,7 @@ ORCID
 PBC
 Popescu
 Prokhorenkova
+ROR
 RuleFit
 SIGKDD
 Scalable
@@ -31,13 +33,18 @@ Von
 Vorobev
 Wallach
 XGBoost
+al
 catboost
 catboost's
+doi
+et
 funder
 ggplot
 glmnet
 lightgbm
 lightgbm's
+lorax
 nd
 tibble
+tidymodels
 xgboost

@@ -192,4 +192,11 @@ unknown name is an error. Options that rbe sets itself are also errors;
 use the main arguments (e.g., \code{trees} or \code{learn_rate}) instead.
 }
 
+\examples{
+if (rlang::is_installed("xgboost")) {
+  set.seed(1)
+  fit <- rule_ensemble_xgb(mpg ~ ., data = mtcars, trees = 5)
+  fit
+}
+}
 \keyword{internal}

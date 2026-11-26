@@ -8,9 +8,9 @@ test_that("options are passed to lightgbm and glmnet", {
     data = hpc_subset(),
     trees = 5,
     num_leaves = 4,
-    thresh = 1e-6
+    control = list(thresh = 1e-6)
   )
-  expect_named(mod$fit$spec$eng_args, "thresh")
+  expect_named(mod$fit$spec$eng_args, "control")
   expect_equal(mod$arguments$num_leaves, 4)
 })
 

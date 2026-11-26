@@ -31,3 +31,10 @@ A ggplot2 object.
 \description{
 Shows the regularization path for the glmnet model using the rules and predictors.
 }
+\examples{
+if (rlang::is_installed(c("xgboost", "ggrepl"))) {
+  set.seed(1)
+  fit <- rule_ensemble(mpg ~ ., data = mtcars, trees = 5)
+  autoplot(fit)
+}
+}

@@ -51,8 +51,9 @@ print.rule_ensemble <- function(x, ...) {
 #'   column `.pred`. Each element is a tibble with a `penalty` column and the
 #'   prediction column(s) for that value.
 #' @examples
-#' if (rlang::is_installed("catboost")) {
-#'   mod <- rule_ensemble_ctb(mpg ~ ., data = mtcars, logging_level = "Silent")
+#' if (rlang::is_installed("xgboost")) {
+#'   set.seed(1)
+#'   mod <- rule_ensemble_xgb(mpg ~ ., data = mtcars, trees = 5)
 #'
 #'   res <- multi_predict(mod, mtcars[1:3, -1], penalty = c(0.01, 0.1))
 #'   res
@@ -150,6 +151,12 @@ tidy.rule_ensemble <- function(
 #'
 #' Shows the regularization path for the glmnet model using the rules and predictors.
 #' @return A ggplot2 object.
+#' @examples
+#' if (rlang::is_installed(c("xgboost", "ggrepl"))) {
+#'   set.seed(1)
+#'   fit <- rule_ensemble(mpg ~ ., data = mtcars, trees = 5)
+#'   autoplot(fit)
+#' }
 #' @export
 #' @inheritParams parsnip::autoplot.glmnet
 autoplot.rule_ensemble <- function(
@@ -159,6 +166,7 @@ autoplot.rule_ensemble <- function(
   best_penalty = NULL,
   top_n = 3L
 ) {
+  rlang::check_installed("ggrepl")
   autoplot(
     object$fit,
     ...,

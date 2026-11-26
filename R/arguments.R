@@ -1,4 +1,25 @@
 # ------------------------------------------------------------------------------
+# Taken from bonsai
+# covr start
+catboost_aliases <- tibble::tribble(
+  ~parsnip      , ~catboost               , ~alias              ,
+  "trees"       , "iterations"            , "n_estimators"      ,
+  "trees"       , "iterations"            , "num_boost_round"   ,
+  "trees"       , "iterations"            , "num_trees"         ,
+  "trees"       , "iterations"            , "num_round"         ,
+  "trees"       , "iterations"            , "n_iter"            ,
+  "learn_rate"  , "learning_rate"         , "eta"               ,
+  "tree_depth"  , "depth"                 , "max_depth"         ,
+  "mtry"        , "rsm"                   , "colsample_bylevel" ,
+  "min_n"       , "min_data_in_leaf"      , "min_child_samples" ,
+  "min_n"       , "min_data_in_leaf"      , "min_samples_leaf"  ,
+  "sample_size" , "subsample"             , "bagging_fraction"  ,
+  "stop_iter"   , "early_stopping_rounds" , "early_stopping"    ,
+  "stop_iter"   , "early_stopping_rounds" , "od_wait"
+)
+# covr end
+
+# ------------------------------------------------------------------------------
 # Route the options in `...` to either the boosting function or glmnet
 
 split_dots <- function(dots, engine, call = rlang::caller_env()) {
@@ -175,7 +196,7 @@ protected_args <- function(engine) {
       data.frame(name = c("weight", "quiet"), use = c("weights", "verbose"))
     )
   } else {
-    bonsai_aliases <- utils::getFromNamespace("catboost_aliases", "bonsai")
+    bonsai_aliases <- catboost_aliases
     # catboost aliases for arguments of `bonsai::train_catboost()` would be
     # passed alongside bonsai's own value for that argument
     ctb_formals <- names(formals(bonsai::train_catboost))

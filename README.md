@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# rbe
+# rbe <img src="man/figures/logo.png" align="right" height="138" alt="" />
 
 <!-- badges: start -->
 
@@ -10,9 +10,9 @@ coverage](https://codecov.io/gh/topepo/rbe/graph/badge.svg)](https://app.codecov
 [![R-CMD-check](https://github.com/topepo/rbe/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/topepo/rbe/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-This package is another implementation of the RuleFit model of REFERENCE
-that uses modern boosting methods such as XGBoost, LightGBM, and
-CatBoost.
+rbe is an implementation of the RuleFit model of [Friedman and Popescu
+(2008)](https://doi.org/10.1214/07-AOAS148) that uses modern boosting
+methods such as XGBoost, LightGBM, and CatBoost.
 
 The model has two parts:
 
@@ -25,15 +25,29 @@ The model has two parts:
 
 ## Installation
 
-You can install the development version of rbe like so:
+You can install the released version of rbe from
+[CRAN](https://CRAN.R-project.org) with:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+install.packages("rbe")
 ```
+
+You can install the development version of rbe from
+[GitHub](https://github.com/topepo/rbe) with:
+
+``` r
+pak::pak("topepo/rbe")
+```
+
+The xgboost and lightgbm packages are on CRAN. The catboost package is
+not on CRAN; see the [catboost installation
+instructions](https://catboost.ai/docs/en/installation/r-installation-binary-installation)
+to install it.
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This example fits a RuleFit model to predict delivery times. The rules
+are made with xgboost:
 
 ``` r
 library(rbe)
@@ -52,16 +66,16 @@ delivery_test <- modeldata::deliveries[-in_train, ]
 
 ``` r
 set.seed(871)
-rf_fit <- rule_ensemble(time_to_delivery ~ ., data = delivery_train, method = "catboost")
+rf_fit <- rule_ensemble(time_to_delivery ~ ., data = delivery_train, method = "xgboost")
 rf_fit
-#> RuleFit Using CatBoost
+#> RuleFit Using XGBoost
 #> 
 #> Training Set:
 #> ℹ Samples: 8000
 #> 
 #> ℹ Predictors: 30
 #> 
-#> ℹ Rules: 381
+#> ℹ Rules: 222
 #> 
 #> 
 #> Arguments:
@@ -73,9 +87,15 @@ rf_fit
 #> 
 #> • tree_depth: 4
 #> 
+#> • min_n: 5
+#> 
 #> • penalty: 0.001
 #> 
 #> • mixture: 1
+#> 
+#> • verbose: FALSE
+#> 
+#> • counts: FALSE
 
 rf_pred <- 
   predict(rf_fit, new_data = delivery_test) |> 
@@ -92,11 +112,10 @@ rf_pred |>
   theme_bw()
 ```
 
-<img src="man/figures/README-pred-plot-1.png" alt="" width="100%" />
+<img src="man/figures/README-pred-plot-1.png" alt="Observed versus predicted delivery times for the test set." width="50%">
 
 ## Code of Conduct
 
-Please note that the parsnip project is released with a [Contributor
-Code of
+Please note that the rbe project is released with a [Contributor Code of
 Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
 By contributing to this project, you agree to abide by its terms.

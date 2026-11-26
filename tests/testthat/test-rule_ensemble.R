@@ -181,13 +181,13 @@ test_that("catboost warns about min_n with other options", {
       data = mtcars,
       min_n = 3,
       l2_leaf_reg = 2,
-      thresh = 1e-5,
+      control = list(thresh = 1e-5),
       verbose = TRUE
     )
   )
   expect_null(mod$arguments$min_n)
   expect_identical(mod$arguments$l2_leaf_reg, 2)
-  expect_identical(mod$arguments$thresh, 1e-5)
+  expect_identical(mod$arguments$control, list(thresh = 1e-5))
 })
 
 # ------------------------------------------------------------------------------

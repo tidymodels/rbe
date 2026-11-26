@@ -50,3 +50,4 @@ po/*~
 rsconnect/
 
 /catboost_info
+plans/

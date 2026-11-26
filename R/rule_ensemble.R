@@ -51,24 +51,6 @@
 #' `min_data_in_leaf` along with `grow_policy = "Depthwise"` or
 #' `grow_policy = "Lossguide"`.
 #'
-#' ## Using parsnip
-#'
-#' rbe adds a `"rule_ensemble"` engine to parsnip's [parsnip::rule_fit()] model.
-#' The main arguments `trees`, `mtry`, `learn_rate`, `tree_depth`, `min_n`, and
-#' `penalty` are used, and `method`, `mixture`, and `verbose` are engine
-#' arguments. Other engine arguments are passed on as boosting or glmnet
-#' options. `penalty` is
-#' a submodel parameter, so tuning it with the tune package fits one model for
-#' all `penalty` values. When `mtry` is tuned, its values are proportions
-#' ([dials::mtry_prop()]).
-#'
-#' ```r
-#' spec <-
-#'   rule_fit(trees = 100, penalty = tune()) |>
-#'   set_engine("rule_ensemble", method = "lightgbm", mixture = 0.5) |>
-#'   set_mode("regression")
-#' ```
-#'
 #' @section Case weights:
 #'
 #' Case weights are used to fit both the boosted trees that create the rules
@@ -127,6 +109,14 @@
 #' H Larochelle, K Grauman, N Cesa-Bianchi, and R Garnett. Vol. 31.
 #'
 #' @seealso [rule_ensemble_xgb()], [rule_ensemble_lgb()], [rule_ensemble_ctb()]
+#' @examples
+#' if (rlang::is_installed("xgboost")) {
+#'   set.seed(1)
+#'   fit <- rule_ensemble(mpg ~ ., data = mtcars, trees = 5, penalty = 0.1)
+#'   fit
+#'
+#'   predict(fit, mtcars[1:3, -1])
+#' }
 #' @export
 rule_ensemble <- function(
   x,

@@ -54,6 +54,12 @@
 #' A `rule_ensemble_xgb` object that inherits from `"rule_ensemble"`. See
 #' [rule_ensemble-object] for its elements.
 #'
+#' @examples
+#' if (rlang::is_installed("xgboost")) {
+#'   set.seed(1)
+#'   fit <- rule_ensemble_xgb(mpg ~ ., data = mtcars, trees = 5)
+#'   fit
+#' }
 #' @keywords internal
 #' @export
 rule_ensemble_xgb <- function(x, ...) {

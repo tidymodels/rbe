@@ -32,9 +32,19 @@ predictor_matrix <- function(object, new_data) {
 }
 
 #' Show a Specific Rule
+#'
+#' `show_rule()` prints the logical expression that defines one rule of a
+#' fitted model. The rule identifiers are in the `label` column of the `rules`
+#' element of the model (see [rule_ensemble-object]).
 #' @param x An object with class `"rule_ensemble"`.
 #' @param id A single character value for the rule identifier (e.g. `"rule_01"`).
 #' @return The rule expression, invisibly.
+#' @examples
+#' if (rlang::is_installed("xgboost")) {
+#'   set.seed(1)
+#'   fit <- rule_ensemble(mpg ~ ., data = mtcars, trees = 5)
+#'   show_rule(fit, fit$rules$label[1])
+#' }
 #' @export
 show_rule <- function(x, id) {
   if (!inherits(x, "rule_ensemble")) {

@@ -50,6 +50,12 @@
 #' A `rule_ensemble_lgb` object that inherits from `"rule_ensemble"`. See
 #' [rule_ensemble-object] for its elements.
 #'
+#' @examples
+#' if (rlang::is_installed("lightgbm")) {
+#'   set.seed(1)
+#'   fit <- rule_ensemble_lgb(mpg ~ ., data = mtcars, trees = 5, min_n = 5)
+#'   fit
+#' }
 #' @keywords internal
 #' @export
 rule_ensemble_lgb <- function(x, ...) {

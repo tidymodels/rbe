@@ -38,8 +38,9 @@ regularized model for multiple values of the \code{penalty} parameter without
 refitting. The same rule set is used for each penalty value.
 }
 \examples{
-if (rlang::is_installed("catboost")) {
-  mod <- rule_ensemble_ctb(mpg ~ ., data = mtcars, logging_level = "Silent")
+if (rlang::is_installed("xgboost")) {
+  set.seed(1)
+  mod <- rule_ensemble_xgb(mpg ~ ., data = mtcars, trees = 5)
 
   res <- multi_predict(mod, mtcars[1:3, -1], penalty = c(0.01, 0.1))
   res

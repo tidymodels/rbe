@@ -100,24 +100,6 @@ warning when \code{verbose = TRUE}. To set a minimum node size for catboost, pas
 \code{min_data_in_leaf} along with \code{grow_policy = "Depthwise"} or
 \code{grow_policy = "Lossguide"}.
 }
-
-\subsection{Using parsnip}{
-
-rbe adds a \code{"rule_ensemble"} engine to parsnip's \code{\link[parsnip:rule_fit]{parsnip::rule_fit()}} model.
-The main arguments \code{trees}, \code{mtry}, \code{learn_rate}, \code{tree_depth}, \code{min_n}, and
-\code{penalty} are used, and \code{method}, \code{mixture}, and \code{verbose} are engine
-arguments. Other engine arguments are passed on as boosting or glmnet
-options. \code{penalty} is
-a submodel parameter, so tuning it with the tune package fits one model for
-all \code{penalty} values. When \code{mtry} is tuned, its values are proportions
-(\code{\link[dials:mtry_prop]{dials::mtry_prop()}}).
-
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{spec <-
-  rule_fit(trees = 100, penalty = tune()) |>
-  set_engine("rule_ensemble", method = "lightgbm", mixture = 0.5) |>
-  set_mode("regression")
-}\if{html}{\out{</div>}}
-}
 }
 \section{Case weights}{
 
@@ -156,6 +138,15 @@ unknown name is an error. Options that rbe sets itself are also errors;
 use the main arguments (e.g., \code{trees} or \code{learn_rate}) instead.
 }
 
+\examples{
+if (rlang::is_installed("xgboost")) {
+  set.seed(1)
+  fit <- rule_ensemble(mpg ~ ., data = mtcars, trees = 5, penalty = 0.1)
+  fit
+
+  predict(fit, mtcars[1:3, -1])
+}
+}
 \references{
 Friedman, J, and B Popescu. 2008. "Predictive Learning via Rule Ensembles."
 \emph{The Annals of Applied Statistics} 2 (3): 916-54.

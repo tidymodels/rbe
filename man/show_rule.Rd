@@ -15,5 +15,14 @@ show_rule(x, id)
 The rule expression, invisibly.
 }
 \description{
-Show a Specific Rule
+\code{show_rule()} prints the logical expression that defines one rule of a
+fitted model. The rule identifiers are in the \code{label} column of the \code{rules}
+element of the model (see \link{rule_ensemble-object}).
+}
+\examples{
+if (rlang::is_installed("xgboost")) {
+  set.seed(1)
+  fit <- rule_ensemble(mpg ~ ., data = mtcars, trees = 5)
+  show_rule(fit, fit$rules$label[1])
+}
 }

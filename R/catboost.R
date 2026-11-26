@@ -48,6 +48,18 @@
 #' A `rule_ensemble_ctb` object that inherits from `"rule_ensemble"`. See
 #' [rule_ensemble-object] for its elements.
 #'
+#' @examples
+#' # catboost is not on CRAN; see https://catboost.ai for installation.
+#' if (rlang::is_installed("catboost")) {
+#'   set.seed(1)
+#'   fit <- rule_ensemble_ctb(
+#'     mpg ~ .,
+#'     data = mtcars,
+#'     trees = 5,
+#'     logging_level = "Silent"
+#'   )
+#'   fit
+#' }
 #' @keywords internal
 #' @export
 rule_ensemble_ctb <- function(x, ...) {
