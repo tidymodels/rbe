@@ -1,4 +1,4 @@
-url: ~
+url: https://tidymodels.github.io/rbe/
 
 template:
   package: tidytemplate
