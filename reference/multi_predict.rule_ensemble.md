@@ -24,9 +24,10 @@ multi_predict_args(object, ...)
 - object:
 
   A `rule_ensemble` object created by
-  [`rule_ensemble_xgb()`](rule_ensemble_xgb.md),
-  [`rule_ensemble_lgb()`](rule_ensemble_lgb.md), or
-  [`rule_ensemble_ctb()`](rule_ensemble_ctb.md).
+  [`rule_ensemble_xgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_xgb.md),
+  [`rule_ensemble_lgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_lgb.md),
+  or
+  [`rule_ensemble_ctb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_ctb.md).
 
 - new_data:
 

@@ -1,8 +1,9 @@
 # Parameter for the boosting method
 
 `boosting_method()` is a qualitative parameter for the `method` argument
-of [`rule_ensemble()`](rule_ensemble.md), which picks the boosting
-library used to make the rules.
+of
+[`rule_ensemble()`](https://tidymodels.github.io/rbe/reference/rule_ensemble.md),
+which picks the boosting library used to make the rules.
 
 ## Usage
 

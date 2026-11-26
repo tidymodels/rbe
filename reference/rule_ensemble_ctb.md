@@ -177,7 +177,8 @@ rule_ensemble_ctb(
 ## Value
 
 A `rule_ensemble_ctb` object that inherits from `"rule_ensemble"`. See
-[rule_ensemble-object](rule_ensemble-object.md) for its elements.
+[rule_ensemble-object](https://tidymodels.github.io/rbe/reference/rule_ensemble-object.md)
+for its elements.
 
 ## Case weights
 
@@ -204,9 +205,9 @@ models by its name:
 
 - Options for the boosting library go to the boosting model. The valid
   names depend on the library; see the `...` argument of
-  [`rule_ensemble_xgb()`](rule_ensemble_xgb.md),
-  [`rule_ensemble_lgb()`](rule_ensemble_lgb.md), or
-  `rule_ensemble_ctb()`.
+  [`rule_ensemble_xgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_xgb.md),
+  [`rule_ensemble_lgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_lgb.md),
+  or `rule_ensemble_ctb()`.
 
 - Arguments of
   [`glmnet::glmnet()`](https://glmnet.stanford.edu/reference/glmnet.html)

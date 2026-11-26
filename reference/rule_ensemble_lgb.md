@@ -171,8 +171,9 @@ rule_ensemble_lgb(
 - verbose:
 
   A single logical. If `TRUE`, the boosting library prints its training
-  log, and [`rule_ensemble_ctb()`](rule_ensemble_ctb.md) warns when
-  `min_n` is given and ignored.
+  log, and
+  [`rule_ensemble_ctb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_ctb.md)
+  warns when `min_n` is given and ignored.
 
 - formula:
 
@@ -188,7 +189,8 @@ rule_ensemble_lgb(
 ## Value
 
 A `rule_ensemble_lgb` object that inherits from `"rule_ensemble"`. See
-[rule_ensemble-object](rule_ensemble-object.md) for its elements.
+[rule_ensemble-object](https://tidymodels.github.io/rbe/reference/rule_ensemble-object.md)
+for its elements.
 
 ## Case weights
 
@@ -215,8 +217,9 @@ models by its name:
 
 - Options for the boosting library go to the boosting model. The valid
   names depend on the library; see the `...` argument of
-  [`rule_ensemble_xgb()`](rule_ensemble_xgb.md), `rule_ensemble_lgb()`,
-  or [`rule_ensemble_ctb()`](rule_ensemble_ctb.md).
+  [`rule_ensemble_xgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_xgb.md),
+  `rule_ensemble_lgb()`, or
+  [`rule_ensemble_ctb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_ctb.md).
 
 - Arguments of
   [`glmnet::glmnet()`](https://glmnet.stanford.edu/reference/glmnet.html)

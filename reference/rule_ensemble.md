@@ -2,9 +2,10 @@
 
 `rule_ensemble()` fits a RuleFit model with the boosting library chosen
 by `method`. It passes its arguments to
-[`rule_ensemble_xgb()`](rule_ensemble_xgb.md),
-[`rule_ensemble_lgb()`](rule_ensemble_lgb.md), or
-[`rule_ensemble_ctb()`](rule_ensemble_ctb.md).
+[`rule_ensemble_xgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_xgb.md),
+[`rule_ensemble_lgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_lgb.md),
+or
+[`rule_ensemble_ctb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_ctb.md).
 
 ## Usage
 
@@ -56,9 +57,12 @@ rule_ensemble(
 - method:
 
   A single character string for the boosting library: `"xgboost"` (the
-  default) uses [`rule_ensemble_xgb()`](rule_ensemble_xgb.md),
-  `"lightgbm"` uses [`rule_ensemble_lgb()`](rule_ensemble_lgb.md), and
-  `"catboost"` uses [`rule_ensemble_ctb()`](rule_ensemble_ctb.md).
+  default) uses
+  [`rule_ensemble_xgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_xgb.md),
+  `"lightgbm"` uses
+  [`rule_ensemble_lgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_lgb.md),
+  and `"catboost"` uses
+  [`rule_ensemble_ctb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_ctb.md).
 
 - trees:
 
@@ -109,14 +113,16 @@ rule_ensemble(
 - verbose:
 
   A single logical. If `TRUE`, the boosting library prints its training
-  log, and [`rule_ensemble_ctb()`](rule_ensemble_ctb.md) warns when
-  `min_n` is given and ignored.
+  log, and
+  [`rule_ensemble_ctb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_ctb.md)
+  warns when `min_n` is given and ignored.
 
 ## Value
 
 A `rule_ensemble_xgb`, `rule_ensemble_lgb`, or `rule_ensemble_ctb`
 object, depending on `method`. Each inherits from `"rule_ensemble"`; see
-[rule_ensemble-object](rule_ensemble-object.md) for their elements.
+[rule_ensemble-object](https://tidymodels.github.io/rbe/reference/rule_ensemble-object.md)
+for their elements.
 
 ## Details
 
@@ -157,9 +163,10 @@ models by its name:
 
 - Options for the boosting library go to the boosting model. The valid
   names depend on the library; see the `...` argument of
-  [`rule_ensemble_xgb()`](rule_ensemble_xgb.md),
-  [`rule_ensemble_lgb()`](rule_ensemble_lgb.md), or
-  [`rule_ensemble_ctb()`](rule_ensemble_ctb.md).
+  [`rule_ensemble_xgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_xgb.md),
+  [`rule_ensemble_lgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_lgb.md),
+  or
+  [`rule_ensemble_ctb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_ctb.md).
 
 - Arguments of
   [`glmnet::glmnet()`](https://glmnet.stanford.edu/reference/glmnet.html)
@@ -195,9 +202,9 @@ Larochelle, K Grauman, N Cesa-Bianchi, and R Garnett. Vol. 31.
 
 ## See also
 
-[`rule_ensemble_xgb()`](rule_ensemble_xgb.md),
-[`rule_ensemble_lgb()`](rule_ensemble_lgb.md),
-[`rule_ensemble_ctb()`](rule_ensemble_ctb.md)
+[`rule_ensemble_xgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_xgb.md),
+[`rule_ensemble_lgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_lgb.md),
+[`rule_ensemble_ctb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_ctb.md)
 
 ## Examples
 

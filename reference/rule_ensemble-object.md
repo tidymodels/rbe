@@ -1,10 +1,12 @@
 # RuleFit Model Objects
 
-[`rule_ensemble()`](rule_ensemble.md),
-[`rule_ensemble_xgb()`](rule_ensemble_xgb.md),
-[`rule_ensemble_lgb()`](rule_ensemble_lgb.md), and
-[`rule_ensemble_ctb()`](rule_ensemble_ctb.md) return a list with class
-`"rule_ensemble"`. This page describes its elements.
+[`rule_ensemble()`](https://tidymodels.github.io/rbe/reference/rule_ensemble.md),
+[`rule_ensemble_xgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_xgb.md),
+[`rule_ensemble_lgb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_lgb.md),
+and
+[`rule_ensemble_ctb()`](https://tidymodels.github.io/rbe/reference/rule_ensemble_ctb.md)
+return a list with class `"rule_ensemble"`. This page describes its
+elements.
 
 ## Classes
 
@@ -27,8 +29,9 @@ are defined for the `"rule_ensemble"` class.
   - `tree`: The integer index of the tree that the rule came from.
 
   - `rules`: A list column of R expressions that define the rule (e.g.,
-    `wt <= 2.26 & qsec <= 19.17`). Use [`show_rule()`](show_rule.md) to
-    print one.
+    `wt <= 2.26 & qsec <= 19.17`). Use
+    [`show_rule()`](https://tidymodels.github.io/rbe/reference/show_rule.md)
+    to print one.
 
   - `id`: The integer identifier of the tree node that defines the rule.
 

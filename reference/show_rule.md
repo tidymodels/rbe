@@ -3,7 +3,7 @@
 `show_rule()` prints the logical expression that defines one rule of a
 fitted model. The rule identifiers are in the `label` column of the
 `rules` element of the model (see
-[rule_ensemble-object](rule_ensemble-object.md)).
+[rule_ensemble-object](https://tidymodels.github.io/rbe/reference/rule_ensemble-object.md)).
 
 ## Usage
 
