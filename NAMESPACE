@@ -32,7 +32,6 @@ S3method(rule_ensemble_xgb,recipe)
 S3method(tidy,rule_ensemble)
 export(augment)
 export(autoplot)
-export(boosting_method)
 export(has_multi_predict)
 export(model_matrix_sep)
 export(multi_predict)
@@ -44,7 +43,6 @@ export(rule_ensemble_lgb)
 export(rule_ensemble_xgb)
 export(show_rule)
 export(tidy)
-export(values_boosting_method)
 importFrom(generics,
   augment,
   required_pkgs,

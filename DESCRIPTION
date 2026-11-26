@@ -24,7 +24,6 @@ Depends:
 Imports: 
     bonsai (>= 0.4.1),
     cli,
-    dials,
     dplyr,
     generics,
     ggplot2,
@@ -57,7 +56,6 @@ Collate:
     'methods.R'
     'catboost.R'
     'constructor.R'
-    'dials.R'
     'lightgbm.R'
     'misc.R'
     'parsnip.R'
@@ -66,5 +64,4 @@ Collate:
     'rule_ensemble.R'
     'rules.R'
     'xgboost.R'
-    'zzz.R'
 Config/testthat/edition: 3
